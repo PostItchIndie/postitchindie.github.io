@@ -40,7 +40,7 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.6); /* Stronger shadow on hover */
             border-color: #00bcd4; /* Vibrant teal border on hover */
         }
-        /* Removed active state for general cards to reduce animation */
+        /* Removed active state for a less frequent click animation */
 
         /* Specific styles for Game Promotion cards */
         .card-promo {
@@ -85,13 +85,6 @@
             opacity: 1;
             box-shadow: 0 8px 25px rgba(0, 123, 255, 0.6); /* Stronger blue shadow on hover */
         }
-        /* Added active state for buttons for a subtle press effect */
-        .btn-primary:active {
-            transform: translateY(-1px); /* Slight press effect */
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3); /* Reduced shadow on active */
-            transition: all 0.05s ease-out; /* Quick transition for press */
-        }
-
         /* Navigation item styling */
         .nav-item {
             transition: color 0.3s ease-in-out;
@@ -312,11 +305,9 @@
             box-shadow: none; /* Ensure no shadow on hover */
         }
 
-        /* Added active state for modal action buttons for a subtle press effect */
         .modal-action-btn:active {
-            transform: translateY(1px); /* Slight press effect */
-            color: #ccc; /* Slightly darker color on press */
-            transition: all 0.05s ease-out; /* Quick transition */
+            transform: none; /* Remove any press effect */
+            box-shadow: none; /* Ensure no shadow on active */
         }
     </style>
 </head>
@@ -326,28 +317,28 @@
         <header class="flex justify-between items-center py-4 px-4 main-bg rounded-lg shadow-lg">
             <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wider">Post<span class="text-[#00bcd4]">Itch</span></h1>
             <nav class="hidden md:flex items-center space-x-6">
-                <a href="/Community" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="community">Community</a>
-                <a href="/GamePromos" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
-                <a href="/Devlogs" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
-                <a href="/Post" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
-                <a href="/Search" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
-                <a href="/MyPosts" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
-                <a href="/About" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
-                <a href="/Rules" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
             </nav>
             <div class="md:hidden">
                 <button id="mobile-menu-btn"><i class="fas fa-bars text-2xl"></i></button>
             </div>
         </header>
         <div id="mobile-menu" class="hidden md:hidden main-bg rounded-lg mt-2 p-4">
-             <a href="/Community" class="block py-2 text-center nav-item" data-tab="community">Community</a>
-             <a href="/GamePromos" class="block py-2 text-center nav-item" data-tab="promos">Game Promos</a>
-             <a href="/Devlogs" class="block py-2 text-center nav-item" data-tab="devlogs">Devlogs</a>
-             <a href="/Post" class="block py-2 text-center nav-item" data-tab="post">Post</a>
-             <a href="/Search" class="block py-2 text-center nav-item" data-tab="search">Search</a>
-             <a href="/MyPosts" class="block py-2 text-center nav-item" data-tab="my-posts">My Posts</a>
-             <a href="/About" class="block py-2 text-center nav-item" data-tab="about">About</a>
-             <a href="/Rules" class="block py-2 text-center nav-item" data-tab="rules">Rules</a>
+             <a href="#" class="block py-2 text-center nav-item" data-tab="community">Community</a>
+             <a href="#" class="block py-2 text-center nav-item" data-tab="promos">Game Promos</a>
+             <a href="#" class="block py-2 text-center nav-item" data-tab="devlogs">Devlogs</a>
+             <a href="#" class="block py-2 text-center nav-item" data-tab="post">Post</a>
+             <a href="#" class="block py-2 text-center nav-item" data-tab="search">Search</a>
+             <a href="#" class="block py-2 text-center nav-item" data-tab="my-posts">My Posts</a>
+             <a href="#" class="block py-2 text-center nav-item" data-tab="about">About</a>
+             <a href="#" class="block py-2 text-center nav-item" data-tab="rules">Rules</a>
         </div>
 
 
@@ -699,11 +690,20 @@
             listenForPostsRealtime(); // Start real-time listening for ALL posts
             setupNavListeners(); // Set up navigation event handlers
             
-            // Handle initial route based on URL path
-            handleRouteChange();
-
-            // Add event listener for popstate to handle browser back/forward buttons
-            window.addEventListener('popstate', handleRouteChange);
+            // Check for postId in URL and open modal if present
+            const urlParams = new URLSearchParams(window.location.search);
+            const postIdFromUrl = urlParams.get('postId');
+            if (postIdFromUrl) {
+                // Wait for posts to be fetched before attempting to open the modal
+                const checkPostsInterval = setInterval(() => {
+                    if (allFetchedPosts.length > 0) {
+                        clearInterval(checkPostsInterval);
+                        openPostModal(postIdFromUrl);
+                    }
+                }, 100); // Check every 100ms
+            } else {
+                switchTab('community'); // Load the default community feed tab if no postId in URL
+            }
             
             // Add event listener for the new video modal close button
             closeVideoModalBtn.addEventListener('click', closeVideoModal);
@@ -715,51 +715,14 @@
             
             navItems.forEach(item => {
                 item.addEventListener('click', (e) => {
-                    e.preventDefault(); // Prevent default link behavior
-                    const path = item.getAttribute('href');
-                    const tab = item.getAttribute('data-tab');
-                    if (path && tab) {
-                        history.pushState({ tab: tab }, '', path); // Push new state to history
-                        switchTab(tab); // Switch tab without pushing state again
+                    e.preventDefault();
+                    const tab = e.target.getAttribute('data-tab');
+                    if (tab) {
+                        switchTab(tab);
                         mobileMenu.classList.add('hidden'); // Hide mobile menu on tab selection
                     }
                 });
             });
-        }
-
-        // Handles route changes based on URL path
-        function handleRouteChange() {
-            const path = window.location.pathname;
-            const urlParams = new URLSearchParams(window.location.search);
-            const postIdFromUrl = urlParams.get('postId');
-
-            if (postIdFromUrl) {
-                // If postId is in URL, open modal and don't switch tab immediately
-                // Wait for posts to be fetched before attempting to open the modal
-                const checkPostsInterval = setInterval(() => {
-                    if (allFetchedPosts.length > 0) {
-                        clearInterval(checkPostsInterval);
-                        openPostModal(postIdFromUrl);
-                    }
-                }, 100); // Check every 100ms
-                return; // Stop further tab switching if modal is being opened
-            }
-
-            // Map paths to tab names
-            const pathMap = {
-                '/': 'community', // Default to community for root path
-                '/Community': 'community',
-                '/GamePromos': 'promos',
-                '/Devlogs': 'devlogs',
-                '/Post': 'post',
-                '/Search': 'search',
-                '/MyPosts': 'my-posts',
-                '/About': 'about',
-                '/Rules': 'rules',
-            };
-
-            const tab = pathMap[path] || 'community'; // Default to community if path not found
-            switchTab(tab);
         }
 
         // --- NAVIGATION LOGIC ---
@@ -1290,13 +1253,14 @@
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         // Only YouTube link is required for 'youtube'
                         trailerLinkInput.setAttribute('required', 'true');
-                    } else { // 'none', 'image', or 'itch_embed'
+                    } else if (selectedMedia === 'image') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         // Only Image URL is required for 'image'
-                        if (selectedMedia === 'image') {
-                            imageUrlInput.setAttribute('required', 'true');
-                        }
+                        imageUrlInput.setAttribute('required', 'true');
+                    } else { // 'none' or 'itch_embed'
+                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         // No media inputs are required for 'none' or 'itch_embed'
                     }
 
@@ -1453,7 +1417,7 @@
                 const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
                 const youtubeLinkSection = form.querySelector('#youtube-link-section');
                 const imageLinkSection = form.querySelector('#image-link-section');
-                const customYoutubeTextSection = form.querySelector('#custom-youtube-text-section'); 
+                const customYoutubeTextSection = form.querySelector('#custom-youtube-link-section'); 
                 const youtubeLinkHelp = form.querySelector('.youtube-link-help');
                 const imageLinkHelp = form.querySelector('.image-link-help');
                 const itchLinkInput = form.querySelector('#itch-link');
@@ -1490,14 +1454,15 @@
                         customYoutubeLinkTextInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'youtube') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)'; 
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)'; 
                         trailerLinkInput.setAttribute('required', 'true');
-                    } else { 
+                    } else if (selectedMedia === 'image') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)'; 
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
-                        if (selectedMedia === 'image') {
-                            imageUrlInput.setAttribute('required', 'true');
-                        }
+                        imageUrlInput.setAttribute('required', 'true');
+                    } else { 
+                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                     }
 
                     if (selectedMedia === 'none' || selectedMedia === 'itch_embed') {
@@ -1546,7 +1511,7 @@
                 
                 // Add event listener for share button
                 document.getElementById('share-post-btn').addEventListener('click', () => {
-                    const shareLink = `${window.location.origin}/?postId=${postId}`; // Use window.location.origin
+                    const shareLink = `https://postitchindie.github.io/?postId=${postId}`;
                     copyToClipboard(shareLink);
                     showAlert("Link copied to clipboard!");
                 });
@@ -1873,7 +1838,6 @@
                     showAlert("Post updated successfully!").then(() => {
                         closePostModal(); // Close modal after update
                         displayLimit = postsPerPage; // Reset display limit for community page
-                        history.pushState({ tab: 'my-posts' }, '', '/MyPosts'); // Navigate to My Posts
                         switchTab('my-posts'); // Navigate back to my posts
                     });
                 } else {
@@ -1907,7 +1871,6 @@
                         // Re-render genre checkboxes to clear selections visually
                         const genreCheckboxesContainer = form.querySelector('#genre-checkboxes');
                         renderGenreCheckboxes(genreCheckboxesContainer);
-                        history.pushState({ tab: 'my-posts' }, '', '/MyPosts'); // Navigate to My Posts
                         switchTab('my-posts'); // Navigate directly to my posts after new post
                     });
                 }
@@ -1990,11 +1953,6 @@
                 isPostModalOpen = false; // Reset flag if post not found
                 return;
             }
-
-            // Update URL with postId
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set('postId', postId);
-            history.pushState({ postId: postId }, '', currentUrl.toString());
 
             // Increment view count for ALL post types AFTER the modal is confirmed to open
             try {
@@ -2149,7 +2107,7 @@
 
             // Add event listener for share button
             document.getElementById('share-post-btn').addEventListener('click', () => {
-                const shareLink = `${window.location.origin}/?postId=${postId}`;
+                const shareLink = `https://postitchindie.github.io/?postId=${postId}`;
                 copyToClipboard(shareLink);
                 showAlert("Link copied to clipboard!");
             });
@@ -2177,7 +2135,7 @@
             // Remove postId from URL when modal is closed
             const url = new URL(window.location.href);
             url.searchParams.delete('postId');
-            history.replaceState({}, document.title, url.toString()); // Use replaceState to avoid adding to history
+            window.history.replaceState({}, document.title, url.toString());
         }
 
         // Handles the submission of a new comment for a post.
