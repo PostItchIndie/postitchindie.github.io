@@ -40,7 +40,12 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.6); /* Stronger shadow on hover */
             border-color: #00bcd4; /* Vibrant teal border on hover */
         }
-        /* Removed active state for general cards to reduce animation */
+        /* Added active state for a smoother click animation */
+        .card-bg:active {
+            transform: translateY(-2px); /* Slightly less lift than hover, gives a "press" feel */
+            box-shadow: 0 5px 10px rgba(0,0,0,0.4); /* Reduced shadow on active */
+            transition: all 0.1s ease-out; /* Quicker transition for click */
+        }
 
         /* Specific styles for Game Promotion cards */
         .card-promo {
@@ -85,13 +90,6 @@
             opacity: 1;
             box-shadow: 0 8px 25px rgba(0, 123, 255, 0.6); /* Stronger blue shadow on hover */
         }
-        /* Added active state for buttons for a subtle press effect */
-        .btn-primary:active {
-            transform: translateY(-1px); /* Slight press effect */
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3); /* Reduced shadow on active */
-            transition: all 0.05s ease-out; /* Quick transition for press */
-        }
-
         /* Navigation item styling */
         .nav-item {
             transition: color 0.3s ease-in-out;
@@ -312,11 +310,9 @@
             box-shadow: none; /* Ensure no shadow on hover */
         }
 
-        /* Added active state for modal action buttons for a subtle press effect */
         .modal-action-btn:active {
-            transform: translateY(1px); /* Slight press effect */
-            color: #ccc; /* Slightly darker color on press */
-            transition: all 0.05s ease-out; /* Quick transition */
+            transform: none; /* Remove any press effect */
+            box-shadow: none; /* Ensure no shadow on active */
         }
     </style>
 </head>
@@ -326,7 +322,7 @@
         <header class="flex justify-between items-center py-4 px-4 main-bg rounded-lg shadow-lg">
             <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wider">Post<span class="text-[#00bcd4]">Itch</span></h1>
             <nav class="hidden md:flex items-center space-x-6">
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="community">Community</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
                 <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
                 <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
                 <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
@@ -699,11 +695,20 @@
             listenForPostsRealtime(); // Start real-time listening for ALL posts
             setupNavListeners(); // Set up navigation event handlers
             
-            // Handle initial route based on URL query parameters
-            handleInitialLoad();
-
-            // Add event listener for popstate to handle browser back/forward buttons (only for postId changes)
-            window.addEventListener('popstate', handlePopState);
+            // Check for postId in URL and open modal if present
+            const urlParams = new URLSearchParams(window.location.search);
+            const postIdFromUrl = urlParams.get('postId');
+            if (postIdFromUrl) {
+                // Wait for posts to be fetched before attempting to open the modal
+                const checkPostsInterval = setInterval(() => {
+                    if (allFetchedPosts.length > 0) {
+                        clearInterval(checkPostsInterval);
+                        openPostModal(postIdFromUrl);
+                    }
+                }, 100); // Check every 100ms
+            } else {
+                switchTab('community'); // Load the default community feed tab if no postId in URL
+            }
             
             // Add event listener for the new video modal close button
             closeVideoModalBtn.addEventListener('click', closeVideoModal);
@@ -715,58 +720,15 @@
             
             navItems.forEach(item => {
                 item.addEventListener('click', (e) => {
-                    e.preventDefault(); // Prevent default link behavior (no URL path change)
-                    const tab = item.getAttribute('data-tab');
+                    e.preventDefault();
+                    const tab = e.target.getAttribute('data-tab');
                     if (tab) {
-                        switchTab(tab); // Switch tab without changing URL path
+                        switchTab(tab);
                         mobileMenu.classList.add('hidden'); // Hide mobile menu on tab selection
                     }
                 });
             });
         }
-
-        // Handles initial load and checks for postId in URL
-        function handleInitialLoad() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const postIdFromUrl = urlParams.get('postId');
-
-            if (postIdFromUrl) {
-                console.log("Initial load: URL contains postId:", postIdFromUrl);
-                // If postId is in URL, open modal. Wait for auth and posts.
-                const checkPostsAndAuthInterval = setInterval(() => {
-                    if (isAuthReady && allFetchedPosts.length > 0) {
-                        clearInterval(checkPostsAndAuthInterval);
-                        console.log("Initial load: Auth ready and posts fetched. Attempting to open modal for postId:", postIdFromUrl);
-                        openPostModal(postIdFromUrl);
-                    } else {
-                        console.log("Initial load: Waiting for auth and posts... isAuthReady:", isAuthReady, "allFetchedPosts.length:", allFetchedPosts.length);
-                    }
-                }, 100); // Check every 100ms
-            } else {
-                // Default to community tab if no postId in URL
-                console.log("Initial load: No postId in URL, defaulting to community tab.");
-                switchTab('community');
-            }
-        }
-
-        // Handles browser back/forward buttons, specifically for postId changes
-        function handlePopState(event) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const postIdFromUrl = urlParams.get('postId');
-
-            if (postIdFromUrl) {
-                // If postId is present, try to open the modal
-                console.log("Popstate: postId found in URL:", postIdFromUrl);
-                openPostModal(postIdFromUrl);
-            } else {
-                // If postId is removed from URL (e.g., user navigated back from modal)
-                console.log("Popstate: No postId found in URL, closing modal.");
-                closePostModal(); // Ensure modal is closed if postId is gone
-                // Also ensure the correct tab is displayed if the user navigated away from a post
-                switchTab('community'); // Default to community, or remember last active tab if needed
-            }
-        }
-
 
         // --- NAVIGATION LOGIC ---
         // Switches the active tab and renders its content.
@@ -1232,7 +1194,7 @@
                 const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
                 const youtubeLinkSection = form.querySelector('#youtube-link-section');
                 const imageLinkSection = form.querySelector('#image-link-section');
-                const customYoutubeTextSection = form.querySelector('#custom-youtube-link-section');
+                const customYoutubeTextSection = form.querySelector('#custom-youtube-text-section');
                 const youtubeLinkHelp = form.querySelector('.youtube-link-help');
                 const imageLinkHelp = form.querySelector('.image-link-help');
                 const itchLinkInput = form.querySelector('#itch-link');
@@ -1296,13 +1258,14 @@
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         // Only YouTube link is required for 'youtube'
                         trailerLinkInput.setAttribute('required', 'true');
-                    } else { // 'none', 'image', or 'itch_embed'
+                    } else if (selectedMedia === 'image') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         // Only Image URL is required for 'image'
-                        if (selectedMedia === 'image') {
-                            imageUrlInput.setAttribute('required', 'true');
-                        }
+                        imageUrlInput.setAttribute('required', 'true');
+                    } else { // 'none' or 'itch_embed'
+                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         // No media inputs are required for 'none' or 'itch_embed'
                     }
 
@@ -1459,7 +1422,7 @@
                 const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
                 const youtubeLinkSection = form.querySelector('#youtube-link-section');
                 const imageLinkSection = form.querySelector('#image-link-section');
-                const customYoutubeTextSection = form.querySelector('#custom-youtube-link-section'); 
+                const customYoutubeTextSection = form.querySelector('#custom-youtube-text-section'); 
                 const youtubeLinkHelp = form.querySelector('.youtube-link-help');
                 const imageLinkHelp = form.querySelector('.image-link-help');
                 const itchLinkInput = form.querySelector('#itch-link');
@@ -1498,12 +1461,13 @@
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)'; 
                         trailerLinkInput.setAttribute('required', 'true');
-                    } else { 
+                    } else if (selectedMedia === 'image') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)'; 
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
-                        if (selectedMedia === 'image') {
-                            imageUrlInput.setAttribute('required', 'true');
-                        }
+                        imageUrlInput.setAttribute('required', 'true');
+                    } else { 
+                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                     }
 
                     if (selectedMedia === 'none' || selectedMedia === 'itch_embed') {
@@ -1552,7 +1516,7 @@
                 
                 // Add event listener for share button
                 document.getElementById('share-post-btn').addEventListener('click', () => {
-                    const shareLink = `${window.location.origin}/?postId=${postId}`; // Use window.location.origin
+                    const shareLink = `https://postitchindie.github.io/?postId=${postId}`;
                     copyToClipboard(shareLink);
                     showAlert("Link copied to clipboard!");
                 });
@@ -1995,12 +1959,6 @@
                 return;
             }
 
-            // Update URL with postId using replaceState to avoid adding to history on initial load
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set('postId', postId);
-            history.pushState({ postId: postId }, '', currentUrl.toString());
-
-
             // Increment view count for ALL post types AFTER the modal is confirmed to open
             try {
                 const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
@@ -2154,7 +2112,7 @@
 
             // Add event listener for share button
             document.getElementById('share-post-btn').addEventListener('click', () => {
-                const shareLink = `${window.location.origin}/?postId=${postId}`;
+                const shareLink = `https://postitchindie.github.io/?postId=${postId}`;
                 copyToClipboard(shareLink);
                 showAlert("Link copied to clipboard!");
             });
@@ -2182,7 +2140,7 @@
             // Remove postId from URL when modal is closed
             const url = new URL(window.location.href);
             url.searchParams.delete('postId');
-            history.replaceState({}, document.title, url.toString()); // Use replaceState to avoid adding to history
+            window.history.replaceState({}, document.title, url.toString());
         }
 
         // Handles the submission of a new comment for a post.
