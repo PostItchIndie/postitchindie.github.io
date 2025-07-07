@@ -119,7 +119,7 @@
         }
         ::-webkit-scrollbar-thumb {
             background: linear-gradient(180deg, #007bff, #00bcd4); /* Blue to teal gradient thumb */
-            border-radius: 5px;
+            border-radius: 50px; /* Fully rounded thumb */
         }
         /* Loader animation */
         .loader {
@@ -190,6 +190,13 @@
             color: white;
             border-color: #00bcd4; /* Teal border */
             box-shadow: 0 2px 10px rgba(0, 188, 212, 0.5); /* Teal shadow */
+        }
+        /* Highlight for searched genres */
+        .custom-checkbox span.genre-highlight {
+            background-color: #333; /* Darker background for highlight */
+            border-color: #00bcd4; /* Teal border for highlight */
+            box-shadow: 0 0 0 2px rgba(0, 188, 212, 0.5); /* Subtle teal glow */
+            color: #e6edf3; /* Ensure text is readable */
         }
         /* Custom Select (for dropdowns) */
         .custom-select { position: relative; }
@@ -272,6 +279,12 @@
         #more-dropdown {
             z-index: 60; /* Ensure this is higher than other elements like sort-by select */
         }
+
+        /* New styles for video modal */
+        .video-modal-content {
+            border: 2px solid #00bcd4; /* Greenish/blue border */
+            box-shadow: 0 0 20px rgba(0, 188, 212, 0.7); /* Matching glow */
+        }
     </style>
 </head>
 <body>
@@ -340,6 +353,19 @@
         </div>
     </div>
 
+    <!-- New Video Modal -->
+    <div id="video-modal" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div id="video-modal-content" class="modal w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl main-bg rounded-lg shadow-lg p-4 sm:p-6 video-modal-content">
+            <div class="flex justify-end mb-4">
+                <button id="close-video-modal-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="aspect-video w-full rounded-md overflow-hidden">
+                <iframe id="video-player-iframe" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
 
     <script type="module">
         // Import the functions you need from the SDKs you need
@@ -404,6 +430,13 @@
         const modalContent = document.getElementById('modal-content');
         const alertModal = document.getElementById('alert-modal');
         const confirmModal = document.getElementById('confirm-modal');
+
+        // New video modal elements
+        const videoModal = document.getElementById('video-modal');
+        const videoModalContent = document.getElementById('video-modal-content');
+        const videoPlayerIframe = document.getElementById('video-player-iframe');
+        const closeVideoModalBtn = document.getElementById('close-video-modal-btn');
+
 
         let editingPostId = null; // Stores the ID of the post currently being edited
         let isPostModalOpen = false; // Flag to prevent multiple view increments
@@ -487,6 +520,23 @@
             } else {
                 console.warn("No valid YouTube embed source generated for videoId:", videoId);
             }
+        }
+
+        // Opens the dedicated video modal
+        function openVideoModal(videoId) {
+            const embedSrc = getYouTubeEmbedSrc(videoId);
+            if (embedSrc) {
+                videoPlayerIframe.src = `${embedSrc}?autoplay=1`; // Autoplay when opened
+                videoModal.classList.remove('hidden');
+            } else {
+                showAlert("Could not play video: Invalid YouTube link.");
+            }
+        }
+
+        // Closes the dedicated video modal
+        function closeVideoModal() {
+            videoModal.classList.add('hidden');
+            videoPlayerIframe.src = ''; // Stop video playback by clearing src
         }
 
 
@@ -587,6 +637,9 @@
             listenForPostsRealtime(); // Start real-time listening for ALL posts
             setupNavListeners(); // Set up navigation event handlers
             switchTab('community'); // Load the default community feed tab
+            
+            // Add event listener for the new video modal close button
+            closeVideoModalBtn.addEventListener('click', closeVideoModal);
         }
         
         // Sets up event listeners for navigation buttons (desktop and mobile).
@@ -622,7 +675,7 @@
                 community: renderCommunityPage,
                 promos: renderPromosPage,
                 devlogs: renderDevlogsPage,
-                post: renderPostPage,
+                post: () => renderPostPage(contentPost), // Pass contentPost as target
                 search: renderSearchPage,
                 'my-posts': renderMyPostsPage,
                 about: renderAboutPage,
@@ -861,7 +914,7 @@
         }
         
         // Renders the form for creating a new post.
-        function renderPostPage() {
+        function renderPostPage(targetElement) { // Now accepts a targetElement
             const genres = ["Action", "Adventure", "RPG", "Strategy", "Simulation", "Puzzle", "Platformer", "Shooter", "Fighting", "Stealth", "Survival", "Horror", "Visual Novel", "Rhythm", "Sports", "Racing", "MMO", "Indie", "Casual", "Arcade", "Language", "Card & Board", "Roguelike", "Roguelite", "Metroidvania", "Souls-like", "CRPG", "JRPG", "ARPG", "Tactical RPG", "4X", "RTS", "Tower Defense", "Farming Sim", "Life Sim", "Point & Click", "Bullet Hell", "Hack and Slash", "Sandbox", "Open World", "Deck-builder", "City-builder", "Immersive Sim", "Walking Simulator", "Party Game", "Trivia", "Co-op", "Multiplayer", "Singleplayer", "Early Access", "Full Release", "Demo", "Free to Play", "Pay What You Want", "Puzzle-Platformer", "Survival Horror", "Metroidvania-lite", "Story-Rich", "Procedural Generation", "Pixel Art", "Voxel Art", "3D", "2D", "Top-Down", "Side-Scroller", "First-Person", "Third-Person", "Abstract", "Minimalist", "Retro", "Futuristic", "Fantasy", "Sci-Fi", "Historical", "Modern", "Comedy", "Drama", "Mystery", "Thriller", "Educational", "Relaxing", "Challenging", "Fast-Paced", "Slow-Paced", "Exploration", "Crafting", "Building", "Management", "Deckbuilding Roguelike", "Visual Novel RPG", "Action-Adventure", "Strategy RPG", "Turn-Based Strategy", "Real-Time Strategy", "Tactical Shooter", "Arena Shooter", "Battle Royale", "Dungeon Crawler", "Endless Runner", "Idle Game", "Incremental Game", "Interactive Fiction", "Music", "Narrative", "Party", "Pinball", "Platform Fighter", "Precision Platformer", "Programming", "Quick-Time Event", "Quiz", "Rogue-lite", "Role-Playing", "Sandbox RPG", "Sci-Fi RPG", "Shoot 'em Up", "Simulation RPG", "Social Deduction", "Space", "Steampunk", "Story", "Superhero", "Surreal", "Tabletop", "Team-Based", "Text Adventure", "Time Management", "Top-Down Shooter", "Trading", "Train", "Transhumanism", "Travel", "Trigonometry", "Typing", "Uplifting", "Vampire", "Vehicular Combat", "Vertical Shooter", "Visual Novel Horror", "Visual Novel Mystery", "Visual Novel Sci-Fi", "Visual Novel Slice of Life", "Visual Novel Thriller", "Visual Novel Comedy", "Visual Novel Drama", "Visual Novel Fantasy", "Visual Novel Romance", "War", "Western", "Word Game", "Wrestling", "Cooking", "Zombies", "Zoo", "Zork-like"];
             const platforms = ["Windows", "macOS", "Linux", "Android", "iOS", "Web / Browser", "Xbox", "PlayStation", "Nintendo Switch", "VR (Vive, Rift, Quest)", "AR"];
             const devlogTypes = ["Update", "Q&A", "Announcement", "Behind the Scenes", "Concept Art", "Development Progress", "Game Jam Entry", "Post-Mortem", "Release Info", "Tutorial", "Bug Fixes", "Roadmap", "Community Spotlight", "Feedback Request", "Poll", "Patch Notes", "Lore Deep Dive", "Music Showcase", "Art Showcase", "Level Design", "Character Design", "Story Development", "Technical Deep Dive", "Monetization", "Marketing", "Legal", "Other"];
@@ -871,7 +924,7 @@
             const myGamePromoPosts = currentUser?.uid ? allFetchedPosts.filter(p => p.postType === 'Game Promotion' && p.authorId === currentUser.uid) : [];
 
 
-            contentPost.innerHTML = `
+            targetElement.innerHTML = `
                 <div class="max-w-3xl mx-auto card-bg p-4 sm:p-8 rounded-lg">
                     <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-center text-white">${editingPostId ? 'Edit Your Post' : 'Share Your Game or Devlog'}</h2>
                     <form id="post-form" class="space-y-6">
@@ -990,6 +1043,7 @@
                         <div id="genre-section">
                             <label class="block mb-2 font-semibold text-gray-300">Genre (select at least 3 for Game Promotion)</label>
                             <input type="text" id="genre-search" class="w-full p-3 input-bg rounded-md mb-3" placeholder="Search genres...">
+                            <p id="genre-search-status" class="text-sm text-gray-400 mb-3 hidden"></p>
                             <div id="genre-checkboxes" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 grid-checkbox-uniform">
                                 <!-- Genres will be dynamically inserted here -->
                             </div>
@@ -1058,121 +1112,168 @@
                     </form>
                 </div>
             `;
-            document.getElementById('post-form').addEventListener('submit', handlePostSubmit);
-            document.getElementById('description').addEventListener('input', e => {
-                document.getElementById('char-count').textContent = `${e.target.value.length}/1000`;
-            });
+            // Event listeners are attached to the form and its elements within the targetElement
+            const form = targetElement.querySelector('#post-form');
+            if (form) {
+                form.addEventListener('submit', handlePostSubmit);
+                form.querySelector('#description').addEventListener('input', e => {
+                    form.querySelector('#char-count').textContent = `${e.target.value.length}/1000`;
+                });
 
-            const mediaTypeRadios = document.querySelectorAll('input[name="media-type"]');
-            const youtubeLinkSection = document.getElementById('youtube-link-section');
-            const imageLinkSection = document.getElementById('image-link-section');
-            const customYoutubeTextSection = document.getElementById('custom-youtube-text-section'); // New
-            const youtubeLinkHelp = document.querySelector('.youtube-link-help');
-            const imageLinkHelp = document.querySelector('.image-link-help');
-            const itchLinkInput = document.getElementById('itch-link');
-            const itchLinkHelp = document.getElementById('itch-link-help');
-            const postTypeSelect = document.getElementById('post-type');
-            const devlogTypeSection = document.getElementById('devlog-type-section'); // New
-            const genreSection = document.getElementById('genre-section');
-            const platformSection = document.getElementById('platform-section');
-            const pricingSection = document.getElementById('pricing-section');
-            const commentsStatusSection = document.getElementById('comments-status-section');
-            const linkedGamePromoSection = document.getElementById('linked-game-promo-section');
-            const genreSearchInput = document.getElementById('genre-search');
-            const genreCheckboxesContainer = document.getElementById('genre-checkboxes');
+                const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
+                const youtubeLinkSection = form.querySelector('#youtube-link-section');
+                const imageLinkSection = form.querySelector('#image-link-section');
+                const customYoutubeTextSection = form.querySelector('#custom-youtube-text-section');
+                const youtubeLinkHelp = form.querySelector('.youtube-link-help');
+                const imageLinkHelp = form.querySelector('.image-link-help');
+                const itchLinkInput = form.querySelector('#itch-link');
+                const itchLinkHelp = form.querySelector('#itch-link-help');
+                const postTypeSelect = form.querySelector('#post-type');
+                const devlogTypeSection = form.querySelector('#devlog-type-section');
+                const genreSection = form.querySelector('#genre-section');
+                const platformSection = form.querySelector('#platform-section');
+                const pricingSection = form.querySelector('#pricing-section');
+                const commentsStatusSection = form.querySelector('#comments-status-section');
+                const linkedGamePromoSection = form.querySelector('#linked-game-promo-section');
+                const genreSearchInput = form.querySelector('#genre-search');
+                const genreCheckboxesContainer = form.querySelector('#genre-checkboxes');
+                const genreSearchStatus = form.querySelector('#genre-search-status'); // New element
 
-            // Function to render genre checkboxes based on a filtered list
-            function renderGenreCheckboxes(filterTerm = '') {
-                const filteredGenres = genres.filter(g => g.toLowerCase().includes(filterTerm.toLowerCase()));
-                genreCheckboxesContainer.innerHTML = filteredGenres
-                    .map(g => `<label class="custom-checkbox"><input type="checkbox" name="genre" value="${g}" ${selectedGenres.includes(g) ? 'checked' : ''}><span>${g}</span></label>`).join('');
-            }
+                // Function to render genre checkboxes based on a filtered list
+                function renderGenreCheckboxes(filterTerm = '') {
+                    const lowerCaseFilterTerm = filterTerm.toLowerCase();
+                    const filteredGenres = genres.filter(g => g.toLowerCase().includes(lowerCaseFilterTerm));
+                    genreCheckboxesContainer.innerHTML = filteredGenres
+                        .map(g => {
+                            const isChecked = selectedGenres.includes(g) ? 'checked' : '';
+                            const isHighlighted = lowerCaseFilterTerm && g.toLowerCase().includes(lowerCaseFilterTerm) ? 'genre-highlight' : '';
+                            return `<label class="custom-checkbox"><input type="checkbox" name="genre" value="${g}" ${isChecked}><span class="${isHighlighted}">${g}</span></label>`;
+                        }).join('');
 
-            // Initial render of all genres
-            renderGenreCheckboxes();
-
-            // Event delegation for genre checkboxes to update selectedGenres array
-            genreCheckboxesContainer.addEventListener('change', (e) => {
-                if (e.target.name === 'genre') {
-                    if (e.target.checked) {
-                        if (!selectedGenres.includes(e.target.value)) {
-                            selectedGenres.push(e.target.value);
-                        }
+                    // Update search status message
+                    if (filterTerm) {
+                        genreSearchStatus.textContent = `Showing genres matching "${filterTerm}"`;
+                        genreSearchStatus.classList.remove('hidden');
                     } else {
-                        selectedGenres = selectedGenres.filter(g => g !== e.target.value);
+                        genreSearchStatus.classList.add('hidden');
                     }
                 }
-            });
+
+                // Initial render of all genres
+                renderGenreCheckboxes(genreSearchInput.value); // Render with any existing search term
+
+                // Event delegation for genre checkboxes to update selectedGenres array
+                genreCheckboxesContainer.addEventListener('change', (e) => {
+                    if (e.target.name === 'genre') {
+                        if (e.target.checked) {
+                            if (!selectedGenres.includes(e.target.value)) {
+                                selectedGenres.push(e.target.value);
+                            }
+                        } else {
+                            selectedGenres = selectedGenres.filter(g => g !== e.target.value);
+                        }
+                    }
+                });
 
 
-            function toggleMediaSections() {
-                const selectedMedia = document.querySelector('input[name="media-type"]:checked').value;
-                youtubeLinkSection.classList.toggle('hidden', selectedMedia !== 'youtube' && selectedMedia !== 'combo');
-                imageLinkSection.classList.toggle('hidden', selectedMedia !== 'image' && selectedMedia !== 'combo');
-                customYoutubeTextSection.classList.toggle('hidden', selectedMedia !== 'combo'); // Show/hide custom text for combo
-                
-                // Update help text based on selected media type
-                if (selectedMedia === 'combo') {
-                    youtubeLinkHelp.textContent = '(Required for Combo. Example: https://youtu.be/dQw4w9WgXcQ)';
-                    imageLinkHelp.textContent = '(Required for Combo. Example: https://example.com/your-game-screenshot.png)';
-                } else if (selectedMedia === 'youtube') {
-                    youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                    imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)'; // Reset to optional
-                } else if (selectedMedia === 'image') {
-                    youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)'; // Reset to optional
-                    imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
-                } else { // 'none' or 'itch_embed'
-                    youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                    imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
+                function toggleMediaSectionsInternal() { // Renamed to avoid conflict
+                    const selectedMedia = form.querySelector('input[name="media-type"]:checked')?.value; // Added optional chaining
+                    console.log("toggleMediaSectionsInternal called. Selected Media:", selectedMedia); // Debugging line
+
+                    if (youtubeLinkSection) youtubeLinkSection.classList.toggle('hidden', selectedMedia !== 'youtube' && selectedMedia !== 'combo');
+                    if (imageLinkSection) imageLinkSection.classList.toggle('hidden', selectedMedia !== 'image' && selectedMedia !== 'combo');
+                    if (customYoutubeTextSection) customYoutubeTextSection.classList.toggle('hidden', selectedMedia !== 'combo');
+                    
+                    // Get references to inputs
+                    const trailerLinkInput = form.querySelector('#trailer-link');
+                    const imageUrlInput = form.querySelector('#image-url');
+                    const customYoutubeLinkTextInput = form.querySelector('#custom-youtube-link-text');
+
+                    // Reset required attributes for all media inputs first
+                    trailerLinkInput.removeAttribute('required');
+                    imageUrlInput.removeAttribute('required');
+                    customYoutubeLinkTextInput.removeAttribute('required');
+
+
+                    if (selectedMedia === 'combo') {
+                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Required for Combo. Example: https://youtu.be/dQw4w9WgXcQ)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Required for Combo. Example: https://example.com/your-game-screenshot.png)';
+                        // Make inputs required for combo
+                        trailerLinkInput.setAttribute('required', 'true');
+                        imageUrlInput.setAttribute('required', 'true');
+                        customYoutubeLinkTextInput.setAttribute('required', 'true');
+                    } else if (selectedMedia === 'youtube') {
+                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
+                        // Only YouTube link is required for 'youtube'
+                        trailerLinkInput.setAttribute('required', 'true');
+                    } else if (selectedMedia === 'image') {
+                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
+                        // Only Image URL is required for 'image'
+                        imageUrlInput.setAttribute('required', 'true');
+                    } else { // 'none' or 'itch_embed'
+                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
+                        // No media inputs are required for 'none' or 'itch_embed'
+                    }
+
+                    if (selectedMedia === 'none' || selectedMedia === 'itch_embed') {
+                        if (youtubeLinkSection) youtubeLinkSection.classList.add('hidden');
+                        if (imageLinkSection) imageLinkSection.classList.add('hidden');
+                    }
+                }
+                mediaTypeRadios.forEach(radio => radio.addEventListener('change', toggleMediaSectionsInternal));
+                // Removed unconditional call to toggleMediaSections() here
+
+                function togglePostTypeFieldsInternal() { // Renamed to avoid conflict
+                    const selectedPostType = postTypeSelect.value;
+                    if (selectedPostType === 'Devlog') {
+                        if (devlogTypeSection) devlogTypeSection.classList.remove('hidden');
+                        if (genreSection) genreSection.classList.add('hidden');
+                        if (platformSection) platformSection.classList.add('hidden');
+                        if (pricingSection) pricingSection.classList.add('hidden');
+                        if (commentsStatusSection) commentsStatusSection.classList.add('hidden');
+                        if (linkedGamePromoSection) linkedGamePromoSection.classList.remove('hidden');
+
+                        if (itchLinkInput) {
+                            itchLinkInput.removeAttribute('required');
+                            itchLinkInput.removeAttribute('pattern');
+                        }
+                        if (itchLinkHelp) itchLinkHelp.textContent = '(Optional for Devlog. Example: https://yourusername.itch.io/your-devlog-page)';
+                        document.querySelectorAll('#genre-section input[type="checkbox"]').forEach(checkbox => checkbox.required = false);
+                        document.querySelectorAll('#platform-section input[type="checkbox"]').forEach(checkbox => checkbox.required = false);
+                    } else { // Game Promotion
+                        if (devlogTypeSection) devlogTypeSection.classList.add('hidden');
+                        if (genreSection) genreSection.classList.remove('hidden');
+                        if (platformSection) platformSection.classList.remove('hidden');
+                        if (pricingSection) pricingSection.classList.remove('hidden');
+                        if (commentsStatusSection) commentsStatusSection.classList.remove('hidden');
+                        if (linkedGamePromoSection) linkedGamePromoSection.classList.add('hidden');
+
+                        if (itchLinkInput) {
+                            itchLinkInput.setAttribute('required', 'true');
+                            itchLinkInput.setAttribute('pattern', 'https://.*\\.itch\\.io/.*');
+                        }
+                        if (itchLinkHelp) itchLinkHelp.textContent = '(Required for Game Promotion. Optional for Devlog. Example: https://yourusername.itch.io/your-game)';
+                    }
+                }
+                postTypeSelect.addEventListener('change', togglePostTypeFieldsInternal);
+                // Removed unconditional call to togglePostTypeFields() here
+
+                // Only initialize visibility if not in editing mode (i.e., for new posts)
+                if (!editingPostId) {
+                    toggleMediaSectionsInternal();
+                    togglePostTypeFieldsInternal();
+                    selectedGenres = []; // Clear genres for new post
+                    renderGenreCheckboxes(); // Re-render to clear checkboxes
                 }
 
-                // If 'none' or 'itch_embed' is selected, both YouTube and Image sections should be hidden.
-                if (selectedMedia === 'none' || selectedMedia === 'itch_embed') {
-                    youtubeLinkSection.classList.add('hidden');
-                    imageLinkSection.classList.add('hidden');
-                }
+                // Genre search functionality
+                genreSearchInput.addEventListener('input', (e) => {
+                    renderGenreCheckboxes(e.target.value);
+                });
             }
-            mediaTypeRadios.forEach(radio => radio.addEventListener('change', toggleMediaSections));
-            toggleMediaSections(); // Initialize visibility on page load
-
-            function togglePostTypeFields() {
-                const selectedPostType = postTypeSelect.value;
-                if (selectedPostType === 'Devlog') {
-                    devlogTypeSection.classList.remove('hidden'); // Show devlog type dropdown
-                    genreSection.classList.add('hidden');
-                    platformSection.classList.add('hidden');
-                    pricingSection.classList.add('hidden');
-                    commentsStatusSection.classList.add('hidden'); // Hide comments toggle for devlogs
-                    linkedGamePromoSection.classList.remove('hidden'); // Show linked game promo for devlogs
-
-                    itchLinkInput.removeAttribute('required'); // Make itchLink optional for Devlog
-                    itchLinkInput.removeAttribute('pattern'); // Remove pattern for Devlog
-                    itchLinkHelp.textContent = '(Optional for Devlog. Example: https://yourusername.itch.io/your-devlog-page)';
-                    // Make genres and platforms not required for devlogs
-                    document.querySelectorAll('#genre-section input[type="checkbox"]').forEach(checkbox => checkbox.required = false);
-                    document.querySelectorAll('#platform-section input[type="checkbox"]').forEach(checkbox => checkbox.required = false);
-                } else { // Game Promotion
-                    devlogTypeSection.classList.add('hidden'); // Hide devlog type dropdown
-                    genreSection.classList.remove('hidden');
-                    platformSection.classList.remove('hidden');
-                    pricingSection.classList.remove('hidden');
-                    commentsStatusSection.classList.remove('hidden');
-                    linkedGamePromoSection.classList.add('hidden');
-
-                    itchLinkInput.setAttribute('required', 'true'); // Make itchLink required for Game Promotion
-                    itchLinkInput.setAttribute('pattern', 'https://.*\\.itch\\.io/.*'); // Restore pattern
-                    itchLinkHelp.textContent = '(Required for Game Promotion. Optional for Devlog. Example: https://yourusername.itch.io/your-game)';
-                    // Note: Actual "required" validation for checkboxes needs custom JS logic,
-                    // The handlePostSubmit function already has this for genres/platforms.
-                }
-            }
-            postTypeSelect.addEventListener('change', togglePostTypeFields);
-            togglePostTypeFields(); // Initialize visibility on page load
-
-            // Genre search functionality
-            genreSearchInput.addEventListener('input', (e) => {
-                renderGenreCheckboxes(e.target.value);
-            });
         }
 
         // Opens the post modal and pre-fills it for editing.
@@ -1194,161 +1295,178 @@
             `;
             postModal.classList.remove('hidden'); // Show the modal
             document.getElementById('close-modal-btn').addEventListener('click', closePostModal);
-
-            // Temporarily render the post page content into a hidden div to get the form HTML
-            const tempDiv = document.createElement('div');
-            tempDiv.style.display = 'none';
-            document.body.appendChild(tempDiv);
-            contentPost.id = 'temp-content-post'; // Change ID to avoid conflict
-            tempDiv.appendChild(contentPost);
             
             // Before rendering, set selectedGenres from the post being edited
             selectedGenres = post.genres || []; 
-            renderPostPage(); // Render the form into the tempDiv's contentPost
-            const formHtml = tempDiv.querySelector('#post-form').outerHTML;
-            document.getElementById('edit-form-container').innerHTML = formHtml;
-            document.body.removeChild(tempDiv);
-            contentPost.id = 'content-post'; // Restore original ID
-
+            
+            // Render the form directly into the edit-form-container
+            renderPostPage(document.getElementById('edit-form-container'));
+            
             // Now, populate the form fields
-            const form = document.getElementById('post-form');
-            form.querySelector('#game-title').value = post.title || '';
-            form.querySelector('#description').value = post.description || '';
-            document.getElementById('char-count').textContent = `${post.description?.length || 0}/1000`;
-            form.querySelector('#itch-link').value = post.itchLink || '';
-            form.querySelector('#made-with').value = post.madeWith || '';
-            form.querySelector('#general').value = post.general || '';
-            form.querySelector('#reason').value = post.reason || '';
-            form.querySelector('#tags').value = post.tags?.join(', ') || ''; // Populate tags field
+            // IMPORTANT: Query the form from within the modal's container to ensure correct reference
+            const form = document.getElementById('edit-form-container').querySelector('#post-form'); 
+            
+            if (form) { // Ensure form is found before attempting to populate
+                form.querySelector('#game-title').value = post.title || '';
+                form.querySelector('#description').value = post.description || '';
+                form.querySelector('#char-count').textContent = `${post.description?.length || 0}/1000`; // Use form.querySelector
+                form.querySelector('#itch-link').value = post.itchLink || '';
+                form.querySelector('#made-with').value = post.madeWith || '';
+                form.querySelector('#general').value = post.general || '';
+                form.querySelector('#reason').value = post.reason || '';
+                form.querySelector('#tags').value = post.tags?.join(', ') || ''; // Populate tags field
 
-            // Set Post Type
-            form.querySelector('#post-type').value = post.postType || 'Game Promotion';
-            // Disable post type selection during edit
-            form.querySelector('#post-type').disabled = true;
+                // Set Post Type and disable it
+                const postTypeSelect = form.querySelector('#post-type');
+                postTypeSelect.value = post.postType || 'Game Promotion';
+                postTypeSelect.disabled = true; // Disable post type selection during edit
 
-            // Set Devlog Type if applicable
-            if (post.postType === 'Devlog' && post.devlogType) {
-                form.querySelector('#devlog-type').value = post.devlogType;
-            }
-
-            // Set Media Type and links
-            if (post.mediaType) {
-                const mediaRadio = form.querySelector(`input[name="media-type"][value="${post.mediaType}"]`);
-                if (mediaRadio) mediaRadio.checked = true;
-            }
-            form.querySelector('#trailer-link').value = post.trailerLink || '';
-            form.querySelector('#image-url').value = post.imageUrl || '';
-            form.querySelector('#custom-youtube-link-text').value = post.customYoutubeLinkText || ''; // Populate custom text field
-
-            // Set Pricing (only if Game Promotion)
-            if (post.postType === 'Game Promotion' && post.pricing) {
-                form.querySelector('#pricing').value = post.pricing;
-            }
-
-            // Set AI Content
-            if (post.aiContent) {
-                const aiRadio = form.querySelector(`input[name="ai-content"][value="${post.aiContent}"]`);
-                if (aiRadio) aiRadio.checked = true;
-            }
-
-            // Set Platforms
-            if (post.platforms && post.platforms.length > 0) {
-                form.querySelectorAll('input[name="platform"]').forEach(checkbox => {
-                    checkbox.checked = post.platforms.includes(checkbox.value);
-                });
-            }
-
-            // Set Comments Allowed
-            if (post.allowComments !== undefined) {
-                const commentsRadio = form.querySelector(`input[name="allow-comments"][value="${post.allowComments}"]`);
-                if (commentsRadio) commentsRadio.checked = true;
-            }
-
-            // Set Linked Game Promo (only if Devlog)
-            if (post.postType === 'Devlog' && post.linkedGamePromoId) {
-                form.querySelector('#linked-game-promo').value = post.linkedGamePromoId;
-            }
-
-
-            // Re-run toggle functions to ensure correct visibility based on pre-filled data
-            const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
-            const youtubeLinkSection = form.querySelector('#youtube-link-section');
-            const imageLinkSection = form.querySelector('#image-link-section');
-            const customYoutubeTextSection = form.querySelector('#custom-youtube-link-text-section'); // New
-            const youtubeLinkHelp = form.querySelector('.youtube-link-help');
-            const imageLinkHelp = form.querySelector('.image-link-help');
-            const itchLinkInput = form.querySelector('#itch-link');
-            const itchLinkHelp = form.querySelector('#itch-link-help');
-            const postTypeSelect = form.querySelector('#post-type');
-            const devlogTypeSection = form.querySelector('#devlog-type-section');
-            const genreSection = form.querySelector('#genre-section');
-            const platformSection = form.querySelector('#platform-section');
-            const pricingSection = form.querySelector('#pricing-section');
-            const commentsStatusSection = form.querySelector('#comments-status-section');
-            const linkedGamePromoSection = form.querySelector('#linked-game-promo-section');
-
-
-            function toggleMediaSectionsEdit() {
-                const selectedMedia = form.querySelector('input[name="media-type"]:checked')?.value;
-                youtubeLinkSection.classList.toggle('hidden', selectedMedia !== 'youtube' && selectedMedia !== 'combo');
-                imageLinkSection.classList.toggle('hidden', selectedMedia !== 'image' && selectedMedia !== 'combo');
-                customYoutubeTextSection.classList.toggle('hidden', selectedMedia !== 'combo'); // Show/hide custom text for combo
-                
-                // Update help text based on selected media type
-                if (selectedMedia === 'combo') {
-                    youtubeLinkHelp.textContent = '(Required for Combo. Example: https://youtu.be/dQw4w9WgXcQ)';
-                    imageLinkHelp.textContent = '(Required for Combo. Example: https://example.com/your-game-screenshot.png)';
-                } else if (selectedMedia === 'youtube') {
-                    youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                    imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)'; // Reset to optional
-                } else if (selectedMedia === 'image') {
-                    youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)'; // Reset to optional
-                    imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
-                } else { // 'none' or 'itch_embed'
-                    youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                    imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
+                // Set Devlog Type if applicable
+                if (post.postType === 'Devlog' && post.devlogType) {
+                    form.querySelector('#devlog-type').value = post.devlogType;
                 }
 
-                if (selectedMedia === 'none' || selectedMedia === 'itch_embed') {
-                    youtubeLinkSection.classList.add('hidden');
-                    imageLinkSection.classList.add('hidden');
+                // Set Media Type and links
+                if (post.mediaType) {
+                    const mediaRadio = form.querySelector(`input[name="media-type"][value="${post.mediaType}"]`);
+                    if (mediaRadio) mediaRadio.checked = true;
                 }
-            }
-            mediaTypeRadios.forEach(radio => radio.addEventListener('change', toggleMediaSectionsEdit));
-            toggleMediaSectionsEdit(); // Initialize visibility
+                form.querySelector('#trailer-link').value = post.trailerLink || '';
+                form.querySelector('#image-url').value = post.imageUrl || '';
+                form.querySelector('#custom-youtube-link-text').value = post.customYoutubeLinkText || ''; // Populate custom text field
 
-            function togglePostTypeFieldsEdit() {
-                const selectedPostType = postTypeSelect.value;
-                if (selectedPostType === 'Devlog') {
-                    devlogTypeSection.classList.remove('hidden');
-                    genreSection.classList.add('hidden');
-                    platformSection.classList.add('hidden');
-                    pricingSection.classList.add('hidden');
-                    commentsStatusSection.classList.add('hidden');
-                    linkedGamePromoSection.classList.remove('hidden');
-
-                    itchLinkInput.removeAttribute('required'); // Make itchLink optional for Devlog
-                    itchLinkInput.removeAttribute('pattern'); // Remove pattern for Devlog
-                    itchLinkHelp.textContent = '(Optional for Devlog. Example: https://yourusername.itch.io/your-devlog-page)';
-                } else { // Game Promotion
-                    devlogTypeSection.classList.add('hidden');
-                    genreSection.classList.remove('hidden');
-                    platformSection.classList.remove('hidden');
-                    pricingSection.classList.remove('hidden');
-                    commentsStatusSection.classList.remove('hidden');
-                    linkedGamePromoSection.classList.add('hidden');
-
-                    itchLinkInput.setAttribute('required', 'true'); // Make itchLink required for Game Promotion
-                    itchLinkInput.setAttribute('pattern', 'https://.*\\.itch\\.io/.*'); // Restore pattern
-                    itchLinkHelp.textContent = '(Required for Game Promotion. Optional for Devlog. Example: https://yourusername.itch.io/your-game)';
+                // Set Pricing (only if Game Promotion)
+                if (post.postType === 'Game Promotion' && post.pricing) {
+                    form.querySelector('#pricing').value = post.pricing;
                 }
-            }
-            postTypeSelect.addEventListener('change', togglePostTypeFieldsEdit);
-            togglePostTypeFieldsEdit(); // Initialize visibility
 
-            // Update submit button text
-            document.getElementById('submit-post-btn').textContent = 'Update Post';
-            document.getElementById('post-form').addEventListener('submit', handlePostSubmit);
+                // Set AI Content
+                if (post.aiContent) {
+                    const aiRadio = form.querySelector(`input[name="ai-content"][value="${post.aiContent}"]`);
+                    if (aiRadio) aiRadio.checked = true;
+                }
+
+                // Set Platforms
+                if (post.platforms && post.platforms.length > 0) {
+                    form.querySelectorAll('input[name="platform"]').forEach(checkbox => {
+                        checkbox.checked = post.platforms.includes(checkbox.value);
+                    });
+                }
+
+                // Set Comments Allowed
+                if (post.allowComments !== undefined) {
+                    const commentsRadio = form.querySelector(`input[name="allow-comments"][value="${post.allowComments}"]`);
+                    if (commentsRadio) commentsRadio.checked = true;
+                }
+
+                // Set Linked Game Promo (only if Devlog)
+                if (post.postType === 'Devlog' && post.linkedGamePromoId) {
+                    form.querySelector('#linked-game-promo').value = post.linkedGamePromoId;
+                }
+
+                // Re-run toggle functions to ensure correct visibility based on pre-filled data
+                // These elements are now within the 'form' context
+                const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
+                const youtubeLinkSection = form.querySelector('#youtube-link-section');
+                const imageLinkSection = form.querySelector('#image-link-section');
+                const customYoutubeTextSection = form.querySelector('#custom-youtube-link-text-section'); 
+                const youtubeLinkHelp = form.querySelector('.youtube-link-help');
+                const imageLinkHelp = form.querySelector('.image-link-help');
+                const itchLinkInput = form.querySelector('#itch-link');
+                const itchLinkHelp = form.querySelector('#itch-link-help');
+                const devlogTypeSection = form.querySelector('#devlog-type-section');
+                const genreSection = form.querySelector('#genre-section');
+                const platformSection = form.querySelector('#platform-section');
+                const pricingSection = form.querySelector('#pricing-section');
+                const commentsStatusSection = form.querySelector('#comments-status-section');
+                const linkedGamePromoSection = form.querySelector('#linked-game-promo-section');
+
+                function toggleMediaSectionsEdit() {
+                    const selectedMedia = form.querySelector('input[name="media-type"]:checked')?.value;
+                    console.log("toggleMediaSectionsEdit called. Selected Media:", selectedMedia); // Debugging line
+
+                    if (youtubeLinkSection) youtubeLinkSection.classList.toggle('hidden', selectedMedia !== 'youtube' && selectedMedia !== 'combo');
+                    if (imageLinkSection) imageLinkSection.classList.toggle('hidden', selectedMedia !== 'image' && selectedMedia !== 'combo');
+                    if (customYoutubeTextSection) customYoutubeTextSection.classList.toggle('hidden', selectedMedia !== 'combo'); 
+                    
+                    const trailerLinkInput = form.querySelector('#trailer-link');
+                    const imageUrlInput = form.querySelector('#image-url');
+                    const customYoutubeLinkTextInput = form.querySelector('#custom-youtube-link-text');
+
+                    // Reset required attributes for all media inputs first
+                    trailerLinkInput.removeAttribute('required');
+                    imageUrlInput.removeAttribute('required');
+                    customYoutubeLinkTextInput.removeAttribute('required');
+
+                    if (selectedMedia === 'combo') {
+                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Required for Combo. Example: https://youtu.be/dQw4w9WgXcQ)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Required for Combo. Example: https://example.com/your-game-screenshot.png)';
+                        trailerLinkInput.setAttribute('required', 'true');
+                        imageUrlInput.setAttribute('required', 'true');
+                        customYoutubeLinkTextInput.setAttribute('required', 'true');
+                    } else if (selectedMedia === 'youtube') {
+                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)'; 
+                        trailerLinkInput.setAttribute('required', 'true');
+                    } else if (selectedMedia === 'image') {
+                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)'; 
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
+                        imageUrlInput.setAttribute('required', 'true');
+                    } else { 
+                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
+                    }
+
+                    if (selectedMedia === 'none' || selectedMedia === 'itch_embed') {
+                        if (youtubeLinkSection) youtubeLinkSection.classList.add('hidden');
+                        if (imageLinkSection) imageLinkSection.classList.add('hidden');
+                    }
+                }
+                mediaTypeRadios.forEach(radio => radio.addEventListener('change', toggleMediaSectionsEdit));
+                toggleMediaSectionsEdit(); // Initialize visibility
+
+                function togglePostTypeFieldsEdit() {
+                    const selectedPostType = postTypeSelect.value;
+                    if (selectedPostType === 'Devlog') {
+                        if (devlogTypeSection) devlogTypeSection.classList.remove('hidden');
+                        if (genreSection) genreSection.classList.add('hidden');
+                        if (platformSection) platformSection.classList.add('hidden');
+                        if (pricingSection) pricingSection.classList.add('hidden');
+                        if (commentsStatusSection) commentsStatusSection.classList.add('hidden');
+                        if (linkedGamePromoSection) linkedGamePromoSection.classList.remove('hidden');
+
+                        if (itchLinkInput) {
+                            itchLinkInput.removeAttribute('required'); 
+                            itchLinkInput.removeAttribute('pattern'); 
+                        }
+                        if (itchLinkHelp) itchLinkHelp.textContent = '(Optional for Devlog. Example: https://yourusername.itch.io/your-devlog-page)';
+                    } else { // Game Promotion
+                        if (devlogTypeSection) devlogTypeSection.classList.add('hidden');
+                        if (genreSection) genreSection.classList.remove('hidden');
+                        if (platformSection) platformSection.classList.remove('hidden');
+                        if (pricingSection) pricingSection.classList.remove('hidden');
+                        if (commentsStatusSection) commentsStatusSection.classList.remove('hidden');
+                        if (linkedGamePromoSection) linkedGamePromoSection.classList.add('hidden');
+
+                        if (itchLinkInput) {
+                            itchLinkInput.setAttribute('required', 'true'); 
+                            itchLinkInput.setAttribute('pattern', 'https://.*\\.itch\\.io/.*'); 
+                        }
+                        if (itchLinkHelp) itchLinkHelp.textContent = '(Required for Game Promotion. Optional for Devlog. Example: https://yourusername.itch.io/your-game)';
+                    }
+                }
+                postTypeSelect.addEventListener('change', togglePostTypeFieldsEdit);
+                togglePostTypeFieldsEdit(); // Initialize visibility
+
+                // Update submit button text
+                form.querySelector('#submit-post-btn').textContent = 'Update Post'; // Use form.querySelector
+
+                // Re-render genre checkboxes to reflect selected genres from the post
+                const genreSearchInput = form.querySelector('#genre-search');
+                renderGenreCheckboxes(genreSearchInput.value);
+            } else {
+                console.error("Form element not found in modal after rendering.");
+            }
         }
         
         // Renders the search page.
@@ -1465,6 +1583,8 @@
             const submitBtn = e.submitter; // Get the submit button that was clicked
             if (!submitBtn) return; // Should not happen with a form submit
 
+            console.log("handlePostSubmit called. editingPostId:", editingPostId); // Added for debugging
+
             submitBtn.disabled = true; // Disable button
             submitBtn.textContent = 'Submitting...'; // Change text
             
@@ -1480,14 +1600,19 @@
             // Get genres from the global selectedGenres array
             const genres = [...selectedGenres]; 
             const platforms = [...form.querySelectorAll('input[name="platform"]:checked')].map(el => el.value);
-            const mediaType = document.querySelector('input[name="media-type"]:checked').value;
-            const aiContent = document.querySelector('input[name="ai-content"]:checked')?.value;
+            const mediaType = form.querySelector('input[name="media-type"]:checked').value; // Get from form
+            const aiContent = form.querySelector('input[name="ai-content"]:checked')?.value;
             const tagsInput = form.querySelector('#tags').value.trim();
             const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag !== '') : [];
             const itchLink = form.querySelector('#itch-link').value.trim();
             const allowComments = form.querySelector('input[name="allow-comments"]:checked')?.value === 'true'; // Get comments setting
             const linkedGamePromoId = form.querySelector('#linked-game-promo')?.value || null; // Get linked game promo ID
             const devlogType = form.querySelector('#devlog-type')?.value || null; // Get devlog type
+
+            // Prepare media-related fields based on selected mediaType
+            let trailerLink = '';
+            let imageUrl = '';
+            let customYoutubeLinkText = ''; // New variable
 
             // Validation based on post type
             if (postType === 'Game Promotion') {
@@ -1555,15 +1680,10 @@
                 return;
             }
 
-
-            // Prepare media-related fields based on selected mediaType
-            let trailerLink = '';
-            let imageUrl = '';
-            let customYoutubeLinkText = ''; // New variable
-
             if (mediaType === 'youtube' || mediaType === 'combo') {
                 trailerLink = form.querySelector('#trailer-link').value.trim();
-                if (mediaType === 'combo' && !trailerLink) { // Combo requires YouTube link
+                // Combo requires YouTube link
+                if (mediaType === 'combo' && !trailerLink) { 
                     showAlert("For Combo media type, the YouTube Trailer/Gameplay Link is required.");
                     submitBtn.disabled = false;
                     submitBtn.textContent = editingPostId ? 'Update Post' : 'Submit Post';
@@ -1578,7 +1698,8 @@
             }
             if (mediaType === 'image' || mediaType === 'combo') {
                 imageUrl = form.querySelector('#image-url').value.trim();
-                if (mediaType === 'combo' && !imageUrl) { // Combo requires Image URL
+                // Combo requires Image URL
+                if (mediaType === 'combo' && !imageUrl) { 
                     showAlert("For Combo media type, the Image URL is required.");
                     submitBtn.disabled = false;
                     submitBtn.textContent = editingPostId ? 'Update Post' : 'Submit Post';
@@ -1595,6 +1716,13 @@
             // For combo, get the custom YouTube link text
             if (mediaType === 'combo') {
                 customYoutubeLinkText = form.querySelector('#custom-youtube-link-text').value.trim();
+                // Combo requires custom text
+                if (!customYoutubeLinkText) {
+                    showAlert("For Combo media type, Custom YouTube Link Text is required.");
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = editingPostId ? 'Update Post' : 'Submit Post';
+                    return;
+                }
             }
             // If mediaType is 'none' or 'itch_embed', trailerLink and imageUrl will remain empty, which is correct.
 
@@ -1632,7 +1760,26 @@
                 if (editingPostId) {
                     // Update existing post
                     const postRef = doc(db, `artifacts/${appId}/public/data/posts`, editingPostId);
-                    await updateDoc(postRef, postData);
+                    // Fetch the existing post to preserve non-editable fields like likes, comments, views, visits, and createdAt
+                    const existingPost = allFetchedPosts.find(p => p.id === editingPostId);
+                    if (existingPost) {
+                        // Merge existing non-editable fields with updated data
+                        const updatedData = {
+                            ...postData,
+                            likes: existingPost.likes || [],
+                            comments: existingPost.comments || [],
+                            views: existingPost.views || 0,
+                            visits: existingPost.visits || 0,
+                            createdAt: existingPost.createdAt // Preserve original creation timestamp
+                        };
+                        await updateDoc(postRef, updatedData);
+                    } else {
+                        // If for some reason existingPost is not found in allFetchedPosts,
+                        // proceed with just postData, but log a warning.
+                        console.warn("Existing post not found in local cache during update, updating with provided data only.", editingPostId);
+                        await updateDoc(postRef, postData);
+                    }
+
                     showAlert("Post updated successfully!").then(() => {
                         closePostModal(); // Close modal after update
                         displayLimit = postsPerPage; // Reset display limit for community page
@@ -1645,29 +1792,30 @@
                     postData.views = 0; // Initialize views for new post
                     postData.visits = 0; // Initialize visits for new post
                     postData.createdAt = serverTimestamp(); // Set timestamp for new post
-                    const newDocRef = await addDoc(collection(db, `artifacts/${appId}/public/data/posts`), postData);
-                    showAlert("Post submitted successfully!").then(async () => {
+                    await addDoc(collection(db, `artifacts/${appId}/public/data/posts`), postData); // Removed newDocRef as it's no longer needed for opening modal
+                    showAlert("Post submitted successfully!").then(() => { // Removed async from inner function as no await is needed
                         form.reset(); // Clear form fields after successful submission
                         // Reset character count and media selection UI to default
-                        document.getElementById('char-count').textContent = `0/1000`;
-                        document.getElementById('media-youtube').checked = true; // Default media selection
-                        document.getElementById('youtube-link-section').classList.remove('hidden'); // Show YouTube section
-                        document.getElementById('image-link-section').classList.add('hidden'); // Hide Image section
-                        document.getElementById('custom-youtube-link-text-section').classList.add('hidden'); // Hide custom text section
-                        document.getElementById('media-none').checked = false; // Ensure 'None' is unchecked
-                        document.getElementById('media-combo').checked = false; // Ensure 'Combo' is unchecked
+                        form.querySelector('#char-count').textContent = `0/1000`; // Use form.querySelector
+                        
+                        // Set media-youtube radio and dispatch change event
+                        const mediaYoutubeRadio = form.querySelector('#media-youtube');
+                        if (mediaYoutubeRadio) {
+                            mediaYoutubeRadio.checked = true;
+                            mediaYoutubeRadio.dispatchEvent(new Event('change'));
+                        }
 
                         // Reset post type fields visibility
-                        const postTypeSelect = document.getElementById('post-type');
+                        const postTypeSelect = form.querySelector('#post-type');
                         postTypeSelect.value = 'Game Promotion'; // Reset to default
                         // Re-run togglePostTypeFields to reset UI for Game Promotion
-                        const event = new Event('change');
-                        postTypeSelect.dispatchEvent(event);
+                        postTypeSelect.dispatchEvent(new Event('change'));
                         
                         // Clear selected genres after successful post submission
                         selectedGenres = [];
-                        // Open the detailed modal for the newly posted item
-                        await openPostModal(newDocRef.id);
+                        // Re-render genre checkboxes to clear selections visually
+                        renderGenreCheckboxes();
+                        switchTab('my-posts'); // Navigate directly to my posts after new post
                     });
                 }
             } catch (error) {
@@ -1774,17 +1922,20 @@
                                 <img src="${post.imageUrl}" alt="${post.title}" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Image+Not+Found';">
                             </div>`;
             } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
-                // For combo in modal, display the image and a separate clickable link
+                // For combo in modal, display the image and a separate clickable button
                 mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md mb-4">
                                 <img src="${post.imageUrl}" alt="Custom Thumbnail" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Custom+Thumbnail+Not+Found';">
                             </div>`;
-                modalYoutubeLinkHtml = `
-                    <div class="flex justify-center my-4">
-                        <a href="${post.trailerLink}" target="_blank" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base">
-                            <i class="fab fa-youtube"></i> ${post.customYoutubeLinkText || 'Watch Trailer'}
-                        </a>
-                    </div>
-                `;
+                const videoId = getYouTubeVideoId(post.trailerLink);
+                if (videoId) {
+                    modalYoutubeLinkHtml = `
+                        <div class="flex justify-center my-4">
+                            <button id="open-video-player-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base" data-video-id="${videoId}">
+                                <i class="fab fa-youtube"></i> ${post.customYoutubeLinkText || 'Watch Trailer'}
+                            </button>
+                        </div>
+                    `;
+                }
             } else if (post.mediaType === 'itch_embed' && post.itchLink) {
                 mediaHtml = getItchEmbedHtml(post.itchLink); // Use the updated function for Itch.io
             }
@@ -1800,7 +1951,7 @@
                 </div>
                 <h2 class="text-2xl sm:text-3xl font-bold mb-4 text-white">${post.title}</h2>
                 ${mediaHtml}
-                ${modalYoutubeLinkHtml} <!-- Add the combo link here -->
+                ${modalYoutubeLinkHtml} <!-- Add the combo link button here -->
                 <div class="mt-6 flex flex-wrap gap-2 text-gray-400 text-sm">
                     <span><strong>Posted:</strong> ${post.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString() : 'N/A'}</span>
                     ${post.postType === 'Game Promotion' ? `<span><strong>Pricing:</strong> ${post.pricing}</span>` : ''}
@@ -1827,7 +1978,7 @@
                     </a>
                     ${post.postType === 'Devlog' && post.linkedGamePromoId ? `
                         <button id="view-linked-game-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base">
-                            <i class="fas fa-gamepad"></i> View Linked Game
+                            <i class="fas fa-gamepad"></i> View Linked Linked Game
                         </button>
                     ` : ''}
                 </div>
@@ -1882,8 +2033,19 @@
                 });
             }
 
-            // Removed the old combo media placeholder click listener for modal
-            // as the combo type now uses a direct link.
+            // Add event listener for the new custom YouTube link button
+            const openVideoPlayerBtn = document.getElementById('open-video-player-btn');
+            if (openVideoPlayerBtn) {
+                openVideoPlayerBtn.addEventListener('click', (e) => {
+                    e.preventDefault(); // Prevent default link behavior
+                    const videoId = e.currentTarget.dataset.videoId;
+                    if (videoId) {
+                        openVideoModal(videoId);
+                    } else {
+                        showAlert("Video ID not found for playback.");
+                    }
+                });
+            }
 
 
             if (post.allowComments !== false) { // Only add comment form listener if comments are allowed
@@ -1900,6 +2062,11 @@
             modalContent.innerHTML = ''; // Clear content to prevent old data from flashing on next open
             editingPostId = null; // Reset editing state
             isPostModalOpen = false; // Reset flag when modal is closed
+            // Re-enable post type selection when closing the edit modal
+            const postTypeSelect = document.getElementById('post-type');
+            if (postTypeSelect) {
+                postTypeSelect.disabled = false;
+            }
         }
 
         // Handles the submission of a new comment for a post.
