@@ -438,6 +438,9 @@
 
         // Global array to store selected genres, persisting across search filters
         let selectedGenres = []; 
+        
+        // Define genres globally so renderGenreCheckboxes can access it
+        const genres = ["Action", "Adventure", "RPG", "Strategy", "Simulation", "Puzzle", "Platformer", "Shooter", "Fighting", "Stealth", "Survival", "Horror", "Visual Novel", "Rhythm", "Sports", "Racing", "MMO", "Indie", "Casual", "Arcade", "Language", "Card & Board", "Roguelike", "Roguelite", "Metroidvania", "Souls-like", "CRPG", "JRPG", "ARPG", "Tactical RPG", "4X", "RTS", "Tower Defense", "Farming Sim", "Life Sim", "Point & Click", "Bullet Hell", "Hack and Slash", "Sandbox", "Open World", "Deck-builder", "City-builder", "Immersive Sim", "Walking Simulator", "Party Game", "Trivia", "Co-op", "Multiplayer", "Singleplayer", "Early Access", "Full Release", "Demo", "Free to Play", "Pay What You Want", "Puzzle-Platformer", "Survival Horror", "Metroidvania-lite", "Story-Rich", "Procedural Generation", "Pixel Art", "Voxel Art", "3D", "2D", "Top-Down", "Side-Scroller", "First-Person", "Third-Person", "Abstract", "Minimalist", "Retro", "Futuristic", "Fantasy", "Sci-Fi", "Historical", "Modern", "Comedy", "Drama", "Mystery", "Thriller", "Educational", "Relaxing", "Challenging", "Fast-Paced", "Slow-Paced", "Exploration", "Crafting", "Building", "Management", "Deckbuilding Roguelike", "Visual Novel RPG", "Action-Adventure", "Strategy RPG", "Turn-Based Strategy", "Real-Time Strategy", "Tactical Shooter", "Arena Shooter", "Battle Royale", "Dungeon Crawler", "Endless Runner", "Idle Game", "Incremental Game", "Interactive Fiction", "Music", "Narrative", "Party", "Pinball", "Platform Fighter", "Precision Platformer", "Programming", "Quick-Time Event", "Quiz", "Rogue-lite", "Role-Playing", "Sandbox RPG", "Sci-Fi RPG", "Shoot 'em Up", "Simulation RPG", "Social Deduction", "Space", "Steampunk", "Story", "Superhero", "Surreal", "Tabletop", "Team-Based", "Text Adventure", "Time Management", "Top-Down Shooter", "Trading", "Train", "Transhumanism", "Travel", "Trigonometry", "Typing", "Uplifting", "Vampire", "Vehicular Combat", "Vertical Shooter", "Visual Novel Horror", "Visual Novel Mystery", "Visual Novel Sci-Fi", "Visual Novel Slice of Life", "Visual Novel Thriller", "Visual Novel Comedy", "Visual Novel Drama", "Visual Novel Fantasy", "Visual Novel Romance", "War", "Western", "Word Game", "Wrestling", "Cooking", "Zombies", "Zoo", "Zork-like"];
 
 
         // --- DOM ELEMENTS ---
@@ -568,6 +571,30 @@
         function closeVideoModal() {
             videoModal.classList.add('hidden');
             videoPlayerIframe.src = ''; // Stop video playback by clearing src
+        }
+
+        // Function to render genre checkboxes based on a filtered list
+        // Moved to global scope for accessibility
+        function renderGenreCheckboxes(targetContainer, filterTerm = '') {
+            const lowerCaseFilterTerm = filterTerm.toLowerCase();
+            const filteredGenres = genres.filter(g => g.toLowerCase().includes(lowerCaseFilterTerm));
+            targetContainer.innerHTML = filteredGenres
+                .map(g => {
+                    const isChecked = selectedGenres.includes(g) ? 'checked' : '';
+                    const isHighlighted = lowerCaseFilterTerm && g.toLowerCase().includes(lowerCaseFilterTerm) ? 'genre-highlight' : '';
+                    return `<label class="custom-checkbox"><input type="checkbox" name="genre" value="${g}" ${isChecked}><span class="${isHighlighted}">${g}</span></label>`;
+                }).join('');
+
+            // Update search status message (assuming a status element exists near the genre checkboxes)
+            const genreSearchStatus = document.getElementById('genre-search-status'); // This needs to be globally accessible or passed
+            if (genreSearchStatus) { // Check if element exists before manipulating
+                if (filterTerm) {
+                    genreSearchStatus.textContent = `Showing genres matching "${filterTerm}"`;
+                    genreSearchStatus.classList.remove('hidden');
+                } else {
+                    genreSearchStatus.classList.add('hidden');
+                }
+            }
         }
 
 
@@ -960,7 +987,6 @@
         
         // Renders the form for creating a new post.
         function renderPostPage(targetElement) { // Now accepts a targetElement
-            const genres = ["Action", "Adventure", "RPG", "Strategy", "Simulation", "Puzzle", "Platformer", "Shooter", "Fighting", "Stealth", "Survival", "Horror", "Visual Novel", "Rhythm", "Sports", "Racing", "MMO", "Indie", "Casual", "Arcade", "Language", "Card & Board", "Roguelike", "Roguelite", "Metroidvania", "Souls-like", "CRPG", "JRPG", "ARPG", "Tactical RPG", "4X", "RTS", "Tower Defense", "Farming Sim", "Life Sim", "Point & Click", "Bullet Hell", "Hack and Slash", "Sandbox", "Open World", "Deck-builder", "City-builder", "Immersive Sim", "Walking Simulator", "Party Game", "Trivia", "Co-op", "Multiplayer", "Singleplayer", "Early Access", "Full Release", "Demo", "Free to Play", "Pay What You Want", "Puzzle-Platformer", "Survival Horror", "Metroidvania-lite", "Story-Rich", "Procedural Generation", "Pixel Art", "Voxel Art", "3D", "2D", "Top-Down", "Side-Scroller", "First-Person", "Third-Person", "Abstract", "Minimalist", "Retro", "Futuristic", "Fantasy", "Sci-Fi", "Historical", "Modern", "Comedy", "Drama", "Mystery", "Thriller", "Educational", "Relaxing", "Challenging", "Fast-Paced", "Slow-Paced", "Exploration", "Crafting", "Building", "Management", "Deckbuilding Roguelike", "Visual Novel RPG", "Action-Adventure", "Strategy RPG", "Turn-Based Strategy", "Real-Time Strategy", "Tactical Shooter", "Arena Shooter", "Battle Royale", "Dungeon Crawler", "Endless Runner", "Idle Game", "Incremental Game", "Interactive Fiction", "Music", "Narrative", "Party", "Pinball", "Platform Fighter", "Precision Platformer", "Programming", "Quick-Time Event", "Quiz", "Rogue-lite", "Role-Playing", "Sandbox RPG", "Sci-Fi RPG", "Shoot 'em Up", "Simulation RPG", "Social Deduction", "Space", "Steampunk", "Story", "Superhero", "Surreal", "Tabletop", "Team-Based", "Text Adventure", "Time Management", "Top-Down Shooter", "Trading", "Train", "Transhumanism", "Travel", "Trigonometry", "Typing", "Uplifting", "Vampire", "Vehicular Combat", "Vertical Shooter", "Visual Novel Horror", "Visual Novel Mystery", "Visual Novel Sci-Fi", "Visual Novel Slice of Life", "Visual Novel Thriller", "Visual Novel Comedy", "Visual Novel Drama", "Visual Novel Fantasy", "Visual Novel Romance", "War", "Western", "Word Game", "Wrestling", "Cooking", "Zombies", "Zoo", "Zork-like"];
             const platforms = ["Windows", "macOS", "Linux", "Android", "iOS", "Web / Browser", "Xbox", "PlayStation", "Nintendo Switch", "VR (Vive, Rift, Quest)", "AR"];
             const devlogTypes = ["Update", "Q&A", "Announcement", "Behind the Scenes", "Concept Art", "Development Progress", "Game Jam Entry", "Post-Mortem", "Release Info", "Tutorial", "Bug Fixes", "Roadmap", "Community Spotlight", "Feedback Request", "Poll", "Patch Notes", "Lore Deep Dive", "Music Showcase", "Art Showcase", "Level Design", "Character Design", "Story Development", "Technical Deep Dive", "Monetization", "Marketing", "Legal", "Other"];
 
@@ -1182,30 +1208,10 @@
                 const linkedGamePromoSection = form.querySelector('#linked-game-promo-section');
                 const genreSearchInput = form.querySelector('#genre-search');
                 const genreCheckboxesContainer = form.querySelector('#genre-checkboxes');
-                const genreSearchStatus = form.querySelector('#genre-search-status'); // New element
-
-                // Function to render genre checkboxes based on a filtered list
-                function renderGenreCheckboxes(filterTerm = '') {
-                    const lowerCaseFilterTerm = filterTerm.toLowerCase();
-                    const filteredGenres = genres.filter(g => g.toLowerCase().includes(lowerCaseFilterTerm));
-                    genreCheckboxesContainer.innerHTML = filteredGenres
-                        .map(g => {
-                            const isChecked = selectedGenres.includes(g) ? 'checked' : '';
-                            const isHighlighted = lowerCaseFilterTerm && g.toLowerCase().includes(lowerCaseFilterTerm) ? 'genre-highlight' : '';
-                            return `<label class="custom-checkbox"><input type="checkbox" name="genre" value="${g}" ${isChecked}><span class="${isHighlighted}">${g}</span></label>`;
-                        }).join('');
-
-                    // Update search status message
-                    if (filterTerm) {
-                        genreSearchStatus.textContent = `Showing genres matching "${filterTerm}"`;
-                        genreSearchStatus.classList.remove('hidden');
-                    } else {
-                        genreSearchStatus.classList.add('hidden');
-                    }
-                }
+                // const genreSearchStatus = form.querySelector('#genre-search-status'); // Removed local declaration as it's now accessed globally
 
                 // Initial render of all genres
-                renderGenreCheckboxes(genreSearchInput.value); // Render with any existing search term
+                renderGenreCheckboxes(genreCheckboxesContainer, genreSearchInput.value); // Pass container to the global function
 
                 // Event delegation for genre checkboxes to update selectedGenres array
                 genreCheckboxesContainer.addEventListener('change', (e) => {
@@ -1311,12 +1317,12 @@
                     toggleMediaSectionsInternal();
                     togglePostTypeFieldsInternal();
                     selectedGenres = []; // Clear genres for new post
-                    renderGenreCheckboxes(); // Re-render to clear checkboxes
+                    renderGenreCheckboxes(genreCheckboxesContainer); // Re-render to clear checkboxes
                 }
 
                 // Genre search functionality
                 genreSearchInput.addEventListener('input', (e) => {
-                    renderGenreCheckboxes(e.target.value);
+                    renderGenreCheckboxes(genreCheckboxesContainer, e.target.value); // Pass container
                 });
             }
         }
@@ -1346,11 +1352,12 @@
             selectedGenres = post.genres || []; 
             
             // Render the form directly into the edit-form-container
-            renderPostPage(document.getElementById('edit-form-container'));
+            const editFormContainer = document.getElementById('edit-form-container');
+            renderPostPage(editFormContainer);
             
             // Now, populate the form fields
             // IMPORTANT: Query the form from within the modal's container to ensure correct reference
-            const form = document.getElementById('edit-form-container').querySelector('#post-form'); 
+            const form = editFormContainer.querySelector('#post-form'); 
             
             if (form) { // Ensure form is found before attempting to populate
                 form.querySelector('#game-title').value = post.title || '';
@@ -1415,7 +1422,7 @@
                 const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
                 const youtubeLinkSection = form.querySelector('#youtube-link-section');
                 const imageLinkSection = form.querySelector('#image-link-section');
-                const customYoutubeTextSection = form.querySelector('#custom-youtube-link-text-section'); 
+                const customYoutubeTextSection = form.querySelector('#custom-youtube-text-section'); 
                 const youtubeLinkHelp = form.querySelector('.youtube-link-help');
                 const imageLinkHelp = form.querySelector('.image-link-help');
                 const itchLinkInput = form.querySelector('#itch-link');
@@ -1516,7 +1523,8 @@
 
                 // Re-render genre checkboxes to reflect selected genres from the post
                 const genreSearchInput = form.querySelector('#genre-search');
-                renderGenreCheckboxes(genreSearchInput.value);
+                const genreCheckboxesContainerInModal = form.querySelector('#genre-checkboxes');
+                renderGenreCheckboxes(genreCheckboxesContainerInModal, genreSearchInput.value);
             } else {
                 console.error("Form element not found in modal after rendering.");
             }
@@ -1595,7 +1603,6 @@
             `;
         }
         
-        // --- DATA HANDLING & LOGIC ---
         // This function now uses onSnapshot to keep 'allFetchedPosts' array updated in real-time.
         function listenForPostsRealtime() {
             const postsColRef = collection(db, `artifacts/${appId}/public/data/posts`);
@@ -1787,7 +1794,7 @@
                 mediaType: mediaType, // Store selected media type
                 trailerLink: trailerLink, // Store YouTube link if applicable
                 imageUrl: imageUrl,       // Store image URL if applicable
-                customYoutubeLinkText: customYoutubeLinkLinkText, // Store custom YouTube link text
+                customYoutubeLinkText: customYoutubeLinkText, // Store custom YouTube link text
                 postType: postType, // Use the selected post type
                 madeWith: form.querySelector('#made-with').value.trim(), // New field
                 aiContent: aiContent, // New required field
@@ -1867,7 +1874,8 @@
                         // Clear selected genres after successful post submission
                         selectedGenres = [];
                         // Re-render genre checkboxes to clear selections visually
-                        renderGenreCheckboxes();
+                        const genreCheckboxesContainer = form.querySelector('#genre-checkboxes');
+                        renderGenreCheckboxes(genreCheckboxesContainer);
                         switchTab('my-posts'); // Navigate directly to my posts after new post
                     });
                 }
@@ -1875,6 +1883,7 @@
                 console.error("Error handling post:", error);
                 showAlert(`Failed to ${editingPostId ? 'update' : 'submit'} post: ${error.message || error}. This often happens due to incorrect Firebase Security Rules or network issues. Please check your browser console for more details.`);
             } finally {
+                // Ensure the button is always re-enabled and text reset
                 submitBtn.disabled = false;
                 submitBtn.textContent = editingPostId ? 'Update Post' : 'Submit Post';
             }
