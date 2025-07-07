@@ -734,12 +734,16 @@
             const postIdFromUrl = urlParams.get('postId');
 
             if (postIdFromUrl) {
+                console.log("URL contains postId:", postIdFromUrl);
                 // If postId is in URL, open modal and don't switch tab immediately
-                // Wait for posts to be fetched before attempting to open the modal
-                const checkPostsInterval = setInterval(() => {
-                    if (allFetchedPosts.length > 0) {
-                        clearInterval(checkPostsInterval);
+                // Wait for posts to be fetched and authentication to be ready before attempting to open the modal
+                const checkPostsAndAuthInterval = setInterval(() => {
+                    if (isAuthReady && allFetchedPosts.length > 0) {
+                        clearInterval(checkPostsAndAuthInterval);
+                        console.log("Auth ready and posts fetched. Attempting to open modal for postId:", postIdFromUrl);
                         openPostModal(postIdFromUrl);
+                    } else {
+                        console.log("Waiting for auth and posts... isAuthReady:", isAuthReady, "allFetchedPosts.length:", allFetchedPosts.length);
                     }
                 }, 100); // Check every 100ms
                 return; // Stop further tab switching if modal is being opened
@@ -1490,7 +1494,7 @@
                         customYoutubeLinkTextInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'youtube') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)'; 
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)'; 
                         trailerLinkInput.setAttribute('required', 'true');
                     } else { 
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)'; 
