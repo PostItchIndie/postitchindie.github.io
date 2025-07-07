@@ -285,6 +285,35 @@
             border: 2px solid #00bcd4; /* Greenish/blue border */
             box-shadow: 0 0 20px rgba(0, 188, 212, 0.7); /* Matching glow */
         }
+
+        /* Styles for the back and share buttons in the modal */
+        .modal-action-btn {
+            background-color: transparent; /* Keep background transparent */
+            border: none; /* Remove border */
+            border-radius: 9999px; /* Fully rounded */
+            width: 40px; /* Fixed width */
+            height: 40px; /* Fixed height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af; /* Default grey color (text-gray-400 equivalent) */
+            font-size: 1.25rem; /* Icon size */
+            transition: color 0.2s ease-in-out; /* Only transition color */
+            box-shadow: none; /* Ensure no shadow */
+        }
+
+        .modal-action-btn:hover {
+            background-color: transparent; /* Ensure background remains transparent */
+            border-color: transparent; /* Ensure border remains transparent */
+            color: #ffffff; /* White icon on hover */
+            transform: none; /* Remove any scale effect */
+            box-shadow: none; /* Ensure no shadow on hover */
+        }
+
+        .modal-action-btn:active {
+            transform: none; /* Remove any press effect */
+            box-shadow: none; /* Ensure no shadow on active */
+        }
     </style>
 </head>
 <body>
@@ -353,18 +382,20 @@
         </div>
     </div>
 
-    <!-- New Video Modal -->
-    <div id="video-modal" class="hidden">
-        <div class="modal-backdrop"></div>
-        <div id="video-modal-content" class="modal w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl main-bg rounded-lg shadow-lg p-4 sm:p-6 video-modal-content">
-            <div class="flex justify-end mb-4">
-                <button id="close-video-modal-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button>
-            </div>
-            <div class="aspect-video w-full rounded-md overflow-hidden">
-                <iframe id="video-player-iframe" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-            </div>
-        </div>
-    </div>
+	<!-- New Video Modal -->
+	<div id="video-modal" class="hidden">
+		<div class="modal-backdrop"></div>
+		<div id="video-modal-content" class="modal w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl main-bg rounded-lg shadow-lg p-4 sm:p-6 video-modal-content">
+			<div class="flex justify-end mb-4">
+				<button id="close-video-modal-btn" class="text-gray-400 hover:text-white text-2xl">
+					<i class="fa-solid fa-xmark"></i>
+				</button>
+			</div>
+			<div class="aspect-video w-full rounded-md overflow-hidden">
+				<iframe id="video-player-iframe" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+			</div>
+		</div>
+	</div>
 
 
     <script type="module">
@@ -539,22 +570,6 @@
             videoPlayerIframe.src = ''; // Stop video playback by clearing src
         }
 
-        // Copies text to clipboard
-        function copyToClipboard(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand('copy');
-                showAlert('Link copied to clipboard!');
-            } catch (err) {
-                console.error('Failed to copy: ', err);
-                showAlert('Failed to copy link. Please copy it manually: ' + text);
-            }
-            document.body.removeChild(textarea);
-        }
-
 
         // --- EVENT LISTENERS SETUP ---
         // Attaches event listeners to dynamically created post cards.
@@ -652,33 +667,24 @@
             loader.style.display = 'none'; // Hide the loading spinner
             listenForPostsRealtime(); // Start real-time listening for ALL posts
             setupNavListeners(); // Set up navigation event handlers
-            switchTab('community'); // Load the default community feed tab
             
-            // Add event listener for the new video modal close button
-            closeVideoModalBtn.addEventListener('click', closeVideoModal);
-
             // Check for postId in URL and open modal if present
             const urlParams = new URLSearchParams(window.location.search);
             const postIdFromUrl = urlParams.get('postId');
             if (postIdFromUrl) {
                 // Wait for posts to be fetched before attempting to open the modal
-                const unsubscribe = onSnapshot(collection(db, `artifacts/${appId}/public/data/posts`), (snapshot) => {
-                    allFetchedPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    const postExists = allFetchedPosts.some(p => p.id === postIdFromUrl);
-                    if (postExists) {
+                const checkPostsInterval = setInterval(() => {
+                    if (allFetchedPosts.length > 0) {
+                        clearInterval(checkPostsInterval);
                         openPostModal(postIdFromUrl);
-                        unsubscribe(); // Stop listening once the post is found and opened
-                    } else if (allFetchedPosts.length > 0) {
-                        // If posts are loaded but the specific post isn't found, show alert
-                        showAlert("Post not found or has been deleted.");
-                        unsubscribe();
                     }
-                }, error => {
-                    console.error("Error checking for post from URL:", error);
-                    showAlert("Error loading post from URL.");
-                    unsubscribe();
-                });
+                }, 100); // Check every 100ms
+            } else {
+                switchTab('community'); // Load the default community feed tab if no postId in URL
             }
+            
+            // Add event listener for the new video modal close button
+            closeVideoModalBtn.addEventListener('click', closeVideoModal);
         }
         
         // Sets up event listeners for navigation buttons (desktop and mobile).
@@ -1162,7 +1168,7 @@
                 const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
                 const youtubeLinkSection = form.querySelector('#youtube-link-section');
                 const imageLinkSection = form.querySelector('#image-link-section');
-                const customYoutubeTextSection = form.querySelector('#custom-youtube-link-text-section');
+                const customYoutubeTextSection = form.querySelector('#custom-youtube-text-section');
                 const youtubeLinkHelp = form.querySelector('.youtube-link-help');
                 const imageLinkHelp = form.querySelector('.image-link-help');
                 const itchLinkInput = form.querySelector('#itch-link');
@@ -1327,8 +1333,9 @@
 
             // Render the post page form into the modal content area
             modalContent.innerHTML = `
-                <div class="flex justify-end mb-4">
-                    <button id="close-modal-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+                <div class="flex justify-between items-center mb-4">
+                    <button id="close-modal-btn" class="modal-action-btn"><i class="fas fa-arrow-left"></i></button>
+                    <button id="share-post-btn" class="modal-action-btn"><i class="fa-solid fa-share"></i></button>
                 </div>
                 <div id="edit-form-container"></div>
             `;
@@ -1499,6 +1506,13 @@
 
                 // Update submit button text
                 form.querySelector('#submit-post-btn').textContent = 'Update Post'; // Use form.querySelector
+                
+                // Add event listener for share button
+                document.getElementById('share-post-btn').addEventListener('click', () => {
+                    const shareLink = `https://postitchindie.github.io/?postId=${postId}`;
+                    copyToClipboard(shareLink);
+                    showAlert("Link copied to clipboard!");
+                });
 
                 // Re-render genre checkboxes to reflect selected genres from the post
                 const genreSearchInput = form.querySelector('#genre-search');
@@ -1773,7 +1787,7 @@
                 mediaType: mediaType, // Store selected media type
                 trailerLink: trailerLink, // Store YouTube link if applicable
                 imageUrl: imageUrl,       // Store image URL if applicable
-                customYoutubeLinkText: customYoutubeLinkText, // Store custom YouTube link text
+                customYoutubeLinkText: customYoutubeLinkLinkText, // Store custom YouTube link text
                 postType: postType, // Use the selected post type
                 madeWith: form.querySelector('#made-with').value.trim(), // New field
                 aiContent: aiContent, // New required field
@@ -1986,12 +2000,8 @@
 
             modalContent.innerHTML = `
                 <div class="flex justify-between items-center mb-4">
-                    <button id="close-modal-btn" class="text-gray-400 hover:text-white text-2xl px-2 py-1 rounded-md transition-colors duration-200">
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
-                    <button id="share-post-btn" class="text-gray-400 hover:text-white text-2xl px-2 py-1 rounded-md transition-colors duration-200">
-                        <i class="fas fa-share-alt"></i>
-                    </button>
+                    <button id="close-modal-btn" class="modal-action-btn"><i class="fas fa-arrow-left"></i></button>
+                    <button id="share-post-btn" class="modal-action-btn" data-post-id="${postId}"><i class="fa-solid fa-share"></i></button>
                 </div>
                 <h2 class="text-2xl sm:text-3xl font-bold mb-4 text-white">${post.title}</h2>
                 ${mediaHtml}
@@ -2051,16 +2061,6 @@
             postModal.classList.remove('hidden'); // Show the modal
             document.getElementById('close-modal-btn').addEventListener('click', closePostModal);
             
-            // Add event listener for the share button
-            const sharePostBtn = document.getElementById('share-post-btn');
-            if (sharePostBtn) {
-                sharePostBtn.addEventListener('click', () => {
-                    // Construct the share URL with the post ID
-                    const shareUrl = `https://postitchindie.github.io/?postId=${postId}`;
-                    copyToClipboard(shareUrl);
-                });
-            }
-
             // Add event listener for "Visit Itch.io" button to increment visits
             const visitItchBtn = document.getElementById('visit-itch-btn');
             if (visitItchBtn) {
@@ -2101,6 +2101,13 @@
                 });
             }
 
+            // Add event listener for share button
+            document.getElementById('share-post-btn').addEventListener('click', () => {
+                const shareLink = `https://postitchindie.github.io/?postId=${postId}`;
+                copyToClipboard(shareLink);
+                showAlert("Link copied to clipboard!");
+            });
+
 
             if (post.allowComments !== false) { // Only add comment form listener if comments are allowed
                 document.getElementById('comment-form').addEventListener('submit', (e) => handleCommentSubmit(e, postId));
@@ -2121,6 +2128,10 @@
             if (postTypeSelect) {
                 postTypeSelect.disabled = false;
             }
+            // Remove postId from URL when modal is closed
+            const url = new URL(window.location.href);
+            url.searchParams.delete('postId');
+            window.history.replaceState({}, document.title, url.toString());
         }
 
         // Handles the submission of a new comment for a post.
@@ -2178,6 +2189,20 @@
                 console.error("Error adding comment: ", error);
                 showAlert(`Failed to post comment: ${error.message || error}.`);
             }
+        }
+
+        // Function to copy text to clipboard
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+            }
+            document.body.removeChild(textarea);
         }
 
     </script>
