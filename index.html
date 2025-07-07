@@ -40,12 +40,7 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.6); /* Stronger shadow on hover */
             border-color: #00bcd4; /* Vibrant teal border on hover */
         }
-        /* Added active state for a smoother click animation */
-        .card-bg:active {
-            transform: translateY(-2px); /* Slightly less lift than hover, gives a "press" feel */
-            box-shadow: 0 5px 10px rgba(0,0,0,0.4); /* Reduced shadow on active */
-            transition: all 0.1s ease-out; /* Quicker transition for click */
-        }
+        /* Removed active state for a less frequent click animation */
 
         /* Specific styles for Game Promotion cards */
         .card-promo {
@@ -1422,7 +1417,7 @@
                 const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
                 const youtubeLinkSection = form.querySelector('#youtube-link-section');
                 const imageLinkSection = form.querySelector('#image-link-section');
-                const customYoutubeTextSection = form.querySelector('#custom-youtube-text-section'); 
+                const customYoutubeTextSection = form.querySelector('#custom-youtube-link-section'); 
                 const youtubeLinkHelp = form.querySelector('.youtube-link-help');
                 const imageLinkHelp = form.querySelector('.image-link-help');
                 const itchLinkInput = form.querySelector('#itch-link');
