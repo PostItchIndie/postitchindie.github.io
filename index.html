@@ -430,6 +430,7 @@
         let currentSortBy = 'newest'; // Default sort order for community feed
         let currentPricingFilter = 'all'; // Default pricing filter
         let currentAiContentFilter = 'all'; // New: Default AI content filter
+        let currentActiveTab = 'community'; // Track the currently active tab for URL updates
 
         // Global array to store selected genres, persisting across search filters
         let selectedGenres = []; 
@@ -468,8 +469,7 @@
 
 
         let editingPostId = null; // Stores the ID of the post currently being edited
-        let isPostModalOpen = false; // Flag to prevent multiple view increments
-        let currentOpenPostId = null; // To track which post is currently open in the modal
+        let isPostModalOpen = false; // Flag to prevent multiple view increments from a single interaction
 
 
         // --- HELPER FUNCTIONS ---
@@ -607,8 +607,8 @@
                         return; // Do nothing if media placeholder, YouTube link button, or other button was clicked
                     }
                     const postId = card.dataset.id;
-                    // Only open the post modal if it's not already open for this specific post
-                    if (!isPostModalOpen || currentOpenPostId !== postId) {
+                    // Only open the post modal if it's not already open
+                    if (!isPostModalOpen) {
                         await openPostModal(postId);
                     }
                 });
@@ -691,13 +691,13 @@
             listenForPostsRealtime(); // Start real-time listening for ALL posts
             setupNavListeners(); // Set up navigation event handlers
             
-            // Check for postId in URL and open modal if present
+            // Check for URL parameters and navigate accordingly
             const urlParams = new URLSearchParams(window.location.search);
             const postIdFromUrl = urlParams.get('postId');
             const sectionFromUrl = urlParams.get('section');
 
             if (postIdFromUrl) {
-                // Wait for posts to be fetched before attempting to open the modal
+                // If postId is in URL, open the modal for that post
                 const checkPostsInterval = setInterval(() => {
                     if (allFetchedPosts.length > 0) {
                         clearInterval(checkPostsInterval);
@@ -705,40 +705,15 @@
                     }
                 }, 100); // Check every 100ms
             } else if (sectionFromUrl) {
-                switchTab(sectionFromUrl); // Load the specified section
-            }
-            else {
-                switchTab('community'); // Load the default community feed tab if no postId or section in URL
+                // If section is in URL, switch to that tab
+                switchTab(sectionFromUrl);
+            } else {
+                // Default to community feed if no parameters
+                switchTab('community'); 
             }
             
             // Add event listener for the new video modal close button
             closeVideoModalBtn.addEventListener('click', closeVideoModal);
-
-            // Listen for browser history changes (back/forward buttons)
-            window.addEventListener('popstate', handlePopState);
-        }
-
-        // Handles browser history changes (back/forward buttons)
-        function handlePopState() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const postIdFromUrl = urlParams.get('postId');
-            const sectionFromUrl = urlParams.get('section');
-
-            if (postIdFromUrl) {
-                // If a postId is in the URL, try to open the modal
-                // Ensure the modal is not already open for this specific post to prevent re-opening and re-incrementing views
-                if (!isPostModalOpen || currentOpenPostId !== postIdFromUrl) {
-                    openPostModal(postIdFromUrl);
-                }
-            } else {
-                // If no postId, ensure we are on a section. Default to community if none specified.
-                const targetSection = sectionFromUrl || 'community';
-                switchTab(targetSection, false); // Pass false to prevent pushing state again
-                // If the modal was open and now it's not in the URL, close it explicitly
-                if (isPostModalOpen) {
-                    closePostModal(); // This will also reset isPostModalOpen and currentOpenPostId
-                }
-            }
         }
         
         // Sets up event listeners for navigation buttons (desktop and mobile).
@@ -747,20 +722,42 @@
             
             navItems.forEach(item => {
                 item.addEventListener('click', (e) => {
-                    e.preventDefault(); // Prevent default link behavior
+                    e.preventDefault(); // Prevent default link behavior to handle with JS
                     const tab = e.target.getAttribute('data-tab');
                     if (tab) {
-                        switchTab(tab); // Call switchTab, which will handle URL update
+                        switchTab(tab);
                         mobileMenu.classList.add('hidden'); // Hide mobile menu on tab selection
                     }
                 });
             });
+            // Handle browser back/forward buttons
+            window.addEventListener('popstate', handlePopState);
         }
 
-        // --- NAVIGATION LOGIC ---
+        // Handles browser history navigation (back/forward buttons)
+        function handlePopState() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const postIdFromUrl = urlParams.get('postId');
+            const sectionFromUrl = urlParams.get('section');
+
+            if (postIdFromUrl) {
+                // If postId is in URL, ensure modal is open
+                if (!isPostModalOpen) {
+                    openPostModal(postIdFromUrl);
+                }
+            } else {
+                // If no postId, close modal and switch to section
+                if (isPostModalOpen) {
+                    closePostModal();
+                }
+                switchTab(sectionFromUrl || 'community'); // Default to community if no section
+            }
+        }
+
         // Switches the active tab and renders its content.
-        // The `pushState` parameter controls whether a new history entry is created.
-        function switchTab(tab, pushState = true) {
+        function switchTab(tab) {
+            currentActiveTab = tab; // Update the globally tracked active tab
+
             // Update active navigation item styling
             document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
                 item.classList.toggle('active', item.getAttribute('data-tab') === tab);
@@ -770,13 +767,11 @@
                 content.classList.toggle('hidden', content.id !== `content-${tab}`);
             });
             
-            // Update URL in browser history
-            if (pushState) {
-                const url = new URL(window.location.href);
-                url.searchParams.set('section', tab);
-                url.searchParams.delete('postId'); // Remove postId if navigating to a section
-                window.history.pushState({ section: tab }, '', url.toString());
-            }
+            // Update URL to reflect the current section
+            const url = new URL(window.location.href);
+            url.searchParams.set('section', tab);
+            url.searchParams.delete('postId'); // Ensure postId is removed when switching sections
+            window.history.pushState({}, document.title, url.toString());
 
             // Map tab names to their respective rendering functions
             const renderMap = {
@@ -806,7 +801,7 @@
                     const thumbnailUrl = getYouTubeThumbnailUrl(videoId);
                     mediaHtml = `
                         <div class="media-placeholder w-full h-full relative cursor-pointer" data-video-id="${videoId}">
-                            <img src="${thumbnailUrl}" alt="YouTube Thumbnail" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400';">
+                            <img src="${thumbnailUrl}" alt="YouTube Thumbnail" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Video+Not+Found';">
                             <div class="play-button-overlay">
                                 <i class="fas fa-play"></i>
                             </div>
@@ -814,10 +809,10 @@
                     `;
                 }
             } else if (post.mediaType === 'image' && post.imageUrl) {
-                 mediaHtml = `<img src="${post.imageUrl}" alt="${post.title}" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400';">`;
+                 mediaHtml = `<img src="${post.imageUrl}" alt="${post.title}" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Image+Not+Found';">`;
             } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
                 // For combo, display only the image on the preview card
-                mediaHtml = `<img src="${post.imageUrl}" alt="Custom Thumbnail" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400';">`;
+                mediaHtml = `<img src="${post.imageUrl}" alt="Custom Thumbnail" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Custom+Thumbnail+Not+Found';">`;
                 // The comboLinkHtml is intentionally NOT added here for preview cards
             } else if (post.mediaType === 'itch_embed' && post.itchLink) {
                 // For Itch.io, always show the placeholder due to embedding restrictions
@@ -1112,7 +1107,7 @@
                             <label for="image-url" class="block mb-2 font-semibold text-gray-300" id="image-url-label">
                                 Image URL (Optional)
                                 <span class="text-xs text-gray-500 ml-2 image-link-help">
-                                    (e.g., Right-click image -> Copy Image Address. Example: https://placehold.co/600x400)
+                                    (e.g., Right-click image -> Copy Image Address. Example: https://placehold.co/600x400/101010/808080?text=Image)
                                 </span>
                             </label>
                             <input type="url" id="image-url" class="w-full p-3 input-bg rounded-md" placeholder="e.g., https://example.com/your-game-screenshot.png">
@@ -1267,18 +1262,9 @@
                     const selectedMedia = form.querySelector('input[name="media-type"]:checked')?.value; // Added optional chaining
                     console.log("toggleMediaSectionsInternal called. Selected Media:", selectedMedia); // Debugging line
 
-                    if (youtubeLinkSection) {
-                        if (selectedMedia === 'youtube' || selectedMedia === 'combo') youtubeLinkSection.classList.remove('hidden');
-                        else youtubeLinkSection.classList.add('hidden');
-                    }
-                    if (imageLinkSection) {
-                        if (selectedMedia === 'image' || selectedMedia === 'combo') imageLinkSection.classList.remove('hidden');
-                        else imageLinkSection.classList.add('hidden');
-                    }
-                    if (customYoutubeTextSection) {
-                        if (selectedMedia === 'combo') customYoutubeTextSection.classList.remove('hidden');
-                        else customYoutubeTextSection.classList.add('hidden');
-                    }
+                    if (youtubeLinkSection) youtubeLinkSection.classList.toggle('hidden', selectedMedia !== 'youtube' && selectedMedia !== 'combo');
+                    if (imageLinkSection) imageLinkSection.classList.toggle('hidden', selectedMedia !== 'image' && selectedMedia !== 'combo');
+                    if (customYoutubeTextSection) customYoutubeTextSection.classList.toggle('hidden', selectedMedia !== 'combo');
                     
                     // Get references to inputs
                     const trailerLinkInput = form.querySelector('#trailer-link');
@@ -1293,24 +1279,24 @@
 
                     if (selectedMedia === 'combo') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Required for Combo. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Required for Combo. Example: https://placehold.co/600x400)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Required for Combo. Example: https://example.com/your-game-screenshot.png)';
                         // Make inputs required for combo
                         trailerLinkInput.setAttribute('required', 'true');
                         imageUrlInput.setAttribute('required', 'true');
                         customYoutubeLinkTextInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'youtube') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://placehold.co/600x400)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         // Only YouTube link is required for 'youtube'
                         trailerLinkInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'image') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://placehold.co/600x400)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         // Only Image URL is required for 'image'
                         imageUrlInput.setAttribute('required', 'true');
                     } else { // 'none' or 'itch_embed'
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://placehold.co/600x400)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         // No media inputs are required for 'none' or 'itch_embed'
                     }
 
@@ -1479,22 +1465,13 @@
                 const commentsStatusSection = form.querySelector('#comments-status-section');
                 const linkedGamePromoSection = form.querySelector('#linked-game-promo-section');
 
-                function toggleMediaSectionsEdit(initialMediaType = null) { // Added initialMediaType parameter
-                    const selectedMedia = initialMediaType || form.querySelector('input[name="media-type"]:checked')?.value;
+                function toggleMediaSectionsEdit() {
+                    const selectedMedia = form.querySelector('input[name="media-type"]:checked')?.value;
                     console.log("toggleMediaSectionsEdit called. Selected Media:", selectedMedia); // Debugging line
 
-                    if (youtubeLinkSection) {
-                        if (selectedMedia === 'youtube' || selectedMedia === 'combo') youtubeLinkSection.classList.remove('hidden');
-                        else youtubeLinkSection.classList.add('hidden');
-                    }
-                    if (imageLinkSection) {
-                        if (selectedMedia === 'image' || selectedMedia === 'combo') imageLinkSection.classList.remove('hidden');
-                        else imageLinkSection.classList.add('hidden');
-                    }
-                    if (customYoutubeTextSection) {
-                        if (selectedMedia === 'combo') customYoutubeTextSection.classList.remove('hidden');
-                        else customYoutubeTextSection.classList.add('hidden');
-                    }
+                    if (youtubeLinkSection) youtubeLinkSection.classList.toggle('hidden', selectedMedia !== 'youtube' && selectedMedia !== 'combo');
+                    if (imageLinkSection) imageLinkSection.classList.toggle('hidden', selectedMedia !== 'image' && selectedMedia !== 'combo');
+                    if (customYoutubeTextSection) customYoutubeTextSection.classList.toggle('hidden', selectedMedia !== 'combo'); 
                     
                     const trailerLinkInput = form.querySelector('#trailer-link');
                     const imageUrlInput = form.querySelector('#image-url');
@@ -1507,21 +1484,21 @@
 
                     if (selectedMedia === 'combo') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Required for Combo. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Required for Combo. Example: https://placehold.co/600x400)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Required for Combo. Example: https://example.com/your-game-screenshot.png)';
                         trailerLinkInput.setAttribute('required', 'true');
                         imageUrlInput.setAttribute('required', 'true');
                         customYoutubeLinkTextInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'youtube') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://placehold.co/600x400)'; 
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)'; 
                         trailerLinkInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'image') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)'; 
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://placehold.co/600x400)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         imageUrlInput.setAttribute('required', 'true');
                     } else { 
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://placehold.co/600x400)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                     }
 
                     if (selectedMedia === 'none' || selectedMedia === 'itch_embed') {
@@ -1530,7 +1507,7 @@
                     }
                 }
                 mediaTypeRadios.forEach(radio => radio.addEventListener('change', toggleMediaSectionsEdit));
-                toggleMediaSectionsEdit(post.mediaType); // Initialize visibility with the post's media type
+                toggleMediaSectionsEdit(); // Initialize visibility
 
                 function togglePostTypeFieldsEdit() {
                     const selectedPostType = postTypeSelect.value;
@@ -1714,7 +1691,7 @@
             // Get genres from the global selectedGenres array
             const genres = [...selectedGenres]; 
             const platforms = [...form.querySelectorAll('input[name="platform"]:checked')].map(el => el.value);
-            const mediaType = form.querySelector('input[name="media-type']:checked').value; // Get from form
+            const mediaType = form.querySelector('input[name="media-type"]:checked').value; // Get from form
             const aiContent = form.querySelector('input[name="ai-content"]:checked')?.value;
             const tagsInput = form.querySelector('#tags').value.trim();
             const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag !== '') : [];
@@ -2003,39 +1980,57 @@
         // --- MODAL LOGIC FOR INDIVIDUAL POST VIEW ---
         // Opens a modal displaying detailed information about a selected post.
         async function openPostModal(postId, focusComment = false) { 
-            // If the modal is already open for this specific post, do nothing.
-            // This prevents re-incrementing views if the same card is clicked repeatedly while the modal is active.
-            if (isPostModalOpen && currentOpenPostId === postId) {
-                return;
+            // Only increment view if the modal is not already open for this post
+            // The isPostModalOpen flag prevents multiple increments from a single click event
+            if (!isPostModalOpen) {
+                isPostModalOpen = true; 
+            } else {
+                // If modal is already open, do not re-increment view count
+                // This handles cases where openPostModal might be called again
+                // (e.g., from direct URL access while modal is already open)
+                // but we only want to increment once per *initial* opening.
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('postId') === postId) {
+                    // If the modal is open AND the URL already reflects this postId,
+                    // we assume it's a re-render or a direct link to an already open modal.
+                    // Do not increment views again.
+                    console.log("Modal already open for this post, not incrementing views again.");
+                } else {
+                    // This case should ideally not happen if logic is tight, but as a safeguard.
+                    console.warn("isPostModalOpen is true but postId in URL is different or missing. Proceeding with caution.");
+                    isPostModalOpen = true; // Ensure flag is set for current opening
+                }
             }
 
-            // Set flag and current post ID immediately
-            isPostModalOpen = true;
-            currentOpenPostId = postId;
-
-            const post = allFetchedPosts.find(p => p.id === postId);
+            const post = allFetchedPosts.find(p => p.id === postId); // Use allFetchedPosts
             if (!post) {
                 showAlert("Post not found!");
                 isPostModalOpen = false; // Reset flag if post not found
-                currentOpenPostId = null; // Reset ID if post not found
                 return;
             }
 
-            // Update URL in browser history to reflect the opened post modal
-            const url = new URL(window.location.href);
-            url.searchParams.set('postId', postId);
-            url.searchParams.delete('section'); // Remove section parameter when a post modal is open
-            window.history.pushState({ postId: postId }, '', url.toString());
-
             // Increment view count for ALL post types AFTER the modal is confirmed to open
-            try {
-                const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
-                await updateDoc(postRef, { views: (post.views || 0) + 1 });
-                // Optimistically update the local data
-                post.views = (post.views || 0) + 1;
-            } catch (error) {
-                console.error("Error incrementing view count:", error);
+            // This logic is now inside the `if (!isPostModalOpen)` block above,
+            // or handled by checking the URL for postId.
+            // For now, let's keep it here, but ensure it only runs once per actual modal opening.
+            // A better approach for "one view per session" would involve sessionStorage.
+            // For "one view per successful modal opening", the `isPostModalOpen` flag is key.
+
+            // Only increment view if the modal was NOT already open for this specific post
+            // and the postId in the URL is not already set to this post.
+            const currentUrlParams = new URLSearchParams(window.location.search);
+            if (currentUrlParams.get('postId') !== postId) {
+                try {
+                    const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
+                    await updateDoc(postRef, { views: (post.views || 0) + 1 });
+                    // Optimistically update the local data
+                    post.views = (post.views || 0) + 1;
+                    console.log(`View count incremented for post ${postId}. New views: ${post.views}`);
+                } catch (error) {
+                    console.error("Error incrementing view count:", error);
+                }
             }
+
 
             let mediaHtml = '';
             let modalYoutubeLinkHtml = ''; // New variable for combo link in modal
@@ -2049,12 +2044,12 @@
                 }
             } else if (post.mediaType === 'image' && post.imageUrl) {
                 mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md">
-                                <img src="${post.imageUrl}" alt="${post.title}" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450';">
+                                <img src="${post.imageUrl}" alt="${post.title}" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Image+Not+Found';">
                             </div>`;
             } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
                 // For combo in modal, display the image and a separate clickable button
                 mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md mb-4">
-                                <img src="${post.imageUrl}" alt="Custom Thumbnail" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450';">
+                                <img src="${post.imageUrl}" alt="Custom Thumbnail" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Custom+Thumbnail+Not+Found';">
                             </div>`;
                 const videoId = getYouTubeVideoId(post.trailerLink);
                 if (videoId) {
@@ -2136,6 +2131,14 @@
                 ` : `<div class="mt-8 border-t border-gray-700 pt-6 text-center text-gray-400">Comments are disabled for this post.</div>`}
             `;
             postModal.classList.remove('hidden'); // Show the modal
+
+            // Update URL with postId
+            const url = new URL(window.location.href);
+            url.searchParams.set('postId', postId);
+            // Ensure section is also present in the URL when a post modal is opened
+            url.searchParams.set('section', currentActiveTab); 
+            window.history.pushState({}, document.title, url.toString());
+
             document.getElementById('close-modal-btn').addEventListener('click', closePostModal);
             
             // Add event listener for "Visit Itch.io" button to increment visits
@@ -2200,20 +2203,16 @@
             modalContent.innerHTML = ''; // Clear content to prevent old data from flashing on next open
             editingPostId = null; // Reset editing state
             isPostModalOpen = false; // Reset flag when modal is closed
-            currentOpenPostId = null; // Reset current open post ID
-
             // Re-enable post type selection when closing the edit modal
             const postTypeSelect = document.getElementById('post-type');
             if (postTypeSelect) {
                 postTypeSelect.disabled = false;
             }
-            
-            // Always navigate to ?section=community when the modal is closed
+            // Remove postId from URL and revert to section URL when modal is closed
             const url = new URL(window.location.href);
-            url.searchParams.set('section', 'community');
             url.searchParams.delete('postId');
-            window.history.replaceState({ section: 'community' }, '', url.toString());
-            switchTab('community', false); // Force switch to community tab without pushing new state
+            url.searchParams.set('section', currentActiveTab); // Ensure section is set
+            window.history.pushState({}, document.title, url.toString());
         }
 
         // Handles the submission of a new comment for a post.
