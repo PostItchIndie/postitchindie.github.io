@@ -317,28 +317,28 @@
         <header class="flex justify-between items-center py-4 px-4 main-bg rounded-lg shadow-lg">
             <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wider">Post<span class="text-[#00bcd4]">Itch</span></h1>
             <nav class="hidden md:flex items-center space-x-6">
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
+                <a href="?section=community" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
+                <a href="?section=promos" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
+                <a href="?section=devlogs" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
+                <a href="?section=post" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
+                <a href="?section=search" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
+                <a href="?section=my-posts" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
+                <a href="?section=about" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
+                <a href="?section=rules" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
             </nav>
             <div class="md:hidden">
                 <button id="mobile-menu-btn"><i class="fas fa-bars text-2xl"></i></button>
             </div>
         </header>
         <div id="mobile-menu" class="hidden md:hidden main-bg rounded-lg mt-2 p-4">
-             <a href="#" class="block py-2 text-center nav-item" data-tab="community">Community</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="promos">Game Promos</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="devlogs">Devlogs</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="post">Post</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="search">Search</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="my-posts">My Posts</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="about">About</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="rules">Rules</a>
+             <a href="?section=community" class="block py-2 text-center nav-item" data-tab="community">Community</a>
+             <a href="?section=promos" class="block py-2 text-center nav-item" data-tab="promos">Game Promos</a>
+             <a href="?section=devlogs" class="block py-2 text-center nav-item" data-tab="devlogs">Devlogs</a>
+             <a href="?section=post" class="block py-2 text-center nav-item" data-tab="post">Post</a>
+             <a href="?section=search" class="block py-2 text-center nav-item" data-tab="search">Search</a>
+             <a href="?section=my-posts" class="block py-2 text-center nav-item" data-tab="my-posts">My Posts</a>
+             <a href="?section=about" class="block py-2 text-center nav-item" data-tab="about">About</a>
+             <a href="?section=rules" class="block py-2 text-center nav-item" data-tab="rules">Rules</a>
         </div>
 
 
@@ -469,6 +469,7 @@
 
         let editingPostId = null; // Stores the ID of the post currently being edited
         let isPostModalOpen = false; // Flag to prevent multiple view increments
+        let currentOpenPostId = null; // To track which post is currently open in the modal
 
 
         // --- HELPER FUNCTIONS ---
@@ -606,8 +607,8 @@
                         return; // Do nothing if media placeholder, YouTube link button, or other button was clicked
                     }
                     const postId = card.dataset.id;
-                    // Only open the post modal if it's not already open
-                    if (!isPostModalOpen) {
+                    // Only open the post modal if it's not already open for this specific post
+                    if (!isPostModalOpen || currentOpenPostId !== postId) {
                         await openPostModal(postId);
                     }
                 });
@@ -693,6 +694,8 @@
             // Check for postId in URL and open modal if present
             const urlParams = new URLSearchParams(window.location.search);
             const postIdFromUrl = urlParams.get('postId');
+            const sectionFromUrl = urlParams.get('section');
+
             if (postIdFromUrl) {
                 // Wait for posts to be fetched before attempting to open the modal
                 const checkPostsInterval = setInterval(() => {
@@ -701,12 +704,41 @@
                         openPostModal(postIdFromUrl);
                     }
                 }, 100); // Check every 100ms
-            } else {
-                switchTab('community'); // Load the default community feed tab if no postId in URL
+            } else if (sectionFromUrl) {
+                switchTab(sectionFromUrl); // Load the specified section
+            }
+            else {
+                switchTab('community'); // Load the default community feed tab if no postId or section in URL
             }
             
             // Add event listener for the new video modal close button
             closeVideoModalBtn.addEventListener('click', closeVideoModal);
+
+            // Listen for browser history changes (back/forward buttons)
+            window.addEventListener('popstate', handlePopState);
+        }
+
+        // Handles browser history changes (back/forward buttons)
+        function handlePopState() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const postIdFromUrl = urlParams.get('postId');
+            const sectionFromUrl = urlParams.get('section');
+
+            if (postIdFromUrl) {
+                // If a postId is in the URL, try to open the modal
+                // Ensure the modal is not already open for this specific post to prevent re-opening and re-incrementing views
+                if (!isPostModalOpen || currentOpenPostId !== postIdFromUrl) {
+                    openPostModal(postIdFromUrl);
+                }
+            } else {
+                // If no postId, ensure we are on a section. Default to community if none specified.
+                const targetSection = sectionFromUrl || 'community';
+                switchTab(targetSection, false); // Pass false to prevent pushing state again
+                // If the modal was open and now it's not in the URL, close it explicitly
+                if (isPostModalOpen) {
+                    closePostModal(); // This will also reset isPostModalOpen and currentOpenPostId
+                }
+            }
         }
         
         // Sets up event listeners for navigation buttons (desktop and mobile).
@@ -715,10 +747,10 @@
             
             navItems.forEach(item => {
                 item.addEventListener('click', (e) => {
-                    e.preventDefault();
+                    e.preventDefault(); // Prevent default link behavior
                     const tab = e.target.getAttribute('data-tab');
                     if (tab) {
-                        switchTab(tab);
+                        switchTab(tab); // Call switchTab, which will handle URL update
                         mobileMenu.classList.add('hidden'); // Hide mobile menu on tab selection
                     }
                 });
@@ -727,7 +759,8 @@
 
         // --- NAVIGATION LOGIC ---
         // Switches the active tab and renders its content.
-        function switchTab(tab) {
+        // The `pushState` parameter controls whether a new history entry is created.
+        function switchTab(tab, pushState = true) {
             // Update active navigation item styling
             document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
                 item.classList.toggle('active', item.getAttribute('data-tab') === tab);
@@ -737,6 +770,14 @@
                 content.classList.toggle('hidden', content.id !== `content-${tab}`);
             });
             
+            // Update URL in browser history
+            if (pushState) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('section', tab);
+                url.searchParams.delete('postId'); // Remove postId if navigating to a section
+                window.history.pushState({ section: tab }, '', url.toString());
+            }
+
             // Map tab names to their respective rendering functions
             const renderMap = {
                 community: renderCommunityPage,
@@ -765,7 +806,7 @@
                     const thumbnailUrl = getYouTubeThumbnailUrl(videoId);
                     mediaHtml = `
                         <div class="media-placeholder w-full h-full relative cursor-pointer" data-video-id="${videoId}">
-                            <img src="${thumbnailUrl}" alt="YouTube Thumbnail" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Video+Not+Found';">
+                            <img src="${thumbnailUrl}" alt="YouTube Thumbnail" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400';">
                             <div class="play-button-overlay">
                                 <i class="fas fa-play"></i>
                             </div>
@@ -773,10 +814,10 @@
                     `;
                 }
             } else if (post.mediaType === 'image' && post.imageUrl) {
-                 mediaHtml = `<img src="${post.imageUrl}" alt="${post.title}" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Image+Not+Found';">`;
+                 mediaHtml = `<img src="${post.imageUrl}" alt="${post.title}" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400';">`;
             } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
                 // For combo, display only the image on the preview card
-                mediaHtml = `<img src="${post.imageUrl}" alt="Custom Thumbnail" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Custom+Thumbnail+Not+Found';">`;
+                mediaHtml = `<img src="${post.imageUrl}" alt="Custom Thumbnail" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400';">`;
                 // The comboLinkHtml is intentionally NOT added here for preview cards
             } else if (post.mediaType === 'itch_embed' && post.itchLink) {
                 // For Itch.io, always show the placeholder due to embedding restrictions
@@ -1071,7 +1112,7 @@
                             <label for="image-url" class="block mb-2 font-semibold text-gray-300" id="image-url-label">
                                 Image URL (Optional)
                                 <span class="text-xs text-gray-500 ml-2 image-link-help">
-                                    (e.g., Right-click image -> Copy Image Address. Example: https://placehold.co/600x400/101010/808080?text=Image)
+                                    (e.g., Right-click image -> Copy Image Address. Example: https://placehold.co/600x400)
                                 </span>
                             </label>
                             <input type="url" id="image-url" class="w-full p-3 input-bg rounded-md" placeholder="e.g., https://example.com/your-game-screenshot.png">
@@ -1189,7 +1230,7 @@
                 const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
                 const youtubeLinkSection = form.querySelector('#youtube-link-section');
                 const imageLinkSection = form.querySelector('#image-link-section');
-                const customYoutubeTextSection = form.querySelector('#custom-youtube-text-section');
+                const customYoutubeTextSection = form.querySelector('#custom-youtube-link-section');
                 const youtubeLinkHelp = form.querySelector('.youtube-link-help');
                 const imageLinkHelp = form.querySelector('.image-link-help');
                 const itchLinkInput = form.querySelector('#itch-link');
@@ -1226,9 +1267,18 @@
                     const selectedMedia = form.querySelector('input[name="media-type"]:checked')?.value; // Added optional chaining
                     console.log("toggleMediaSectionsInternal called. Selected Media:", selectedMedia); // Debugging line
 
-                    if (youtubeLinkSection) youtubeLinkSection.classList.toggle('hidden', selectedMedia !== 'youtube' && selectedMedia !== 'combo');
-                    if (imageLinkSection) imageLinkSection.classList.toggle('hidden', selectedMedia !== 'image' && selectedMedia !== 'combo');
-                    if (customYoutubeTextSection) customYoutubeTextSection.classList.toggle('hidden', selectedMedia !== 'combo');
+                    if (youtubeLinkSection) {
+                        if (selectedMedia === 'youtube' || selectedMedia === 'combo') youtubeLinkSection.classList.remove('hidden');
+                        else youtubeLinkSection.classList.add('hidden');
+                    }
+                    if (imageLinkSection) {
+                        if (selectedMedia === 'image' || selectedMedia === 'combo') imageLinkSection.classList.remove('hidden');
+                        else imageLinkSection.classList.add('hidden');
+                    }
+                    if (customYoutubeTextSection) {
+                        if (selectedMedia === 'combo') customYoutubeTextSection.classList.remove('hidden');
+                        else customYoutubeTextSection.classList.add('hidden');
+                    }
                     
                     // Get references to inputs
                     const trailerLinkInput = form.querySelector('#trailer-link');
@@ -1243,24 +1293,24 @@
 
                     if (selectedMedia === 'combo') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Required for Combo. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Required for Combo. Example: https://example.com/your-game-screenshot.png)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Required for Combo. Example: https://placehold.co/600x400)';
                         // Make inputs required for combo
                         trailerLinkInput.setAttribute('required', 'true');
                         imageUrlInput.setAttribute('required', 'true');
                         customYoutubeLinkTextInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'youtube') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://placehold.co/600x400)';
                         // Only YouTube link is required for 'youtube'
                         trailerLinkInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'image') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://placehold.co/600x400)';
                         // Only Image URL is required for 'image'
                         imageUrlInput.setAttribute('required', 'true');
                     } else { // 'none' or 'itch_embed'
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://placehold.co/600x400)';
                         // No media inputs are required for 'none' or 'itch_embed'
                     }
 
@@ -1429,13 +1479,22 @@
                 const commentsStatusSection = form.querySelector('#comments-status-section');
                 const linkedGamePromoSection = form.querySelector('#linked-game-promo-section');
 
-                function toggleMediaSectionsEdit() {
-                    const selectedMedia = form.querySelector('input[name="media-type"]:checked')?.value;
+                function toggleMediaSectionsEdit(initialMediaType = null) { // Added initialMediaType parameter
+                    const selectedMedia = initialMediaType || form.querySelector('input[name="media-type"]:checked')?.value;
                     console.log("toggleMediaSectionsEdit called. Selected Media:", selectedMedia); // Debugging line
 
-                    if (youtubeLinkSection) youtubeLinkSection.classList.toggle('hidden', selectedMedia !== 'youtube' && selectedMedia !== 'combo');
-                    if (imageLinkSection) imageLinkSection.classList.toggle('hidden', selectedMedia !== 'image' && selectedMedia !== 'combo');
-                    if (customYoutubeTextSection) customYoutubeTextSection.classList.toggle('hidden', selectedMedia !== 'combo'); 
+                    if (youtubeLinkSection) {
+                        if (selectedMedia === 'youtube' || selectedMedia === 'combo') youtubeLinkSection.classList.remove('hidden');
+                        else youtubeLinkSection.classList.add('hidden');
+                    }
+                    if (imageLinkSection) {
+                        if (selectedMedia === 'image' || selectedMedia === 'combo') imageLinkSection.classList.remove('hidden');
+                        else imageLinkSection.classList.add('hidden');
+                    }
+                    if (customYoutubeTextSection) {
+                        if (selectedMedia === 'combo') customYoutubeTextSection.classList.remove('hidden');
+                        else customYoutubeTextSection.classList.add('hidden');
+                    }
                     
                     const trailerLinkInput = form.querySelector('#trailer-link');
                     const imageUrlInput = form.querySelector('#image-url');
@@ -1448,21 +1507,21 @@
 
                     if (selectedMedia === 'combo') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Required for Combo. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Required for Combo. Example: https://example.com/your-game-screenshot.png)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Required for Combo. Example: https://placehold.co/600x400)';
                         trailerLinkInput.setAttribute('required', 'true');
                         imageUrlInput.setAttribute('required', 'true');
                         customYoutubeLinkTextInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'youtube') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)'; 
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://placehold.co/600x400)'; 
                         trailerLinkInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'image') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)'; 
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://placehold.co/600x400)';
                         imageUrlInput.setAttribute('required', 'true');
                     } else { 
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://placehold.co/600x400)';
                     }
 
                     if (selectedMedia === 'none' || selectedMedia === 'itch_embed') {
@@ -1471,7 +1530,7 @@
                     }
                 }
                 mediaTypeRadios.forEach(radio => radio.addEventListener('change', toggleMediaSectionsEdit));
-                toggleMediaSectionsEdit(); // Initialize visibility
+                toggleMediaSectionsEdit(post.mediaType); // Initialize visibility with the post's media type
 
                 function togglePostTypeFieldsEdit() {
                     const selectedPostType = postTypeSelect.value;
@@ -1655,7 +1714,7 @@
             // Get genres from the global selectedGenres array
             const genres = [...selectedGenres]; 
             const platforms = [...form.querySelectorAll('input[name="platform"]:checked')].map(el => el.value);
-            const mediaType = form.querySelector('input[name="media-type"]:checked').value; // Get from form
+            const mediaType = form.querySelector('input[name="media-type']:checked').value; // Get from form
             const aiContent = form.querySelector('input[name="ai-content"]:checked')?.value;
             const tagsInput = form.querySelector('#tags').value.trim();
             const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag !== '') : [];
@@ -1944,15 +2003,29 @@
         // --- MODAL LOGIC FOR INDIVIDUAL POST VIEW ---
         // Opens a modal displaying detailed information about a selected post.
         async function openPostModal(postId, focusComment = false) { 
-            // Set flag to true immediately to prevent multiple increments
-            isPostModalOpen = true; 
+            // If the modal is already open for this specific post, do nothing.
+            // This prevents re-incrementing views if the same card is clicked repeatedly while the modal is active.
+            if (isPostModalOpen && currentOpenPostId === postId) {
+                return;
+            }
 
-            const post = allFetchedPosts.find(p => p.id === postId); // Use allFetchedPosts
+            // Set flag and current post ID immediately
+            isPostModalOpen = true;
+            currentOpenPostId = postId;
+
+            const post = allFetchedPosts.find(p => p.id === postId);
             if (!post) {
                 showAlert("Post not found!");
                 isPostModalOpen = false; // Reset flag if post not found
+                currentOpenPostId = null; // Reset ID if post not found
                 return;
             }
+
+            // Update URL in browser history to reflect the opened post modal
+            const url = new URL(window.location.href);
+            url.searchParams.set('postId', postId);
+            url.searchParams.delete('section'); // Remove section parameter when a post modal is open
+            window.history.pushState({ postId: postId }, '', url.toString());
 
             // Increment view count for ALL post types AFTER the modal is confirmed to open
             try {
@@ -1976,12 +2049,12 @@
                 }
             } else if (post.mediaType === 'image' && post.imageUrl) {
                 mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md">
-                                <img src="${post.imageUrl}" alt="${post.title}" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Image+Not+Found';">
+                                <img src="${post.imageUrl}" alt="${post.title}" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450';">
                             </div>`;
             } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
                 // For combo in modal, display the image and a separate clickable button
                 mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md mb-4">
-                                <img src="${post.imageUrl}" alt="Custom Thumbnail" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Custom+Thumbnail+Not+Found';">
+                                <img src="${post.imageUrl}" alt="Custom Thumbnail" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450';">
                             </div>`;
                 const videoId = getYouTubeVideoId(post.trailerLink);
                 if (videoId) {
@@ -2127,15 +2200,20 @@
             modalContent.innerHTML = ''; // Clear content to prevent old data from flashing on next open
             editingPostId = null; // Reset editing state
             isPostModalOpen = false; // Reset flag when modal is closed
+            currentOpenPostId = null; // Reset current open post ID
+
             // Re-enable post type selection when closing the edit modal
             const postTypeSelect = document.getElementById('post-type');
             if (postTypeSelect) {
                 postTypeSelect.disabled = false;
             }
-            // Remove postId from URL when modal is closed
+            
+            // Always navigate to ?section=community when the modal is closed
             const url = new URL(window.location.href);
+            url.searchParams.set('section', 'community');
             url.searchParams.delete('postId');
-            window.history.replaceState({}, document.title, url.toString());
+            window.history.replaceState({ section: 'community' }, '', url.toString());
+            switchTab('community', false); // Force switch to community tab without pushing new state
         }
 
         // Handles the submission of a new comment for a post.
