@@ -1197,7 +1197,7 @@
                 const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
                 const youtubeLinkSection = form.querySelector('#youtube-link-section');
                 const imageLinkSection = form.querySelector('#image-link-section');
-                const customYoutubeTextSection = form.querySelector('#custom-youtube-link-section');
+                const customYoutubeTextSection = form.querySelector('#custom-youtube-text-section');
                 const youtubeLinkHelp = form.querySelector('.youtube-link-help');
                 const imageLinkHelp = form.querySelector('.image-link-help');
                 const itchLinkInput = form.querySelector('#itch-link');
@@ -1234,22 +1234,26 @@
                     const selectedMedia = form.querySelector('input[name="media-type"]:checked')?.value; // Added optional chaining
                     console.log("toggleMediaSectionsInternal called. Selected Media:", selectedMedia); // Debugging line
 
-                    if (youtubeLinkSection) youtubeLinkSection.classList.toggle('hidden', selectedMedia !== 'youtube' && selectedMedia !== 'combo');
-                    if (imageLinkSection) imageLinkSection.classList.toggle('hidden', selectedMedia !== 'image' && selectedMedia !== 'combo');
-                    if (customYoutubeTextSection) customYoutubeTextSection.classList.toggle('hidden', selectedMedia !== 'combo');
-                    
                     // Get references to inputs
                     const trailerLinkInput = form.querySelector('#trailer-link');
                     const imageUrlInput = form.querySelector('#image-url');
                     const customYoutubeLinkTextInput = form.querySelector('#custom-youtube-link-text');
+
+                    // Reset visibility for all media sections first
+                    if (youtubeLinkSection) youtubeLinkSection.classList.add('hidden');
+                    if (imageLinkSection) imageLinkSection.classList.add('hidden');
+                    if (customYoutubeTextSection) customYoutubeTextSection.classList.add('hidden');
 
                     // Reset required attributes for all media inputs first
                     trailerLinkInput.removeAttribute('required');
                     imageUrlInput.removeAttribute('required');
                     customYoutubeLinkTextInput.removeAttribute('required');
 
-
                     if (selectedMedia === 'combo') {
+                        if (youtubeLinkSection) youtubeLinkSection.classList.remove('hidden');
+                        if (imageLinkSection) imageLinkSection.classList.remove('hidden');
+                        if (customYoutubeTextSection) customYoutubeTextSection.classList.remove('hidden');
+                        
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Required for Combo. Example: https://youtu.be/dQw4w9WgXcQ)';
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Required for Combo. Example: https://example.com/your-game-screenshot.png)';
                         // Make inputs required for combo
@@ -1257,25 +1261,30 @@
                         imageUrlInput.setAttribute('required', 'true');
                         customYoutubeLinkTextInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'youtube') {
+                        if (youtubeLinkSection) youtubeLinkSection.classList.remove('hidden');
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         // Only YouTube link is required for 'youtube'
                         trailerLinkInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'image') {
-                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
+                        if (imageLinkSection) imageLinkSection.classList.remove('hidden');
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         // Only Image URL is required for 'image'
                         imageUrlInput.setAttribute('required', 'true');
                     } else { // 'none' or 'itch_embed'
+                        // All sections remain hidden, and required attributes are already removed.
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
-                        // No media inputs are required for 'none' or 'itch_embed'
                     }
 
-                    if (selectedMedia === 'none' || selectedMedia === 'itch_embed') {
-                        if (youtubeLinkSection) youtubeLinkSection.classList.add('hidden');
-                        if (imageLinkSection) imageLinkSection.classList.add('hidden');
-                    }
+                    // Debugging visibility
+                    console.log("youtubeLinkSection hidden:", youtubeLinkSection.classList.contains('hidden'));
+                    console.log("imageLinkSection hidden:", imageLinkSection.classList.contains('hidden'));
+                    console.log("customYoutubeTextSection hidden:", customYoutubeTextSection.classList.contains('hidden'));
+
+                    // Debugging required attributes
+                    console.log("trailerLinkInput required:", trailerLinkInput.hasAttribute('required'));
+                    console.log("imageUrlInput required:", imageUrlInput.hasAttribute('required'));
+                    console.log("customYoutubeLinkTextInput required:", customYoutubeLinkTextInput.hasAttribute('required'));
                 }
                 mediaTypeRadios.forEach(radio => radio.addEventListener('change', toggleMediaSectionsInternal));
                 // Removed unconditional call to toggleMediaSections() here
@@ -1441,13 +1450,15 @@
                     const selectedMedia = form.querySelector('input[name="media-type"]:checked')?.value;
                     console.log("toggleMediaSectionsEdit called. Selected Media:", selectedMedia); // Debugging line
 
-                    if (youtubeLinkSection) youtubeLinkSection.classList.toggle('hidden', selectedMedia !== 'youtube' && selectedMedia !== 'combo');
-                    if (imageLinkSection) imageLinkSection.classList.toggle('hidden', selectedMedia !== 'image' && selectedMedia !== 'combo');
-                    if (customYoutubeTextSection) customYoutubeTextSection.classList.toggle('hidden', selectedMedia !== 'combo'); 
-                    
+                    // Get references to inputs
                     const trailerLinkInput = form.querySelector('#trailer-link');
                     const imageUrlInput = form.querySelector('#image-url');
                     const customYoutubeLinkTextInput = form.querySelector('#custom-youtube-link-text');
+
+                    // Reset visibility for all media sections first
+                    if (youtubeLinkSection) youtubeLinkSection.classList.add('hidden');
+                    if (imageLinkSection) imageLinkSection.classList.add('hidden');
+                    if (customYoutubeTextSection) customYoutubeTextSection.classList.add('hidden');
 
                     // Reset required attributes for all media inputs first
                     trailerLinkInput.removeAttribute('required');
@@ -1455,28 +1466,38 @@
                     customYoutubeLinkTextInput.removeAttribute('required');
 
                     if (selectedMedia === 'combo') {
+                        if (youtubeLinkSection) youtubeLinkSection.classList.remove('hidden');
+                        if (imageLinkSection) imageLinkSection.classList.remove('hidden');
+                        if (customYoutubeTextSection) customYoutubeTextSection.classList.remove('hidden');
+                        
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Required for Combo. Example: https://youtu.be/dQw4w9WgXcQ)';
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Required for Combo. Example: https://example.com/your-game-screenshot.png)';
                         trailerLinkInput.setAttribute('required', 'true');
                         imageUrlInput.setAttribute('required', 'true');
                         customYoutubeLinkTextInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'youtube') {
-                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)'; 
+                        if (youtubeLinkSection) youtubeLinkSection.classList.remove('hidden');
+                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)'; 
                         trailerLinkInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'image') {
-                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)'; 
+                        if (imageLinkSection) imageLinkSection.classList.remove('hidden');
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         imageUrlInput.setAttribute('required', 'true');
                     } else { 
+                        // All sections remain hidden, and required attributes are already removed.
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                     }
 
-                    if (selectedMedia === 'none' || selectedMedia === 'itch_embed') {
-                        if (youtubeLinkSection) youtubeLinkSection.classList.add('hidden');
-                        if (imageLinkSection) imageLinkSection.classList.add('hidden');
-                    }
+                    // Debugging visibility
+                    console.log("youtubeLinkSection hidden:", youtubeLinkSection.classList.contains('hidden'));
+                    console.log("imageLinkSection hidden:", imageLinkSection.classList.contains('hidden'));
+                    console.log("customYoutubeTextSection hidden:", customYoutubeTextSection.classList.contains('hidden'));
+
+                    // Debugging required attributes
+                    console.log("trailerLinkInput required:", trailerLinkInput.hasAttribute('required'));
+                    console.log("imageUrlInput required:", imageUrlInput.hasAttribute('required'));
+                    console.log("customYoutubeLinkTextInput required:", customYoutubeLinkTextInput.hasAttribute('required'));
                 }
                 mediaTypeRadios.forEach(radio => radio.addEventListener('change', toggleMediaSectionsEdit));
                 toggleMediaSectionsEdit(); // Initialize visibility
