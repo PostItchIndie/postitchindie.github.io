@@ -317,28 +317,28 @@
         <header class="flex justify-between items-center py-4 px-4 main-bg rounded-lg shadow-lg">
             <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wider">Post<span class="text-[#00bcd4]">Itch</span></h1>
             <nav class="hidden md:flex items-center space-x-6">
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
+                <a href="?section=community" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
+                <a href="?section=promos" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
+                <a href="?section=devlogs" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
+                <a href="?section=post" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
+                <a href="?section=search" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
+                <a href="?section=my-posts" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
+                <a href="?section=about" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
+                <a href="?section=rules" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
             </nav>
             <div class="md:hidden">
                 <button id="mobile-menu-btn"><i class="fas fa-bars text-2xl"></i></button>
             </div>
         </header>
         <div id="mobile-menu" class="hidden md:hidden main-bg rounded-lg mt-2 p-4">
-             <a href="#" class="block py-2 text-center nav-item" data-tab="community">Community</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="promos">Game Promos</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="devlogs">Devlogs</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="post">Post</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="search">Search</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="my-posts">My Posts</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="about">About</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="rules">Rules</a>
+             <a href="?section=community" class="block py-2 text-center nav-item" data-tab="community">Community</a>
+             <a href="?section=promos" class="block py-2 text-center nav-item" data-tab="promos">Game Promos</a>
+             <a href="?section=devlogs" class="block py-2 text-center nav-item" data-tab="devlogs">Devlogs</a>
+             <a href="?section=post" class="block py-2 text-center nav-item" data-tab="post">Post</a>
+             <a href="?section=search" class="block py-2 text-center nav-item" data-tab="search">Search</a>
+             <a href="?section=my-posts" class="block py-2 text-center nav-item" data-tab="my-posts">My Posts</a>
+             <a href="?section=about" class="block py-2 text-center nav-item" data-tab="about">About</a>
+             <a href="?section=rules" class="block py-2 text-center nav-item" data-tab="rules">Rules</a>
         </div>
 
 
@@ -618,7 +618,7 @@
                 placeholder.addEventListener('click', (e) => {
                     e.stopPropagation(); // Prevent card click event from firing
                     const videoId = placeholder.dataset.videoId;
-                    loadYouTubeVideo(placeholder, videoId);
+                    openVideoModal(videoId); // Open the dedicated video modal
                 });
             });
             
@@ -693,6 +693,8 @@
             // Check for postId in URL and open modal if present
             const urlParams = new URLSearchParams(window.location.search);
             const postIdFromUrl = urlParams.get('postId');
+            const sectionFromUrl = urlParams.get('section');
+
             if (postIdFromUrl) {
                 // Wait for posts to be fetched before attempting to open the modal
                 const checkPostsInterval = setInterval(() => {
@@ -701,12 +703,38 @@
                         openPostModal(postIdFromUrl);
                     }
                 }, 100); // Check every 100ms
+            } else if (sectionFromUrl) {
+                switchTab(sectionFromUrl, true); // true for replaceState, as it's initial load
             } else {
-                switchTab('community'); // Load the default community feed tab if no postId in URL
+                switchTab('community', true); // Load the default community feed tab if no postId or section in URL
             }
             
             // Add event listener for the new video modal close button
             closeVideoModalBtn.addEventListener('click', closeVideoModal);
+
+            // Add popstate listener for browser back/forward navigation
+            window.addEventListener('popstate', handlePopState);
+        }
+
+        // Handles browser back/forward navigation
+        function handlePopState() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const postIdFromUrl = urlParams.get('postId');
+            const sectionFromUrl = urlParams.get('section');
+
+            if (postIdFromUrl) {
+                // If postId is in URL, open the modal
+                if (!isPostModalOpen || modalContent.dataset.postId !== postIdFromUrl) {
+                    openPostModal(postIdFromUrl);
+                }
+            } else {
+                // If postId is NOT in URL, close the modal if it's open
+                if (isPostModalOpen) {
+                    closePostModal(); // This will clear postId from URL if it was there
+                }
+                // Switch to the section specified in the URL, or default to 'community'
+                switchTab(sectionFromUrl || 'community', true); // Use replaceState as popstate already changes history
+            }
         }
         
         // Sets up event listeners for navigation buttons (desktop and mobile).
@@ -715,10 +743,10 @@
             
             navItems.forEach(item => {
                 item.addEventListener('click', (e) => {
-                    e.preventDefault();
+                    e.preventDefault(); // Prevent default link behavior
                     const tab = e.target.getAttribute('data-tab');
                     if (tab) {
-                        switchTab(tab);
+                        switchTab(tab); // Call switchTab, which will update the URL
                         mobileMenu.classList.add('hidden'); // Hide mobile menu on tab selection
                     }
                 });
@@ -727,7 +755,7 @@
 
         // --- NAVIGATION LOGIC ---
         // Switches the active tab and renders its content.
-        function switchTab(tab) {
+        function switchTab(tab, replace = false) {
             // Update active navigation item styling
             document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
                 item.classList.toggle('active', item.getAttribute('data-tab') === tab);
@@ -737,6 +765,16 @@
                 content.classList.toggle('hidden', content.id !== `content-${tab}`);
             });
             
+            // Update URL
+            const url = new URL(window.location.href);
+            url.searchParams.set('section', tab);
+            url.searchParams.delete('postId'); // Ensure postId is removed when switching sections
+            if (replace) {
+                window.history.replaceState({ section: tab }, document.title, url.toString());
+            } else {
+                window.history.pushState({ section: tab }, document.title, url.toString());
+            }
+
             // Map tab names to their respective rendering functions
             const renderMap = {
                 community: renderCommunityPage,
@@ -1189,7 +1227,7 @@
                 const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
                 const youtubeLinkSection = form.querySelector('#youtube-link-section');
                 const imageLinkSection = form.querySelector('#image-link-section');
-                const customYoutubeTextSection = form.querySelector('#custom-youtube-text-section');
+                const customYoutubeTextSection = form.querySelector('#custom-youtube-link-section');
                 const youtubeLinkHelp = form.querySelector('.youtube-link-help');
                 const imageLinkHelp = form.querySelector('.image-link-help');
                 const itchLinkInput = form.querySelector('#itch-link');
@@ -1454,7 +1492,7 @@
                         customYoutubeLinkTextInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'youtube') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)'; 
+                        if (imageLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)'; 
                         trailerLinkInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'image') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)'; 
@@ -1613,18 +1651,29 @@
                 });
 
                 // Re-render the currently active tab to reflect the updated data
-                const activeTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
-                if (activeTab === 'community') {
-                    renderCommunityPage(); // Re-render community page with potentially new/updated posts
-                } else if (activeTab === 'my-posts') {
-                    renderMyPostsPage(); // Re-render my posts page
-                } else if (activeTab === 'promos') {
-                    renderPromosPage();
-                } else if (activeTab === 'devlogs') {
-                    renderDevlogsPage();
-                } else if (activeTab === 'search') {
-                    // Re-run search if on search tab to update results based on new data
-                    handleSearch();
+                const urlParams = new URLSearchParams(window.location.search);
+                const postIdFromUrl = urlParams.get('postId');
+                const sectionFromUrl = urlParams.get('section');
+
+                if (postIdFromUrl) {
+                    // If modal is open, re-render its content to reflect any updates (e.g., likes, comments)
+                    if (isPostModalOpen && modalContent.dataset.postId === postIdFromUrl) {
+                        openPostModal(postIdFromUrl); // Re-open to refresh content
+                    }
+                } else {
+                    const activeTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
+                    if (activeTab === 'community') {
+                        renderCommunityPage(); // Re-render community page with potentially new/updated posts
+                    } else if (activeTab === 'my-posts') {
+                        renderMyPostsPage(); // Re-render my posts page
+                    } else if (activeTab === 'promos') {
+                        renderPromosPage();
+                    } else if (activeTab === 'devlogs') {
+                        renderDevlogsPage();
+                    } else if (activeTab === 'search') {
+                        // Re-run search if on search tab to update results based on new data
+                        handleSearch();
+                    }
                 }
             }, error => {
                 console.error("Error listening for posts:", error);
@@ -1946,6 +1995,7 @@
         async function openPostModal(postId, focusComment = false) { 
             // Set flag to true immediately to prevent multiple increments
             isPostModalOpen = true; 
+            modalContent.dataset.postId = postId; // Store the postId on the modal content for popstate handler
 
             const post = allFetchedPosts.find(p => p.id === postId); // Use allFetchedPosts
             if (!post) {
@@ -1953,6 +2003,14 @@
                 isPostModalOpen = false; // Reset flag if post not found
                 return;
             }
+
+            // Update URL with postId, preserving the current section
+            const url = new URL(window.location.href);
+            const currentSection = url.searchParams.get('section') || 'community'; // Get current section or default
+            url.searchParams.set('postId', postId);
+            url.searchParams.set('section', currentSection); // Ensure section is maintained
+            window.history.pushState({ postId: postId, section: currentSection }, document.title, url.toString());
+
 
             // Increment view count for ALL post types AFTER the modal is confirmed to open
             try {
@@ -2127,15 +2185,30 @@
             modalContent.innerHTML = ''; // Clear content to prevent old data from flashing on next open
             editingPostId = null; // Reset editing state
             isPostModalOpen = false; // Reset flag when modal is closed
+            modalContent.dataset.postId = ''; // Clear stored postId
+
             // Re-enable post type selection when closing the edit modal
             const postTypeSelect = document.getElementById('post-type');
             if (postTypeSelect) {
                 postTypeSelect.disabled = false;
             }
-            // Remove postId from URL when modal is closed
+            
+            // Handle URL cleanup:
+            // Check if the current URL has a postId, and if the history state indicates
+            // we're navigating back from a postId-specific state.
             const url = new URL(window.location.href);
-            url.searchParams.delete('postId');
-            window.history.replaceState({}, document.title, url.toString());
+            if (url.searchParams.has('postId')) {
+                // If postId is present in the URL, it means we're closing the modal
+                // via the 'X' button or programmatically, not via a browser back button.
+                // So, we need to explicitly remove postId and set the section.
+                url.searchParams.delete('postId');
+                // Revert to the section that was active before the modal was opened,
+                // or default to 'community' if no section was previously set.
+                // We can store the active section in a global variable or retrieve from history state if needed.
+                // For simplicity, let's revert to 'community' as requested.
+                url.searchParams.set('section', 'community'); // Default to community as per request
+                window.history.replaceState({ section: 'community' }, document.title, url.toString());
+            }
         }
 
         // Handles the submission of a new comment for a post.
