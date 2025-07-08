@@ -317,7 +317,7 @@
         <header class="flex justify-between items-center py-4 px-4 main-bg rounded-lg shadow-lg">
             <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wider">Post<span class="text-[#00bcd4]">Itch</span></h1>
             <nav class="hidden md:flex items-center space-x-6">
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="community">Community</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
                 <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
                 <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
                 <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
@@ -430,7 +430,6 @@
         let currentSortBy = 'newest'; // Default sort order for community feed
         let currentPricingFilter = 'all'; // Default pricing filter
         let currentAiContentFilter = 'all'; // New: Default AI content filter
-        let currentSearchQuery = ''; // New: Stores the current search query
 
         // Global array to store selected genres, persisting across search filters
         let selectedGenres = []; 
@@ -691,11 +690,20 @@
             listenForPostsRealtime(); // Start real-time listening for ALL posts
             setupNavListeners(); // Set up navigation event handlers
             
-            // Handle initial URL state for SPA navigation
-            handleUrlChange();
-
-            // Add event listener for popstate to handle browser back/forward buttons
-            window.addEventListener('popstate', handleUrlChange);
+            // Check for postId in URL and open modal if present
+            const urlParams = new URLSearchParams(window.location.search);
+            const postIdFromUrl = urlParams.get('postId');
+            if (postIdFromUrl) {
+                // Wait for posts to be fetched before attempting to open the modal
+                const checkPostsInterval = setInterval(() => {
+                    if (allFetchedPosts.length > 0) {
+                        clearInterval(checkPostsInterval);
+                        openPostModal(postIdFromUrl);
+                    }
+                }, 100); // Check every 100ms
+            } else {
+                switchTab('community'); // Load the default community feed tab if no postId in URL
+            }
             
             // Add event listener for the new video modal close button
             closeVideoModalBtn.addEventListener('click', closeVideoModal);
@@ -710,78 +718,14 @@
                     e.preventDefault();
                     const tab = e.target.getAttribute('data-tab');
                     if (tab) {
-                        // Use navigateTo instead of switchTab directly for URL management
-                        navigateTo(tab);
+                        switchTab(tab);
                         mobileMenu.classList.add('hidden'); // Hide mobile menu on tab selection
                     }
                 });
             });
         }
 
-        // --- SPA NAVIGATION LOGIC ---
-        // Handles URL changes, either from direct access, history.pushState, or popstate.
-        function handleUrlChange() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const section = urlParams.get('section') || 'community'; // Default to 'community'
-            const postIdFromUrl = urlParams.get('postId');
-            const queryFromUrl = urlParams.get('query') || '';
-            const sortByFromUrl = urlParams.get('sortBy') || 'newest';
-            const pricingFromUrl = urlParams.get('pricing') || 'all';
-            const aiContentFromUrl = urlParams.get('aiContent') || 'all';
-
-            // Update global state variables based on URL
-            currentSortBy = sortByFromUrl;
-            currentPricingFilter = pricingFromUrl;
-            currentAiContentFilter = aiContentFromUrl;
-            currentSearchQuery = queryFromUrl;
-
-            // If a postId is in the URL, open the modal
-            if (postIdFromUrl) {
-                // Wait for posts to be fetched before attempting to open the modal
-                const checkPostsInterval = setInterval(() => {
-                    if (allFetchedPosts.length > 0) {
-                        clearInterval(checkPostsInterval);
-                        openPostModal(postIdFromUrl);
-                    }
-                }, 100);
-            } else {
-                // Otherwise, switch to the appropriate tab
-                switchTab(section, false); // Pass false to prevent pushing state again
-            }
-        }
-
-        // Navigates to a new section, updating the URL using history.pushState.
-        function navigateTo(tab, pushState = true, params = {}) {
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set('section', tab);
-
-            // Clear previous parameters if switching sections, unless explicitly provided
-            if (tab !== 'search') {
-                currentUrl.searchParams.delete('query');
-            }
-            if (tab !== 'community' && tab !== 'promos' && tab !== 'devlogs' && tab !== 'my-posts') {
-                currentUrl.searchParams.delete('sortBy');
-                currentUrl.searchParams.delete('pricing');
-                currentUrl.searchParams.delete('aiContent');
-            }
-
-            // Add/update specific parameters
-            for (const key in params) {
-                if (params[key] !== undefined) {
-                    currentUrl.searchParams.set(key, params[key]);
-                } else {
-                    currentUrl.searchParams.delete(key);
-                }
-            }
-            // Always remove postId when navigating to a new tab
-            currentUrl.searchParams.delete('postId');
-
-            if (pushState) {
-                window.history.pushState({ section: tab, params: params }, '', currentUrl.toString());
-            }
-            switchTab(tab, false); // Call switchTab without pushing state again
-        }
-
+        // --- NAVIGATION LOGIC ---
         // Switches the active tab and renders its content.
         function switchTab(tab) {
             // Update active navigation item styling
@@ -975,13 +919,7 @@
                     sortBySelect.addEventListener('change', (e) => {
                         currentSortBy = e.target.value;
                         displayLimit = postsPerPage; // Reset limit on sort change
-                        // Update URL when sort changes
-                        const currentTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
-                        navigateTo(currentTab, true, {
-                            sortBy: currentSortBy,
-                            pricing: currentPricingFilter,
-                            aiContent: currentAiContentFilter
-                        });
+                        renderPostsGrid(targetElement, posts, pageTitle, includePricingFilter, includeSortBy, includeAiContentFilter, isMyPostPage);
                     });
                 }
             }
@@ -991,13 +929,7 @@
                     pricingFilterSelect.addEventListener('change', (e) => {
                         currentPricingFilter = e.target.value;
                         displayLimit = postsPerPage; // Reset limit on filter change
-                        // Update URL when pricing filter changes
-                        const currentTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
-                        navigateTo(currentTab, true, {
-                            sortBy: currentSortBy,
-                            pricing: currentPricingFilter,
-                            aiContent: currentAiContentFilter
-                        });
+                        renderPostsGrid(targetElement, posts, pageTitle, includePricingFilter, includeSortBy, includeAiContentFilter, isMyPostPage);
                     });
                 }
             }
@@ -1007,13 +939,7 @@
                     aiContentFilterSelect.addEventListener('change', (e) => {
                         currentAiContentFilter = e.target.value;
                         displayLimit = postsPerPage; // Reset limit on filter change
-                        // Update URL when AI content filter changes
-                        const currentTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
-                        navigateTo(currentTab, true, {
-                            sortBy: currentSortBy,
-                            pricing: currentPricingFilter,
-                            aiContent: currentAiContentFilter
-                        });
+                        renderPostsGrid(targetElement, posts, pageTitle, includePricingFilter, includeSortBy, includeAiContentFilter, isMyPostPage);
                     });
                 }
             }
@@ -1605,7 +1531,7 @@
                 <div class="max-w-3xl mx-auto">
                     <h2 class="text-3xl font-bold mb-6 text-center text-white">Search for Games</h2>
                     <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                        <input type="text" id="search-input" class="w-full p-3 input-bg rounded-md" placeholder="Search by title, genre, platform, tags..." value="${currentSearchQuery}">
+                        <input type="text" id="search-input" class="w-full p-3 input-bg rounded-md" placeholder="Search by title, genre, platform, tags...">
                         <button id="search-btn" class="btn-primary text-white font-bold py-3 px-6 rounded-md">Search</button>
                     </div>
                     <div id="search-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1613,18 +1539,10 @@
                     </div>
                 </div>
             `;
-            const searchInput = document.getElementById('search-input');
-            const searchBtn = document.getElementById('search-btn');
-
-            searchBtn.addEventListener('click', () => handleSearch(searchInput.value));
-            searchInput.addEventListener('keyup', (e) => {
-                if (e.key === 'Enter') handleSearch(searchInput.value);
+            document.getElementById('search-btn').addEventListener('click', handleSearch);
+            document.getElementById('search-input').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') handleSearch();
             });
-
-            // If there's a current search query from the URL, execute the search immediately
-            if (currentSearchQuery) {
-                handleSearch(currentSearchQuery, false); // Don't push state again
-            }
         }
 
         // Renders the user's own posts page.
@@ -1695,45 +1613,18 @@
                 });
 
                 // Re-render the currently active tab to reflect the updated data
-                // This is now handled by handleUrlChange, which will be triggered by popstate or initial load
-                // We just need to ensure the current tab is re-rendered with the updated data
-                const urlParams = new URLSearchParams(window.location.search);
-                const activeTab = urlParams.get('section') || 'community';
-                const postIdFromUrl = urlParams.get('postId');
-
-                if (postIdFromUrl && isPostModalOpen) {
-                    // If modal is open, re-render it with updated post data
-                    openPostModal(postIdFromUrl);
-                } else {
-                    // Otherwise, re-render the current tab
-                    switch (activeTab) {
-                        case 'community':
-                            renderCommunityPage();
-                            break;
-                        case 'promos':
-                            renderPromosPage();
-                            break;
-                        case 'devlogs':
-                            renderDevlogsPage();
-                            break;
-                        case 'post':
-                            renderPostPage(contentPost);
-                            break;
-                        case 'search':
-                            handleSearch(currentSearchQuery, false); // Re-run search with current query
-                            break;
-                        case 'my-posts':
-                            renderMyPostsPage();
-                            break;
-                        case 'about':
-                            renderAboutPage();
-                            break;
-                        case 'rules':
-                            renderRulesPage();
-                            break;
-                        default:
-                            renderCommunityPage();
-                    }
+                const activeTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
+                if (activeTab === 'community') {
+                    renderCommunityPage(); // Re-render community page with potentially new/updated posts
+                } else if (activeTab === 'my-posts') {
+                    renderMyPostsPage(); // Re-render my posts page
+                } else if (activeTab === 'promos') {
+                    renderPromosPage();
+                } else if (activeTab === 'devlogs') {
+                    renderDevlogsPage();
+                } else if (activeTab === 'search') {
+                    // Re-run search if on search tab to update results based on new data
+                    handleSearch();
                 }
             }, error => {
                 console.error("Error listening for posts:", error);
@@ -1947,7 +1838,7 @@
                     showAlert("Post updated successfully!").then(() => {
                         closePostModal(); // Close modal after update
                         displayLimit = postsPerPage; // Reset display limit for community page
-                        navigateTo('my-posts'); // Navigate back to my posts
+                        switchTab('my-posts'); // Navigate back to my posts
                     });
                 } else {
                     // Add new post
@@ -1980,7 +1871,7 @@
                         // Re-render genre checkboxes to clear selections visually
                         const genreCheckboxesContainer = form.querySelector('#genre-checkboxes');
                         renderGenreCheckboxes(genreCheckboxesContainer);
-                        navigateTo('my-posts'); // Navigate directly to my posts after new post
+                        switchTab('my-posts'); // Navigate directly to my posts after new post
                     });
                 }
             } catch (error) {
@@ -2023,34 +1914,23 @@
         }
         
         // Handles searching for posts based on a query term.
-        function handleSearch(queryTerm = currentSearchQuery, pushState = true) {
-            currentSearchQuery = queryTerm.toLowerCase().trim(); // Update global search query
+        function handleSearch() {
+            const queryTerm = document.getElementById('search-input').value.toLowerCase().trim();
             const resultsContainer = document.getElementById('search-results');
-            const searchInput = document.getElementById('search-input');
-
-            if (searchInput) {
-                searchInput.value = queryTerm; // Ensure input field reflects current query
-            }
-
-            if (!currentSearchQuery) {
+            if (!queryTerm) {
                 resultsContainer.innerHTML = '<p class="col-span-full text-center text-gray-400">Please enter a search term.</p>';
-                // If query is empty, update URL to remove query param
-                if (pushState) {
-                    navigateTo('search', true, { query: '' });
-                }
                 return;
             }
-
             // Filter posts based on title, description, genres, platforms, or tags
             const results = allFetchedPosts.filter(post => // Use allFetchedPosts
-                post.title.toLowerCase().includes(currentSearchQuery) ||
-                post.description.toLowerCase().includes(currentSearchQuery) ||
-                (post.genres && post.genres.some(g => g.toLowerCase().includes(currentSearchQuery))) || // Check if genres exist
-                (post.platforms && post.platforms.some(p => p.toLowerCase().includes(currentSearchQuery))) || // Check if platforms exist
-                (post.madeWith && post.madeWith.toLowerCase().includes(currentSearchQuery)) || // Search 'madeWith' field
-                (post.tags && post.tags.some(t => t.toLowerCase().includes(currentSearchQuery))) || // Search 'tags' field
-                (post.aiContent && post.aiContent.toLowerCase().includes(currentSearchQuery)) || // Search 'aiContent' field
-                (post.devlogType && post.devlogType.toLowerCase().includes(currentSearchQuery)) // Search 'devlogType' field
+                post.title.toLowerCase().includes(queryTerm) ||
+                post.description.toLowerCase().includes(queryTerm) ||
+                (post.genres && post.genres.some(g => g.toLowerCase().includes(queryTerm))) || // Check if genres exist
+                (post.platforms && post.platforms.some(p => p.toLowerCase().includes(queryTerm))) || // Check if platforms exist
+                (post.madeWith && post.madeWith.toLowerCase().includes(queryTerm)) || // Search 'madeWith' field
+                (post.tags && post.tags.some(t => t.toLowerCase().includes(queryTerm))) || // Search 'tags' field
+                (post.aiContent && post.aiContent.toLowerCase().includes(queryTerm)) || // Search 'aiContent' field
+                (post.devlogType && post.devlogType.toLowerCase().includes(queryTerm)) // Search 'devlogType' field
             );
             
             if (results.length > 0) {
@@ -2058,11 +1938,6 @@
                 addCardEventListeners(); // Re-attach event listeners to new cards
             } else {
                 resultsContainer.innerHTML = '<p class="col-span-full text-center text-gray-400">No games or devlogs found matching your search.</p>';
-            }
-
-            // Update URL with search query
-            if (pushState) {
-                navigateTo('search', true, { query: currentSearchQuery });
             }
         }
 
@@ -2188,13 +2063,6 @@
                 ` : `<div class="mt-8 border-t border-gray-700 pt-6 text-center text-gray-400">Comments are disabled for this post.</div>`}
             `;
             postModal.classList.remove('hidden'); // Show the modal
-
-            // Update URL to include postId
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set('postId', postId);
-            window.history.pushState({ postId: postId, section: currentUrl.searchParams.get('section') }, '', currentUrl.toString());
-
-
             document.getElementById('close-modal-btn').addEventListener('click', closePostModal);
             
             // Add event listener for "Visit Itch.io" button to increment visits
@@ -2267,7 +2135,7 @@
             // Remove postId from URL when modal is closed
             const url = new URL(window.location.href);
             url.searchParams.delete('postId');
-            window.history.pushState({}, document.title, url.toString()); // Use pushState to update URL without reloading
+            window.history.replaceState({}, document.title, url.toString());
         }
 
         // Handles the submission of a new comment for a post.
