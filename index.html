@@ -317,28 +317,28 @@
         <header class="flex justify-between items-center py-4 px-4 main-bg rounded-lg shadow-lg">
             <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wider">Post<span class="text-[#00bcd4]">Itch</span></h1>
             <nav class="hidden md:flex items-center space-x-6">
-                <a href="?section=community" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
-                <a href="?section=promos" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
-                <a href="?section=devlogs" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
-                <a href="?section=post" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
-                <a href="?section=search" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
-                <a href="?section=my-posts" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
-                <a href="?section=about" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
-                <a href="?section=rules" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
             </nav>
             <div class="md:hidden">
                 <button id="mobile-menu-btn"><i class="fas fa-bars text-2xl"></i></button>
             </div>
         </header>
         <div id="mobile-menu" class="hidden md:hidden main-bg rounded-lg mt-2 p-4">
-             <a href="?section=community" class="block py-2 text-center nav-item" data-tab="community">Community</a>
-             <a href="?section=promos" class="block py-2 text-center nav-item" data-tab="promos">Game Promos</a>
-             <a href="?section=devlogs" class="block py-2 text-center nav-item" data-tab="devlogs">Devlogs</a>
-             <a href="?section=post" class="block py-2 text-center nav-item" data-tab="post">Post</a>
-             <a href="?section=search" class="block py-2 text-center nav-item" data-tab="search">Search</a>
-             <a href="?section=my-posts" class="block py-2 text-center nav-item" data-tab="my-posts">My Posts</a>
-             <a href="?section=about" class="block py-2 text-center nav-item" data-tab="about">About</a>
-             <a href="?section=rules" class="block py-2 text-center nav-item" data-tab="rules">Rules</a>
+             <a href="#" class="block py-2 text-center nav-item" data-tab="community">Community</a>
+             <a href="#" class="block py-2 text-center nav-item" data-tab="promos">Game Promos</a>
+             <a href="#" class="block py-2 text-center nav-item" data-tab="devlogs">Devlogs</a>
+             <a href="#" class="block py-2 text-center nav-item" data-tab="post">Post</a>
+             <a href="#" class="block py-2 text-center nav-item" data-tab="search">Search</a>
+             <a href="#" class="block py-2 text-center nav-item" data-tab="my-posts">My Posts</a>
+             <a href="#" class="block py-2 text-center nav-item" data-tab="about">About</a>
+             <a href="#" class="block py-2 text-center nav-item" data-tab="rules">Rules</a>
         </div>
 
 
@@ -618,7 +618,7 @@
                 placeholder.addEventListener('click', (e) => {
                     e.stopPropagation(); // Prevent card click event from firing
                     const videoId = placeholder.dataset.videoId;
-                    openVideoModal(videoId); // Open the dedicated video modal
+                    loadYouTubeVideo(placeholder, videoId);
                 });
             });
             
@@ -693,8 +693,6 @@
             // Check for postId in URL and open modal if present
             const urlParams = new URLSearchParams(window.location.search);
             const postIdFromUrl = urlParams.get('postId');
-            const sectionFromUrl = urlParams.get('section');
-
             if (postIdFromUrl) {
                 // Wait for posts to be fetched before attempting to open the modal
                 const checkPostsInterval = setInterval(() => {
@@ -703,38 +701,12 @@
                         openPostModal(postIdFromUrl);
                     }
                 }, 100); // Check every 100ms
-            } else if (sectionFromUrl) {
-                switchTab(sectionFromUrl, true); // true for replaceState, as it's initial load
             } else {
-                switchTab('community', true); // Load the default community feed tab if no postId or section in URL
+                switchTab('community'); // Load the default community feed tab if no postId in URL
             }
             
             // Add event listener for the new video modal close button
             closeVideoModalBtn.addEventListener('click', closeVideoModal);
-
-            // Add popstate listener for browser back/forward navigation
-            window.addEventListener('popstate', handlePopState);
-        }
-
-        // Handles browser back/forward navigation
-        function handlePopState() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const postIdFromUrl = urlParams.get('postId');
-            const sectionFromUrl = urlParams.get('section');
-
-            if (postIdFromUrl) {
-                // If postId is in URL, open the modal
-                if (!isPostModalOpen || modalContent.dataset.postId !== postIdFromUrl) {
-                    openPostModal(postIdFromUrl);
-                }
-            } else {
-                // If postId is NOT in URL, close the modal if it's open
-                if (isPostModalOpen) {
-                    closePostModal(); // This will clear postId from URL if it was there
-                }
-                // Switch to the section specified in the URL, or default to 'community'
-                switchTab(sectionFromUrl || 'community', true); // Use replaceState as popstate already changes history
-            }
         }
         
         // Sets up event listeners for navigation buttons (desktop and mobile).
@@ -743,10 +715,10 @@
             
             navItems.forEach(item => {
                 item.addEventListener('click', (e) => {
-                    e.preventDefault(); // Prevent default link behavior
+                    e.preventDefault();
                     const tab = e.target.getAttribute('data-tab');
                     if (tab) {
-                        switchTab(tab); // Call switchTab, which will update the URL
+                        switchTab(tab);
                         mobileMenu.classList.add('hidden'); // Hide mobile menu on tab selection
                     }
                 });
@@ -755,7 +727,7 @@
 
         // --- NAVIGATION LOGIC ---
         // Switches the active tab and renders its content.
-        function switchTab(tab, replace = false) {
+        function switchTab(tab) {
             // Update active navigation item styling
             document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
                 item.classList.toggle('active', item.getAttribute('data-tab') === tab);
@@ -765,16 +737,6 @@
                 content.classList.toggle('hidden', content.id !== `content-${tab}`);
             });
             
-            // Update URL
-            const url = new URL(window.location.href);
-            url.searchParams.set('section', tab);
-            url.searchParams.delete('postId'); // Ensure postId is removed when switching sections
-            if (replace) {
-                window.history.replaceState({ section: tab }, document.title, url.toString());
-            } else {
-                window.history.pushState({ section: tab }, document.title, url.toString());
-            }
-
             // Map tab names to their respective rendering functions
             const renderMap = {
                 community: renderCommunityPage,
@@ -1492,7 +1454,7 @@
                         customYoutubeLinkTextInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'youtube') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)'; 
+                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)'; 
                         trailerLinkInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'image') {
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)'; 
@@ -1635,159 +1597,6 @@
                 </div>
             `;
         }
-
-        // Renders the content of the post modal. This is a new helper function.
-        function renderModalContent(post, focusComment = false) {
-            let mediaHtml = '';
-            let modalYoutubeLinkHtml = '';
-
-            if (post.mediaType === 'youtube' && post.trailerLink) {
-                const videoId = getYouTubeVideoId(post.trailerLink);
-                if (videoId) {
-                    const embedSrc = getYouTubeEmbedSrc(videoId);
-                    mediaHtml = `<div class="aspect-video w-full rounded-md overflow-hidden"><iframe class="w-full h-full" src="${embedSrc}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
-                }
-            } else if (post.mediaType === 'image' && post.imageUrl) {
-                mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md">
-                                <img src="${post.imageUrl}" alt="${post.title}" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Image+Not+Found';">
-                            </div>`;
-            } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
-                mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md mb-4">
-                                <img src="${post.imageUrl}" alt="Custom Thumbnail" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Custom+Thumbnail+Not+Found';">
-                            </div>`;
-                const videoId = getYouTubeVideoId(post.trailerLink);
-                if (videoId) {
-                    modalYoutubeLinkHtml = `
-                        <div class="flex justify-center my-4">
-                            <button id="open-video-player-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base" data-video-id="${videoId}">
-                                <i class="fab fa-youtube"></i> ${post.customYoutubeLinkText || 'Watch Trailer'}
-                            </button>
-                        </div>
-                    `;
-                }
-            } else if (post.mediaType === 'itch_embed' && post.itchLink) {
-                mediaHtml = getItchEmbedHtml(post.itchLink);
-            }
-            if (!mediaHtml || post.mediaType === 'none') {
-                mediaHtml = `<div class="h-48 bg-[#101010] flex items-center justify-center text-gray-500 rounded-md"><i class="fas fa-image fa-4x"></i><p class="ml-4">No media available</p></div>`;
-            }
-
-            modalContent.innerHTML = `
-                <div class="flex justify-between items-center mb-4">
-                    <button id="close-modal-btn" class="modal-action-btn"><i class="fas fa-arrow-left"></i></button>
-                    <button id="share-post-btn" class="modal-action-btn" data-post-id="${post.id}"><i class="fa-solid fa-share"></i></button>
-                </div>
-                <h2 class="text-2xl sm:text-3xl font-bold mb-4 text-white">${post.title}</h2>
-                ${mediaHtml}
-                ${modalYoutubeLinkHtml}
-                <div class="mt-6 flex flex-wrap gap-2 text-gray-400 text-sm">
-                    <span><strong>Posted:</strong> ${post.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString() : 'N/A'}</span>
-                    ${post.postType === 'Game Promotion' ? `<span><strong>Pricing:</strong> ${post.pricing}</span>` : ''}
-                    <span><strong>Type:</strong> ${post.postType}</span>
-                    ${post.postType === 'Devlog' && post.devlogType ? `<span><strong>Devlog Type:</strong> ${post.devlogType}</span>` : ''}
-                    ${post.madeWith ? `<span><strong>Made With:</strong> ${post.madeWith}</span>` : ''}
-                    <span><strong>AI Content:</strong> ${post.aiContent}</span>
-                    <span><strong>Views:</strong> ${post.views || 0}</span>
-                    ${post.postType === 'Game Promotion' ? `
-                        <span><strong>Visits:</strong> ${post.visits || 0}</span>
-                    ` : ''}
-                </div>
-                <p class="text-gray-300 my-4 text-justify text-sm sm:text-base">${post.description}</p>
-                
-                <div class="flex flex-wrap gap-2 mb-4">
-                    ${post.postType === 'Game Promotion' && post.genres && post.genres.length > 0 ? post.genres.map(g => `<span class="bg-blue-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${g}</span>`).join('') : ''}
-                    ${post.postType === 'Game Promotion' && post.platforms && post.platforms.length > 0 ? post.platforms.map(p => `<span class="bg-green-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${p}</span>`).join('') : ''}
-                    ${post.tags && post.tags.length > 0 ? post.tags.map(t => `<span class="bg-purple-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${t}</span>`).join('') : ''}
-                </div>
-
-                <div class="flex justify-center my-6 gap-4">
-                    <a href="${post.itchLink}" target="_blank" id="visit-itch-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base">
-                        <i class="fas fa-external-link-alt"></i> Visit Itch.io
-                    </a>
-                    ${post.postType === 'Devlog' && post.linkedGamePromoId ? `
-                        <button id="view-linked-game-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base">
-                            <i class="fas fa-gamepad"></i> View Linked Linked Game
-                        </button>
-                    ` : ''}
-                </div>
-
-                ${post.general ? `<div class="mt-4"><h3 class="font-semibold text-lg text-gray-200">General Info:</h3><p class="text-gray-300 text-sm sm:text-base">${post.general}</p></div>` : ''}
-                ${post.reason ? `<div class="mt-4"><h3 class="font-semibold text-lg text-gray-200">Why I'm Posting:</h3><p class="text-gray-300 text-sm sm:text-base">${post.reason}</p></div>` : ''}
-
-                ${post.allowComments !== false ? `
-                    <div class="mt-8 border-t border-gray-700 pt-6">
-                        <h3 class="text-xl font-bold mb-4 text-gray-200">Comments (${post.comments?.length || 0})</h3>
-                        <div id="comments-list" class="space-y-4 mb-6">
-                            ${post.comments && post.comments.length > 0 ? post.comments.map(comment => `
-                                <div class="bg-[#1a1a1a] p-4 rounded-md shadow-sm">
-                                    <p class="text-gray-300 text-sm sm:text-base">${comment.text}</p>
-                                    <p class="text-right text-xs text-gray-500 mt-2">Comment by Anonymous on ${new Date(comment.timestamp.toDate()).toLocaleDateString()}</p>
-                                </div>
-                            `).join('') : '<p class="text-gray-400 text-sm sm:text-base">No comments yet. Be the first to leave feedback!</p>'}
-                        </div>
-                        <form id="comment-form" class="flex gap-2">
-                            <input type="text" id="comment-input" class="flex-grow p-3 input-bg rounded-md text-sm sm:text-base" placeholder="Add a comment..." required>
-                            <button type="submit" class="btn-primary text-white font-bold py-2 px-4 rounded-md text-sm sm:text-base">Post</button>
-                        </form>
-                    </div>
-                ` : `<div class="mt-8 border-t border-gray-700 pt-6 text-center text-gray-400">Comments are disabled for this post.</div>`}
-            `;
-
-            // Re-attach listeners for buttons inside the modal content
-            const visitItchBtn = document.getElementById('visit-itch-btn');
-            if (visitItchBtn) {
-                visitItchBtn.addEventListener('click', async (e) => {
-                    if (post.postType === 'Game Promotion') {
-                        try {
-                            const postRef = doc(db, `artifacts/${appId}/public/data/posts`, post.id); // Use post.id here
-                            await updateDoc(postRef, { visits: (post.visits || 0) + 1 });
-                            post.visits = (post.visits || 0) + 1; // Optimistic update
-                        } catch (error) {
-                            console.error("Error incrementing visit count:", error);
-                        }
-                    }
-                });
-            }
-
-            const viewLinkedGameBtn = document.getElementById('view-linked-game-btn');
-            if (viewLinkedGameBtn && post.linkedGamePromoId) {
-                viewLinkedGameBtn.addEventListener('click', async () => {
-                    await openPostModal(post.linkedGamePromoId);
-                });
-            }
-
-            const openVideoPlayerBtn = document.getElementById('open-video-player-btn');
-            if (openVideoPlayerBtn) {
-                openVideoPlayerBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const videoId = e.currentTarget.dataset.videoId;
-                    if (videoId) {
-                        openVideoModal(videoId);
-                    } else {
-                        showAlert("Video ID not found for playback.");
-                    }
-                });
-            }
-
-            const sharePostBtn = document.getElementById('share-post-btn');
-            if (sharePostBtn) {
-                sharePostBtn.addEventListener('click', () => {
-                    const shareLink = `https://postitchindie.github.io/?postId=${post.id}`;
-                    copyToClipboard(shareLink);
-                    showAlert("Link copied to clipboard!");
-                });
-            }
-
-            if (post.allowComments !== false) {
-                const commentForm = document.getElementById('comment-form');
-                if (commentForm) { // Ensure form exists before adding listener
-                    commentForm.addEventListener('submit', (e) => handleCommentSubmit(e, post.id)); // Use post.id
-                    if (focusComment) {
-                        document.getElementById('comment-input').focus();
-                    }
-                }
-            }
-        }
         
         // This function now uses onSnapshot to keep 'allFetchedPosts' array updated in real-time.
         function listenForPostsRealtime() {
@@ -1804,43 +1613,18 @@
                 });
 
                 // Re-render the currently active tab to reflect the updated data
-                const urlParams = new URLSearchParams(window.location.search);
-                const postIdFromUrl = urlParams.get('postId');
-                const sectionFromUrl = urlParams.get('section');
-
-                if (postIdFromUrl) {
-                    // Find the post in the updated allFetchedPosts
-                    const updatedPost = allFetchedPosts.find(p => p.id === postIdFromUrl);
-                    if (updatedPost) {
-                        // If the modal is currently open AND it's for the same post
-                        if (isPostModalOpen && modalContent.dataset.postId === postIdFromUrl) {
-                            // Re-render the modal content to reflect updated data (likes, comments, views)
-                            // No need to re-increment views as openPostModal handles it with isPostModalOpen flag
-                            renderModalContent(updatedPost); // Use the new helper function
-                        } else {
-                            // If modal is not open, or open for a different post, open it
-                            openPostModal(postIdFromUrl);
-                        }
-                    } else {
-                        // If the post from URL is no longer found (e.g., deleted), close the modal
-                        if (isPostModalOpen) {
-                            closePostModal();
-                        }
-                    }
-                } else {
-                    const activeTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
-                    if (activeTab === 'community') {
-                        renderCommunityPage(); // Re-render community page with potentially new/updated posts
-                    } else if (activeTab === 'my-posts') {
-                        renderMyPostsPage(); // Re-render my posts page
-                    } else if (activeTab === 'promos') {
-                        renderPromosPage();
-                    } else if (activeTab === 'devlogs') {
-                        renderDevlogsPage();
-                    } else if (activeTab === 'search') {
-                        // Re-run search if on search tab to update results based on new data
-                        handleSearch();
-                    }
+                const activeTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
+                if (activeTab === 'community') {
+                    renderCommunityPage(); // Re-render community page with potentially new/updated posts
+                } else if (activeTab === 'my-posts') {
+                    renderMyPostsPage(); // Re-render my posts page
+                } else if (activeTab === 'promos') {
+                    renderPromosPage();
+                } else if (activeTab === 'devlogs') {
+                    renderDevlogsPage();
+                } else if (activeTab === 'search') {
+                    // Re-run search if on search tab to update results based on new data
+                    handleSearch();
                 }
             }, error => {
                 console.error("Error listening for posts:", error);
@@ -1871,7 +1655,7 @@
             // Get genres from the global selectedGenres array
             const genres = [...selectedGenres]; 
             const platforms = [...form.querySelectorAll('input[name="platform"]:checked')].map(el => el.value);
-            const mediaType = form.querySelector('input[name="media-type']:checked').value; // Get from form
+            const mediaType = form.querySelector('input[name="media-type"]:checked').value; // Get from form
             const aiContent = form.querySelector('input[name="ai-content"]:checked')?.value;
             const tagsInput = form.querySelector('#tags').value.trim();
             const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag !== '') : [];
@@ -2160,19 +1944,8 @@
         // --- MODAL LOGIC FOR INDIVIDUAL POST VIEW ---
         // Opens a modal displaying detailed information about a selected post.
         async function openPostModal(postId, focusComment = false) { 
-            // If the modal is already open for this post, just update its content and return.
-            // This prevents re-incrementing views and re-embedding videos unnecessarily.
-            if (isPostModalOpen && modalContent.dataset.postId === postId) {
-                const post = allFetchedPosts.find(p => p.id === postId);
-                if (post) {
-                    renderModalContent(post, focusComment);
-                }
-                return;
-            }
-
             // Set flag to true immediately to prevent multiple increments
             isPostModalOpen = true; 
-            modalContent.dataset.postId = postId; // Store the postId on the modal content for popstate handler
 
             const post = allFetchedPosts.find(p => p.id === postId); // Use allFetchedPosts
             if (!post) {
@@ -2180,13 +1953,6 @@
                 isPostModalOpen = false; // Reset flag if post not found
                 return;
             }
-
-            // Update URL with postId, preserving the current section
-            const url = new URL(window.location.href);
-            const currentSection = url.searchParams.get('section') || 'community'; // Get current section or default
-            url.searchParams.set('postId', postId);
-            url.searchParams.set('section', currentSection); // Ensure section is maintained
-            window.history.pushState({ postId: postId, section: currentSection }, document.title, url.toString());
 
             // Increment view count for ALL post types AFTER the modal is confirmed to open
             try {
@@ -2198,9 +1964,161 @@
                 console.error("Error incrementing view count:", error);
             }
 
-            renderModalContent(post, focusComment); // Render the initial content
+            let mediaHtml = '';
+            let modalYoutubeLinkHtml = ''; // New variable for combo link in modal
+            // Dynamically render media content within the modal
+            if (post.mediaType === 'youtube' && post.trailerLink) {
+                const videoId = getYouTubeVideoId(post.trailerLink);
+                if (videoId) {
+                    // For YouTube, directly embed the video in the modal
+                    const embedSrc = getYouTubeEmbedSrc(videoId);
+                    mediaHtml = `<div class="aspect-video w-full rounded-md overflow-hidden"><iframe class="w-full h-full" src="${embedSrc}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
+                }
+            } else if (post.mediaType === 'image' && post.imageUrl) {
+                mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md">
+                                <img src="${post.imageUrl}" alt="${post.title}" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Image+Not+Found';">
+                            </div>`;
+            } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
+                // For combo in modal, display the image and a separate clickable button
+                mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md mb-4">
+                                <img src="${post.imageUrl}" alt="Custom Thumbnail" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Custom+Thumbnail+Not+Found';">
+                            </div>`;
+                const videoId = getYouTubeVideoId(post.trailerLink);
+                if (videoId) {
+                    modalYoutubeLinkHtml = `
+                        <div class="flex justify-center my-4">
+                            <button id="open-video-player-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base" data-video-id="${videoId}">
+                                <i class="fab fa-youtube"></i> ${post.customYoutubeLinkText || 'Watch Trailer'}
+                            </button>
+                        </div>
+                    `;
+                }
+            } else if (post.mediaType === 'itch_embed' && post.itchLink) {
+                mediaHtml = getItchEmbedHtml(post.itchLink); // Use the updated function for Itch.io
+            }
+
+            // Fallback if no valid media is available for the post (or mediaType is 'none')
+            if (!mediaHtml || post.mediaType === 'none') {
+                mediaHtml = `<div class="h-48 bg-[#101010] flex items-center justify-center text-gray-500 rounded-md"><i class="fas fa-image fa-4x"></i><p class="ml-4">No media available</p></div>`;
+            }
+
+            modalContent.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <button id="close-modal-btn" class="modal-action-btn"><i class="fas fa-arrow-left"></i></button>
+                    <button id="share-post-btn" class="modal-action-btn" data-post-id="${postId}"><i class="fa-solid fa-share"></i></button>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-bold mb-4 text-white">${post.title}</h2>
+                ${mediaHtml}
+                ${modalYoutubeLinkHtml} <!-- Add the combo link button here -->
+                <div class="mt-6 flex flex-wrap gap-2 text-gray-400 text-sm">
+                    <span><strong>Posted:</strong> ${post.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString() : 'N/A'}</span>
+                    ${post.postType === 'Game Promotion' ? `<span><strong>Pricing:</strong> ${post.pricing}</span>` : ''}
+                    <span><strong>Type:</strong> ${post.postType}</span>
+                    ${post.postType === 'Devlog' && post.devlogType ? `<span><strong>Devlog Type:</strong> ${post.devlogType}</span>` : ''}
+                    ${post.madeWith ? `<span><strong>Made With:</strong> ${post.madeWith}</span>` : ''}
+                    <span><strong>AI Content:</strong> ${post.aiContent}</span>
+                    <span><strong>Views:</strong> ${post.views || 0}</span> <!-- View count for all post types -->
+                    ${post.postType === 'Game Promotion' ? `
+                        <span><strong>Visits:</strong> ${post.visits || 0}</span>
+                    ` : ''}
+                </div>
+                <p class="text-gray-300 my-4 text-justify text-sm sm:text-base">${post.description}</p>
+                
+                <div class="flex flex-wrap gap-2 mb-4">
+                    ${post.postType === 'Game Promotion' && post.genres && post.genres.length > 0 ? post.genres.map(g => `<span class="bg-blue-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${g}</span>`).join('') : ''}
+                    ${post.postType === 'Game Promotion' && post.platforms && post.platforms.length > 0 ? post.platforms.map(p => `<span class="bg-green-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${p}</span>`).join('') : ''}
+                    ${post.tags && post.tags.length > 0 ? post.tags.map(t => `<span class="bg-purple-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${t}</span>`).join('') : ''}
+                </div>
+
+                <div class="flex justify-center my-6 gap-4">
+                    <a href="${post.itchLink}" target="_blank" id="visit-itch-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base">
+                        <i class="fas fa-external-link-alt"></i> Visit Itch.io
+                    </a>
+                    ${post.postType === 'Devlog' && post.linkedGamePromoId ? `
+                        <button id="view-linked-game-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base">
+                            <i class="fas fa-gamepad"></i> View Linked Linked Game
+                        </button>
+                    ` : ''}
+                </div>
+
+                ${post.general ? `<div class="mt-4"><h3 class="font-semibold text-lg text-gray-200">General Info:</h3><p class="text-gray-300 text-sm sm:text-base">${post.general}</p></div>` : ''}
+                ${post.reason ? `<div class="mt-4"><h3 class="font-semibold text-lg text-gray-200">Why I'm Posting:</h3><p class="text-gray-300 text-sm sm:text-base">${post.reason}</p></div>` : ''}
+
+                ${post.allowComments !== false ? ` <!-- Conditional rendering for comments section -->
+                    <div class="mt-8 border-t border-gray-700 pt-6">
+                        <h3 class="text-xl font-bold mb-4 text-gray-200">Comments (${post.comments?.length || 0})</h3>
+                        <div id="comments-list" class="space-y-4 mb-6">
+                            ${post.comments && post.comments.length > 0 ? post.comments.map(comment => `
+                                <div class="bg-[#1a1a1a] p-4 rounded-md shadow-sm">
+                                    <p class="text-gray-300 text-sm sm:text-base">${comment.text}</p>
+                                    <p class="text-right text-xs text-gray-500 mt-2">Comment by Anonymous on ${new Date(comment.timestamp.toDate()).toLocaleDateString()}</p>
+                                </div>
+                            `).join('') : '<p class="text-gray-400 text-sm sm:text-base">No comments yet. Be the first to leave feedback!</p>'}
+                        </div>
+                        <form id="comment-form" class="flex gap-2">
+                            <input type="text" id="comment-input" class="flex-grow p-3 input-bg rounded-md text-sm sm:text-base" placeholder="Add a comment..." required>
+                            <button type="submit" class="btn-primary text-white font-bold py-2 px-4 rounded-md text-sm sm:text-base">Post</button>
+                        </form>
+                    </div>
+                ` : `<div class="mt-8 border-t border-gray-700 pt-6 text-center text-gray-400">Comments are disabled for this post.</div>`}
+            `;
             postModal.classList.remove('hidden'); // Show the modal
             document.getElementById('close-modal-btn').addEventListener('click', closePostModal);
+            
+            // Add event listener for "Visit Itch.io" button to increment visits
+            const visitItchBtn = document.getElementById('visit-itch-btn');
+            if (visitItchBtn) {
+                visitItchBtn.addEventListener('click', async (e) => {
+                    // Only increment if it's a Game Promotion post
+                    if (post.postType === 'Game Promotion') {
+                        try {
+                            const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
+                            await updateDoc(postRef, { visits: (post.visits || 0) + 1 });
+                            // Optimistically update the local data
+                            post.visits = (post.visits || 0) + 1;
+                        } catch (error) {
+                            console.error("Error incrementing visit count:", error);
+                        }
+                    }
+                });
+            }
+
+            // Add event listener for "View Linked Game" button
+            const viewLinkedGameBtn = document.getElementById('view-linked-game-btn');
+            if (viewLinkedGameBtn && post.linkedGamePromoId) {
+                viewLinkedGameBtn.addEventListener('click', async () => {
+                    await openPostModal(post.linkedGamePromoId);
+                });
+            }
+
+            // Add event listener for the new custom YouTube link button
+            const openVideoPlayerBtn = document.getElementById('open-video-player-btn');
+            if (openVideoPlayerBtn) {
+                openVideoPlayerBtn.addEventListener('click', (e) => {
+                    e.preventDefault(); // Prevent default link behavior
+                    const videoId = e.currentTarget.dataset.videoId;
+                    if (videoId) {
+                        openVideoModal(videoId);
+                    } else {
+                        showAlert("Video ID not found for playback.");
+                    }
+                });
+            }
+
+            // Add event listener for share button
+            document.getElementById('share-post-btn').addEventListener('click', () => {
+                const shareLink = `https://postitchindie.github.io/?postId=${postId}`;
+                copyToClipboard(shareLink);
+                showAlert("Link copied to clipboard!");
+            });
+
+
+            if (post.allowComments !== false) { // Only add comment form listener if comments are allowed
+                document.getElementById('comment-form').addEventListener('submit', (e) => handleCommentSubmit(e, postId));
+                if (focusComment) {
+                    document.getElementById('comment-input').focus(); // Optionally focus the comment input
+                }
+            }
         }
 
         // Closes the post detail modal.
@@ -2209,28 +2127,15 @@
             modalContent.innerHTML = ''; // Clear content to prevent old data from flashing on next open
             editingPostId = null; // Reset editing state
             isPostModalOpen = false; // Reset flag when modal is closed
-            modalContent.dataset.postId = ''; // Clear stored postId
-
             // Re-enable post type selection when closing the edit modal
             const postTypeSelect = document.getElementById('post-type');
             if (postTypeSelect) {
                 postTypeSelect.disabled = false;
             }
-            
-            // Handle URL cleanup:
-            // Check if the current URL has a postId, and if the history state indicates
-            // we're navigating back from a postId-specific state.
+            // Remove postId from URL when modal is closed
             const url = new URL(window.location.href);
-            if (url.searchParams.has('postId')) {
-                // If postId is present in the URL, it means we're closing the modal
-                // via the 'X' button or programmatically, not via a browser back button.
-                // So, we need to explicitly remove postId and set the section.
-                url.searchParams.delete('postId');
-                // Revert to the section that was active before the modal was opened,
-                // or default to 'community' if no section was previously set.
-                url.searchParams.set('section', 'community'); // Default to community as per request
-                window.history.replaceState({ section: 'community' }, document.title, url.toString());
-            }
+            url.searchParams.delete('postId');
+            window.history.replaceState({}, document.title, url.toString());
         }
 
         // Handles the submission of a new comment for a post.
