@@ -1267,9 +1267,18 @@
                     const selectedMedia = form.querySelector('input[name="media-type"]:checked')?.value; // Added optional chaining
                     console.log("toggleMediaSectionsInternal called. Selected Media:", selectedMedia); // Debugging line
 
-                    if (youtubeLinkSection) youtubeLinkSection.classList.toggle('hidden', selectedMedia !== 'youtube' && selectedMedia !== 'combo');
-                    if (imageLinkSection) imageLinkSection.classList.toggle('hidden', selectedMedia !== 'image' && selectedMedia !== 'combo');
-                    if (customYoutubeTextSection) customYoutubeTextSection.classList.toggle('hidden', selectedMedia !== 'combo');
+                    if (youtubeLinkSection) {
+                        if (selectedMedia === 'youtube' || selectedMedia === 'combo') youtubeLinkSection.classList.remove('hidden');
+                        else youtubeLinkSection.classList.add('hidden');
+                    }
+                    if (imageLinkSection) {
+                        if (selectedMedia === 'image' || selectedMedia === 'combo') imageLinkSection.classList.remove('hidden');
+                        else imageLinkSection.classList.add('hidden');
+                    }
+                    if (customYoutubeTextSection) {
+                        if (selectedMedia === 'combo') customYoutubeTextSection.classList.remove('hidden');
+                        else customYoutubeTextSection.classList.add('hidden');
+                    }
                     
                     // Get references to inputs
                     const trailerLinkInput = form.querySelector('#trailer-link');
@@ -1474,9 +1483,18 @@
                     const selectedMedia = initialMediaType || form.querySelector('input[name="media-type"]:checked')?.value;
                     console.log("toggleMediaSectionsEdit called. Selected Media:", selectedMedia); // Debugging line
 
-                    if (youtubeLinkSection) youtubeLinkSection.classList.toggle('hidden', selectedMedia !== 'youtube' && selectedMedia !== 'combo');
-                    if (imageLinkSection) imageLinkSection.classList.toggle('hidden', selectedMedia !== 'image' && selectedMedia !== 'combo');
-                    if (customYoutubeTextSection) customYoutubeTextSection.classList.toggle('hidden', selectedMedia !== 'combo'); 
+                    if (youtubeLinkSection) {
+                        if (selectedMedia === 'youtube' || selectedMedia === 'combo') youtubeLinkSection.classList.remove('hidden');
+                        else youtubeLinkSection.classList.add('hidden');
+                    }
+                    if (imageLinkSection) {
+                        if (selectedMedia === 'image' || selectedMedia === 'combo') imageLinkSection.classList.remove('hidden');
+                        else imageLinkSection.classList.add('hidden');
+                    }
+                    if (customYoutubeTextSection) {
+                        if (selectedMedia === 'combo') customYoutubeTextSection.classList.remove('hidden');
+                        else customYoutubeTextSection.classList.add('hidden');
+                    }
                     
                     const trailerLinkInput = form.querySelector('#trailer-link');
                     const imageUrlInput = form.querySelector('#image-url');
@@ -1696,7 +1714,7 @@
             // Get genres from the global selectedGenres array
             const genres = [...selectedGenres]; 
             const platforms = [...form.querySelectorAll('input[name="platform"]:checked')].map(el => el.value);
-            const mediaType = form.querySelector('input[name="media-type"]:checked').value; // Get from form
+            const mediaType = form.querySelector('input[name="media-type']:checked').value; // Get from form
             const aiContent = form.querySelector('input[name="ai-content"]:checked')?.value;
             const tagsInput = form.querySelector('#tags').value.trim();
             const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag !== '') : [];
