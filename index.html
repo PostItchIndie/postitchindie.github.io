@@ -1470,8 +1470,8 @@
                 const commentsStatusSection = form.querySelector('#comments-status-section');
                 const linkedGamePromoSection = form.querySelector('#linked-game-promo-section');
 
-                function toggleMediaSectionsEdit() {
-                    const selectedMedia = form.querySelector('input[name="media-type"]:checked')?.value;
+                function toggleMediaSectionsEdit(initialMediaType = null) { // Added initialMediaType parameter
+                    const selectedMedia = initialMediaType || form.querySelector('input[name="media-type"]:checked')?.value;
                     console.log("toggleMediaSectionsEdit called. Selected Media:", selectedMedia); // Debugging line
 
                     if (youtubeLinkSection) youtubeLinkSection.classList.toggle('hidden', selectedMedia !== 'youtube' && selectedMedia !== 'combo');
@@ -1512,7 +1512,7 @@
                     }
                 }
                 mediaTypeRadios.forEach(radio => radio.addEventListener('change', toggleMediaSectionsEdit));
-                toggleMediaSectionsEdit(); // Initialize visibility
+                toggleMediaSectionsEdit(post.mediaType); // Initialize visibility with the post's media type
 
                 function togglePostTypeFieldsEdit() {
                     const selectedPostType = postTypeSelect.value;
