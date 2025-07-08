@@ -317,28 +317,28 @@
         <header class="flex justify-between items-center py-4 px-4 main-bg rounded-lg shadow-lg">
             <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wider">Post<span class="text-[#00bcd4]">Itch</span></h1>
             <nav class="hidden md:flex items-center space-x-6">
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
+                <a href="?section=community" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
+                <a href="?section=promos" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
+                <a href="?section=devlogs" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
+                <a href="?section=post" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
+                <a href="?section=search" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
+                <a href="?section=my-posts" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
+                <a href="?section=about" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
+                <a href="?section=rules" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
             </nav>
             <div class="md:hidden">
                 <button id="mobile-menu-btn"><i class="fas fa-bars text-2xl"></i></button>
             </div>
         </header>
         <div id="mobile-menu" class="hidden md:hidden main-bg rounded-lg mt-2 p-4">
-             <a href="#" class="block py-2 text-center nav-item" data-tab="community">Community</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="promos">Game Promos</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="devlogs">Devlogs</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="post">Post</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="search">Search</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="my-posts">My Posts</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="about">About</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="rules">Rules</a>
+             <a href="?section=community" class="block py-2 text-center nav-item" data-tab="community">Community</a>
+             <a href="?section=promos" class="block py-2 text-center nav-item" data-tab="promos">Game Promos</a>
+             <a href="?section=devlogs" class="block py-2 text-center nav-item" data-tab="devlogs">Devlogs</a>
+             <a href="?section=post" class="block py-2 text-center nav-item" data-tab="post">Post</a>
+             <a href="?section=search" class="block py-2 text-center nav-item" data-tab="search">Search</a>
+             <a href="?section=my-posts" class="block py-2 text-center nav-item" data-tab="my-posts">My Posts</a>
+             <a href="?section=about" class="block py-2 text-center nav-item" data-tab="about">About</a>
+             <a href="?section=rules" class="block py-2 text-center nav-item" data-tab="rules">Rules</a>
         </div>
 
 
@@ -468,7 +468,7 @@
 
 
         let editingPostId = null; // Stores the ID of the post currently being edited
-        let currentlyViewedPostId = null; // Tracks the ID of the post currently open in the modal for view count logic
+        let isPostModalOpen = false; // Flag to prevent multiple view increments
 
 
         // --- HELPER FUNCTIONS ---
@@ -606,7 +606,10 @@
                         return; // Do nothing if media placeholder, YouTube link button, or other button was clicked
                     }
                     const postId = card.dataset.id;
-                    await openPostModal(postId);
+                    // Only open the post modal if it's not already open
+                    if (!isPostModalOpen) {
+                        await openPostModal(postId);
+                    }
                 });
             });
 
@@ -687,60 +690,11 @@
             listenForPostsRealtime(); // Start real-time listening for ALL posts
             setupNavListeners(); // Set up navigation event handlers
             
-            // Handle initial URL state for SPA and shared links
-            window.addEventListener('popstate', handleUrlChange); // Listen for browser back/forward
-            handleUrlChange(); // Handle initial load based on URL
-            
-            // Add event listener for the new video modal close button
-            closeVideoModalBtn.addEventListener('click', closeVideoModal);
-        }
-        
-        // Sets up event listeners for navigation buttons (desktop and mobile).
-        function setupNavListeners() {
-            mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
-            
-            navItems.forEach(item => {
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const tab = e.target.getAttribute('data-tab');
-                    if (tab) {
-                        navigateToSection(tab); // Use new navigation function
-                        mobileMenu.classList.add('hidden'); // Hide mobile menu on tab selection
-                    }
-                });
-            });
-        }
-
-        // --- SPA NAVIGATION LOGIC ---
-        // Navigates to a specific section and updates the URL using history.pushState.
-        function navigateToSection(section, postId = null) {
-            let url = new URL(window.location.origin + window.location.pathname);
-            if (section && section !== 'community') { // Only add section param if not default
-                url.searchParams.set('section', section);
-            }
-            if (postId) {
-                url.searchParams.set('postId', postId);
-            }
-            // If we are navigating to a section, and a postId is currently in the URL
-            // but we are not opening a post modal (i.e., postId is null), remove the postId param.
-            if (!postId && window.location.search.includes('postId')) {
-                url.searchParams.delete('postId');
-            }
-
-            // Push state only if the URL is different to avoid redundant history entries
-            if (window.location.href !== url.toString()) {
-                window.history.pushState({ section, postId }, '', url.toString());
-            }
-            switchTab(section, postId); // Render the new tab content
-        }
-
-        // Handles URL changes (initial load and popstate events).
-        function handleUrlChange() {
+            // Check for postId in URL and open modal if present
             const urlParams = new URLSearchParams(window.location.search);
-            const sectionFromUrl = urlParams.get('section') || 'community';
             const postIdFromUrl = urlParams.get('postId');
+            const sectionFromUrl = urlParams.get('section');
 
-            // If a postId is present, open the modal, otherwise switch to the section
             if (postIdFromUrl) {
                 // Wait for posts to be fetched before attempting to open the modal
                 const checkPostsInterval = setInterval(() => {
@@ -749,17 +703,58 @@
                         openPostModal(postIdFromUrl);
                     }
                 }, 100); // Check every 100ms
-            } else {
-                // Close modal if no postId in URL and modal is open
-                if (currentlyViewedPostId) {
-                    closePostModal();
-                }
-                switchTab(sectionFromUrl);
+            } else if (sectionFromUrl) {
+                switchTab(sectionFromUrl); // Load the specified section
             }
+            else {
+                switchTab('community'); // Load the default community feed tab if no postId or section in URL
+            }
+            
+            // Add event listener for the new video modal close button
+            closeVideoModalBtn.addEventListener('click', closeVideoModal);
+
+            // Listen for browser history changes (back/forward buttons)
+            window.addEventListener('popstate', handlePopState);
         }
 
+        // Handles browser history changes (back/forward buttons)
+        function handlePopState() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const postIdFromUrl = urlParams.get('postId');
+            const sectionFromUrl = urlParams.get('section');
+
+            if (postIdFromUrl) {
+                // If a postId is in the URL, try to open the modal
+                openPostModal(postIdFromUrl);
+            } else if (sectionFromUrl) {
+                // If a section is in the URL, switch to that tab
+                switchTab(sectionFromUrl, false); // Pass false to prevent pushing state again
+            } else {
+                // If no specific parameter, default to community
+                switchTab('community', false); // Pass false to prevent pushing state again
+            }
+        }
+        
+        // Sets up event listeners for navigation buttons (desktop and mobile).
+        function setupNavListeners() {
+            mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault(); // Prevent default link behavior
+                    const tab = e.target.getAttribute('data-tab');
+                    if (tab) {
+                        switchTab(tab); // Call switchTab, which will handle URL update
+                        mobileMenu.classList.add('hidden'); // Hide mobile menu on tab selection
+                    }
+                });
+            });
+        }
+
+        // --- NAVIGATION LOGIC ---
         // Switches the active tab and renders its content.
-        function switchTab(tab, postId = null) {
+        // The `pushState` parameter controls whether a new history entry is created.
+        function switchTab(tab, pushState = true) {
             // Update active navigation item styling
             document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
                 item.classList.toggle('active', item.getAttribute('data-tab') === tab);
@@ -769,6 +764,14 @@
                 content.classList.toggle('hidden', content.id !== `content-${tab}`);
             });
             
+            // Update URL in browser history
+            if (pushState) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('section', tab);
+                url.searchParams.delete('postId'); // Remove postId if navigating to a section
+                window.history.pushState({ section: tab }, '', url.toString());
+            }
+
             // Map tab names to their respective rendering functions
             const renderMap = {
                 community: renderCommunityPage,
@@ -1221,7 +1224,7 @@
                 const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
                 const youtubeLinkSection = form.querySelector('#youtube-link-section');
                 const imageLinkSection = form.querySelector('#image-link-section');
-                const customYoutubeTextSection = form.querySelector('#custom-youtube-text-section');
+                const customYoutubeTextSection = form.querySelector('#custom-youtube-link-section');
                 const youtubeLinkHelp = form.querySelector('.youtube-link-help');
                 const imageLinkHelp = form.querySelector('.image-link-help');
                 const itchLinkInput = form.querySelector('#itch-link');
@@ -1645,17 +1648,18 @@
                 });
 
                 // Re-render the currently active tab to reflect the updated data
-                const urlParams = new URLSearchParams(window.location.search);
-                const sectionFromUrl = urlParams.get('section') || 'community';
-                const postIdFromUrl = urlParams.get('postId');
-
-                if (postIdFromUrl && currentlyViewedPostId === postIdFromUrl) {
-                    // If the modal is already open for this post, re-render its content
-                    // This will update likes/comments/views in real-time
-                    openPostModal(postIdFromUrl);
-                } else {
-                    // Otherwise, re-render the current section
-                    switchTab(sectionFromUrl);
+                const activeTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
+                if (activeTab === 'community') {
+                    renderCommunityPage(); // Re-render community page with potentially new/updated posts
+                } else if (activeTab === 'my-posts') {
+                    renderMyPostsPage(); // Re-render my posts page
+                } else if (activeTab === 'promos') {
+                    renderPromosPage();
+                } else if (activeTab === 'devlogs') {
+                    renderDevlogsPage();
+                } else if (activeTab === 'search') {
+                    // Re-run search if on search tab to update results based on new data
+                    handleSearch();
                 }
             }, error => {
                 console.error("Error listening for posts:", error);
@@ -1869,7 +1873,7 @@
                     showAlert("Post updated successfully!").then(() => {
                         closePostModal(); // Close modal after update
                         displayLimit = postsPerPage; // Reset display limit for community page
-                        navigateToSection('my-posts'); // Navigate back to my posts
+                        switchTab('my-posts'); // Navigate back to my posts
                     });
                 } else {
                     // Add new post
@@ -1902,7 +1906,7 @@
                         // Re-render genre checkboxes to clear selections visually
                         const genreCheckboxesContainer = form.querySelector('#genre-checkboxes');
                         renderGenreCheckboxes(genreCheckboxesContainer);
-                        navigateToSection('my-posts'); // Navigate directly to my posts after new post
+                        switchTab('my-posts'); // Navigate directly to my posts after new post
                     });
                 }
             } catch (error) {
@@ -1975,25 +1979,31 @@
         // --- MODAL LOGIC FOR INDIVIDUAL POST VIEW ---
         // Opens a modal displaying detailed information about a selected post.
         async function openPostModal(postId, focusComment = false) { 
+            // Set flag to true immediately to prevent multiple increments
+            isPostModalOpen = true; 
+
             const post = allFetchedPosts.find(p => p.id === postId); // Use allFetchedPosts
             if (!post) {
                 showAlert("Post not found!");
+                isPostModalOpen = false; // Reset flag if post not found
                 return;
             }
 
-            // Increment view count only if this is a new view session for this post
-            if (postId !== currentlyViewedPostId) {
-                try {
-                    const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
-                    await updateDoc(postRef, { views: (post.views || 0) + 1 });
-                    // Optimistically update the local data
-                    post.views = (post.views || 0) + 1;
-                    console.log(`View count incremented for post: ${postId}. New views: ${post.views}`);
-                } catch (error) {
-                    console.error("Error incrementing view count:", error);
-                }
+            // Update URL in browser history to reflect the opened post modal
+            const url = new URL(window.location.href);
+            url.searchParams.set('postId', postId);
+            url.searchParams.delete('section'); // Remove section parameter when a post modal is open
+            window.history.pushState({ postId: postId }, '', url.toString());
+
+            // Increment view count for ALL post types AFTER the modal is confirmed to open
+            try {
+                const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
+                await updateDoc(postRef, { views: (post.views || 0) + 1 });
+                // Optimistically update the local data
+                post.views = (post.views || 0) + 1;
+            } catch (error) {
+                console.error("Error incrementing view count:", error);
             }
-            currentlyViewedPostId = postId; // Set the currently viewed post ID
 
             let mediaHtml = '';
             let modalYoutubeLinkHtml = ''; // New variable for combo link in modal
@@ -2118,7 +2128,7 @@
             const viewLinkedGameBtn = document.getElementById('view-linked-game-btn');
             if (viewLinkedGameBtn && post.linkedGamePromoId) {
                 viewLinkedGameBtn.addEventListener('click', async () => {
-                    navigateToSection(null, post.linkedGamePromoId); // Navigate to the linked post
+                    await openPostModal(post.linkedGamePromoId);
                 });
             }
 
@@ -2150,8 +2160,6 @@
                     document.getElementById('comment-input').focus(); // Optionally focus the comment input
                 }
             }
-            // Update URL to reflect the opened post modal
-            navigateToSection(null, postId);
         }
 
         // Closes the post detail modal.
@@ -2159,16 +2167,26 @@
             postModal.classList.add('hidden');
             modalContent.innerHTML = ''; // Clear content to prevent old data from flashing on next open
             editingPostId = null; // Reset editing state
-            currentlyViewedPostId = null; // Reset currently viewed post ID
+            isPostModalOpen = false; // Reset flag when modal is closed
             // Re-enable post type selection when closing the edit modal
             const postTypeSelect = document.getElementById('post-type');
             if (postTypeSelect) {
                 postTypeSelect.disabled = false;
             }
-            // Remove postId from URL when modal is closed, but keep section if present
+            // Remove postId from URL when modal is closed, and restore section if it was present
             const url = new URL(window.location.href);
+            const currentSection = url.searchParams.get('section');
             url.searchParams.delete('postId');
-            window.history.pushState({}, document.title, url.toString()); // Use pushState to update history
+            if (currentSection) {
+                // If there was a section, go back to it without creating a new history entry
+                window.history.replaceState({ section: currentSection }, document.title, url.toString());
+                switchTab(currentSection, false); // Re-activate the tab without pushing new state
+            } else {
+                // If no section was present, default to community
+                url.searchParams.set('section', 'community');
+                window.history.replaceState({ section: 'community' }, document.title, url.toString());
+                switchTab('community', false); // Re-activate the community tab without pushing new state
+            }
         }
 
         // Handles the submission of a new comment for a post.
