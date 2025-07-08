@@ -785,6 +785,14 @@
                 url.searchParams.delete('genres');
             }
 
+            // Handle searchTerm for search page
+            if (params.searchTerm) {
+                url.searchParams.set('searchTerm', params.searchTerm);
+                state.searchTerm = params.searchTerm;
+            } else {
+                url.searchParams.delete('searchTerm');
+            }
+
             // Push the new state to the browser history
             window.history.pushState(state, '', url.toString());
             
@@ -813,6 +821,7 @@
             const postIdFromUrl = urlParams.get('postId');
             const sectionFromUrl = urlParams.get('section');
             const focusCommentFromUrl = urlParams.get('focusComment') === 'true';
+            const searchTermFromUrl = urlParams.get('searchTerm'); // Get searchTerm from URL
 
             // Update global filter/sort states from URL
             currentSortBy = urlParams.get('sortBy') || 'newest';
@@ -841,6 +850,16 @@
                 document.title = `PostItch | ${getSectionTitle(sectionFromUrl)}`;
                 switchTab(sectionFromUrl);
                 closePostModal(); // Ensure modal is closed if navigating to a section
+
+                // If navigating to search page with a search term, trigger the search
+                if (sectionFromUrl === 'search' && searchTermFromUrl) {
+                    // Ensure the search input is populated before calling handleSearch
+                    const searchInput = document.getElementById('search-input');
+                    if (searchInput) {
+                        searchInput.value = searchTermFromUrl;
+                        handleSearch(); // Trigger search with the URL term
+                    }
+                }
             } else {
                 // Default to community feed if no specific section or post is in the URL
                 document.title = 'PostItch | Community Feed';
@@ -1696,7 +1715,7 @@
             const searchTermFromUrl = urlParams.get('searchTerm');
             if (searchTermFromUrl) {
                 document.getElementById('search-input').value = searchTermFromUrl;
-                handleSearch(); // Run search on load if term exists
+                // handleSearch() will be called by handleUrlChange if section is 'search' and searchTerm exists.
             }
         }
 
@@ -1798,7 +1817,7 @@
             // Get genres from the global selectedGenres array
             const genres = [...selectedGenres]; 
             const platforms = [...form.querySelectorAll('input[name="platform"]:checked')].map(el => el.value);
-            const mediaType = form.querySelector('input[name="media-type"]:checked').value; // Get from form
+            const mediaType = form.querySelector('input[name="media-type']:checked').value; // Get from form
             const aiContent = form.querySelector('input[name="ai-content"]:checked')?.value;
             const tagsInput = form.querySelector('#tags').value.trim();
             const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag !== '') : [];
@@ -2063,7 +2082,15 @@
             const resultsContainer = document.getElementById('search-results');
 
             // Update URL with search term
-            navigateTo({ section: 'search', searchTerm: queryTerm });
+            // Only navigate if the current section is not already 'search' or if the search term has changed
+            const currentUrlParams = new URLSearchParams(window.location.search);
+            const currentSearchTermInUrl = currentUrlParams.get('searchTerm') || '';
+            const currentSectionInUrl = currentUrlParams.get('section');
+
+            if (currentSectionInUrl !== 'search' || queryTerm !== currentSearchTermInUrl) {
+                navigateTo({ section: 'search', searchTerm: queryTerm });
+            }
+
 
             if (!queryTerm) {
                 resultsContainer.innerHTML = '<p class="col-span-full text-center text-gray-400">Please enter a search term.</p>';
