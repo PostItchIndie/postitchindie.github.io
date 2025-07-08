@@ -469,7 +469,6 @@
 
         let editingPostId = null; // Stores the ID of the post currently being edited
         let isPostModalOpen = false; // Flag to prevent multiple view increments
-        let sectionBeforeModal = 'community'; // Stores the section from which the modal was opened
 
 
         // --- HELPER FUNCTIONS ---
@@ -607,8 +606,8 @@
                         return; // Do nothing if media placeholder, YouTube link button, or other button was clicked
                     }
                     const postId = card.dataset.id;
-                    // Only open the post modal if it's not already open for this post
-                    if (!isPostModalOpen || editingPostId !== postId) {
+                    // Only open the post modal if it's not already open
+                    if (!isPostModalOpen) {
                         await openPostModal(postId);
                     }
                 });
@@ -691,14 +690,10 @@
             listenForPostsRealtime(); // Start real-time listening for ALL posts
             setupNavListeners(); // Set up navigation event handlers
             
-            // Check for postId or section in URL on initial load
+            // Check for postId in URL and open modal if present
             const urlParams = new URLSearchParams(window.location.search);
             const postIdFromUrl = urlParams.get('postId');
-            const sectionFromUrl = urlParams.get('section');
-
             if (postIdFromUrl) {
-                // Set sectionBeforeModal based on URL if postId is present
-                sectionBeforeModal = sectionFromUrl || 'community';
                 // Wait for posts to be fetched before attempting to open the modal
                 const checkPostsInterval = setInterval(() => {
                     if (allFetchedPosts.length > 0) {
@@ -706,10 +701,8 @@
                         openPostModal(postIdFromUrl);
                     }
                 }, 100); // Check every 100ms
-            } else if (sectionFromUrl) {
-                switchTab(sectionFromUrl);
             } else {
-                switchTab('community'); // Load the default community feed tab if no params in URL
+                switchTab('community'); // Load the default community feed tab if no postId in URL
             }
             
             // Add event listener for the new video modal close button
@@ -744,14 +737,6 @@
                 content.classList.toggle('hidden', content.id !== `content-${tab}`);
             });
             
-            // Update the URL
-            const url = new URL(window.location.href);
-            url.searchParams.set('section', tab);
-            url.searchParams.delete('postId'); // Ensure postId is removed when switching sections
-            window.history.pushState({ section: tab, postId: null }, '', url.toString());
-
-            currentActiveSection = tab; // Update the global active section
-
             // Map tab names to their respective rendering functions
             const renderMap = {
                 community: renderCommunityPage,
@@ -1204,7 +1189,7 @@
                 const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
                 const youtubeLinkSection = form.querySelector('#youtube-link-section');
                 const imageLinkSection = form.querySelector('#image-link-section');
-                const customYoutubeTextSection = form.querySelector('#custom-youtube-link-section');
+                const customYoutubeTextSection = form.querySelector('#custom-youtube-text-section');
                 const youtubeLinkHelp = form.querySelector('.youtube-link-help');
                 const imageLinkHelp = form.querySelector('.image-link-help');
                 const itchLinkInput = form.querySelector('#itch-link');
@@ -1959,10 +1944,7 @@
         // --- MODAL LOGIC FOR INDIVIDUAL POST VIEW ---
         // Opens a modal displaying detailed information about a selected post.
         async function openPostModal(postId, focusComment = false) { 
-            // Capture the current section from the URL before pushing a new state
-            const currentUrlParams = new URLSearchParams(window.location.search);
-            sectionBeforeModal = currentUrlParams.get('section') || 'community';
-
+            // Set flag to true immediately to prevent multiple increments
             isPostModalOpen = true; 
 
             const post = allFetchedPosts.find(p => p.id === postId); // Use allFetchedPosts
@@ -2130,12 +2112,6 @@
                 showAlert("Link copied to clipboard!");
             });
 
-            // Update URL: push a new state to history
-            const newUrl = new URL(window.location.href);
-            newUrl.searchParams.set('section', sectionBeforeModal); // Keep the base section
-            newUrl.searchParams.set('postId', postId);
-            window.history.pushState({ section: sectionBeforeModal, postId: postId }, '', newUrl.toString());
-
 
             if (post.allowComments !== false) { // Only add comment form listener if comments are allowed
                 document.getElementById('comment-form').addEventListener('submit', (e) => handleCommentSubmit(e, postId));
@@ -2151,18 +2127,15 @@
             modalContent.innerHTML = ''; // Clear content to prevent old data from flashing on next open
             editingPostId = null; // Reset editing state
             isPostModalOpen = false; // Reset flag when modal is closed
-
             // Re-enable post type selection when closing the edit modal
             const postTypeSelect = document.getElementById('post-type');
             if (postTypeSelect) {
                 postTypeSelect.disabled = false;
             }
-            // Revert URL to the state before the modal was opened
-            // We replace the current state (with postId) with the state that was active before the modal.
+            // Remove postId from URL when modal is closed
             const url = new URL(window.location.href);
             url.searchParams.delete('postId');
-            url.searchParams.set('section', sectionBeforeModal); // Restore the section that was active
-            window.history.replaceState({ section: sectionBeforeModal, postId: null }, '', url.toString());
+            window.history.replaceState({}, document.title, url.toString());
         }
 
         // Handles the submission of a new comment for a post.
@@ -2235,28 +2208,6 @@
             }
             document.body.removeChild(textarea);
         }
-
-        // Event listener for browser back/forward buttons
-        window.onpopstate = function(event) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const postIdFromUrl = urlParams.get('postId');
-            const sectionFromUrl = urlParams.get('section') || 'community'; // Default to community
-
-            if (postIdFromUrl) {
-                // If a postId is in the URL, try to open the modal
-                // Only open if the modal is not already open for this specific post
-                if (editingPostId !== postIdFromUrl) { // Use editingPostId to check if modal is open for this post
-                    openPostModal(postIdFromUrl);
-                }
-            } else {
-                // If no postId, close the modal if it's open
-                if (isPostModalOpen) { // Check if any modal is open
-                    closePostModal(); // This will replace the state, removing postId
-                }
-                // Switch to the section specified in the URL
-                switchTab(sectionFromUrl);
-            }
-        };
 
     </script>
 </body>
