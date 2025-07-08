@@ -317,28 +317,28 @@
         <header class="flex justify-between items-center py-4 px-4 main-bg rounded-lg shadow-lg">
             <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wider">Post<span class="text-[#00bcd4]">Itch</span></h1>
             <nav class="hidden md:flex items-center space-x-6">
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
+                <a href="https://postitchindie.github.io/?section=community" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
+                <a href="https://postitchindie.github.io/?section=promos" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
+                <a href="https://postitchindie.github.io/?section=devlogs" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
+                <a href="https://postitchindie.github.io/?section=post" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
+                <a href="https://postitchindie.github.io/?section=search" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
+                <a href="https://postitchindie.github.io/?section=my-posts" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
+                <a href="https://postitchindie.github.io/?section=about" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
+                <a href="https://postitchindie.github.io/?section=rules" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
             </nav>
             <div class="md:hidden">
                 <button id="mobile-menu-btn"><i class="fas fa-bars text-2xl"></i></button>
             </div>
         </header>
         <div id="mobile-menu" class="hidden md:hidden main-bg rounded-lg mt-2 p-4">
-             <a href="#" class="block py-2 text-center nav-item" data-tab="community">Community</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="promos">Game Promos</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="devlogs">Devlogs</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="post">Post</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="search">Search</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="my-posts">My Posts</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="about">About</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="rules">Rules</a>
+             <a href="https://postitchindie.github.io/?section=community" class="block py-2 text-center nav-item" data-tab="community">Community</a>
+             <a href="https://postitchindie.github.io/?section=promos" class="block py-2 text-center nav-item" data-tab="promos">Game Promos</a>
+             <a href="https://postitchindie.github.io/?section=devlogs" class="block py-2 text-center nav-item" data-tab="devlogs">Devlogs</a>
+             <a href="https://postitchindie.github.io/?section=post" class="block py-2 text-center nav-item" data-tab="post">Post</a>
+             <a href="https://postitchindie.github.io/?section=search" class="block py-2 text-center nav-item" data-tab="search">Search</a>
+             <a href="https://postitchindie.github.io/?section=my-posts" class="block py-2 text-center nav-item" data-tab="my-posts">My Posts</a>
+             <a href="https://postitchindie.github.io/?section=about" class="block py-2 text-center nav-item" data-tab="about">About</a>
+             <a href="https://postitchindie.github.io/?section=rules" class="block py-2 text-center nav-item" data-tab="rules">Rules</a>
         </div>
 
 
@@ -721,6 +721,11 @@
                     e.preventDefault();
                     const tab = e.target.getAttribute('data-tab');
                     if (tab) {
+                        // Update URL with section parameter
+                        const newUrl = new URL(window.location.href);
+                        newUrl.searchParams.set('section', tab);
+                        newUrl.searchParams.delete('postId'); // Remove postId if navigating to a section
+                        window.history.pushState({}, '', newUrl.toString());
                         switchTab(tab);
                         mobileMenu.classList.add('hidden'); // Hide mobile menu on tab selection
                     }
@@ -1192,7 +1197,7 @@
                 const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
                 const youtubeLinkSection = form.querySelector('#youtube-link-section');
                 const imageLinkSection = form.querySelector('#image-link-section');
-                const customYoutubeTextSection = form.querySelector('#custom-youtube-text-section');
+                const customYoutubeTextSection = form.querySelector('#custom-youtube-link-section');
                 const youtubeLinkHelp = form.querySelector('.youtube-link-help');
                 const imageLinkHelp = form.querySelector('.image-link-help');
                 const itchLinkInput = form.querySelector('#itch-link');
