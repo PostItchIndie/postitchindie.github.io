@@ -682,54 +682,35 @@
         });
 
         // Initializes the main application state after authentication.
-			// --- NAVIGATION LOGIC ---
-			// Switches the active tab and renders its content.
-			function switchTab(tab) {
-				// Update active navigation item styling
-				document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
-					item.classList.toggle('active', item.getAttribute('data-tab') === tab);
-				});
-				// Show/hide corresponding tab content sections
-				tabContents.forEach(content => {
-					content.classList.toggle('hidden', content.id !== `content-${tab}`);
-				});
-				// Map tab names to their respective rendering functions
-				const renderMap = {
-					community: renderCommunityPage,
-					promos: renderPromosPage,
-					devlogs: renderDevlogsPage,
-					post: () => renderPostPage(contentPost), // Pass contentPost as target
-					search: renderSearchPage,
-					'my-posts': renderMyPostsPage,
-					about: renderAboutPage,
-					rules: renderRulesPage,
-				};
-				renderMap[tab]?.(); // Call the appropriate rendering function
+		function initializeAppState() {
+			console.log("PostItch App Initializing...");
+			console.log("Using Firebase Project ID (as App ID):", appId);
+			console.log("Firestore Collection Path for posts:", `artifacts/${appId}/public/data/posts`);
+			loader.style.display = 'none'; // Hide the loading spinner
+			listenForPostsRealtime(); // Start real-time listening for ALL posts
+			setupNavListeners(); // Set up navigation event handlers
 
-				// NEW: Update URL without adding a hash or reloading the page
-				const newUrl = new URL(window.location.href);
+			// Check for postId in URL and open modal if present
+			const urlParams = new URLSearchParams(window.location.search);
+			const postIdFromUrl = urlParams.get('postId');
+			const sectionFromUrl = urlParams.get('section'); // NEW: Check for 'section' parameter
 
-				// Set or remove the 'section' parameter based on the tab
-				if (tab === 'community' && !newUrl.searchParams.has('postId')) {
-					// If it's the default 'community' tab and no postId, remove the section parameter
-					newUrl.searchParams.delete('section');
-				} else {
-					// For other tabs, set the 'section' parameter
-					newUrl.searchParams.set('section', tab);
-				}
-
-				// Preserve 'postId' if it exists in the original URL
-				const postId = new URLSearchParams(window.location.search).get('postId');
-				if (postId) {
-					newUrl.searchParams.set('postId', postId);
-				}
-
-				// Ensure no hash fragment is present
-				newUrl.hash = '';
-
-				// Update the browser's history entry
-				history.pushState({}, '', newUrl.toString());
+			if (postIdFromUrl) {
+				// Wait for posts to be fetched before attempting to open the modal
+				const checkPostsInterval = setInterval(() => {
+					if (allFetchedPosts.length > 0) {
+						clearInterval(checkPostsInterval);
+						openPostModal(postIdFromUrl);
+					}
+				}, 100); // Check every 100ms
+			} else if (sectionFromUrl) { // NEW: If 'section' parameter is present
+				switchTab(sectionFromUrl); // Switch to the specified section
+			} else {
+				switchTab('community'); // Load the default community feed tab if no postId or section in URL
 			}
+			// Add event listener for the new video modal close button
+			closeVideoModalBtn.addEventListener('click', closeVideoModal);
+        }
         
         // Sets up event listeners for navigation buttons (desktop and mobile).
         function setupNavListeners() {
