@@ -469,6 +469,7 @@
 
         let editingPostId = null; // Stores the ID of the post currently being edited
         let isPostModalOpen = false; // Flag to prevent multiple view increments
+        let lastViewedPostId = null; // New: Tracks the ID of the last post whose view count was incremented
 
 
         // --- HELPER FUNCTIONS ---
@@ -2101,14 +2102,17 @@
                 return;
             }
 
-            // Increment view count for ALL post types AFTER the modal is confirmed to open
-            try {
-                const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
-                await updateDoc(postRef, { views: (post.views || 0) + 1 });
-                // Optimistically update the local data
-                post.views = (post.views || 0) + 1;
-            } catch (error) {
-                console.error("Error incrementing view count:", error);
+            // Increment view count only if this post hasn't been the last viewed one
+            if (postId !== lastViewedPostId) {
+                try {
+                    const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
+                    await updateDoc(postRef, { views: (post.views || 0) + 1 });
+                    // Optimistically update the local data
+                    post.views = (post.views || 0) + 1;
+                    lastViewedPostId = postId; // Update the last viewed post ID
+                } catch (error) {
+                    console.error("Error incrementing view count:", error);
+                }
             }
 
             let mediaHtml = '';
@@ -2280,6 +2284,7 @@
             modalContent.innerHTML = ''; // Clear content to prevent old data from flashing on next open
             editingPostId = null; // Reset editing state
             isPostModalOpen = false; // Reset flag when modal is closed
+            lastViewedPostId = null; // Reset last viewed post ID when modal is closed
             // Re-enable post type selection when closing the edit modal
             const postTypeSelect = document.getElementById('post-type');
             if (postTypeSelect) {
