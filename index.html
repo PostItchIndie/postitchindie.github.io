@@ -317,7 +317,7 @@
         <header class="flex justify-between items-center py-4 px-4 main-bg rounded-lg shadow-lg">
             <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wider">Post<span class="text-[#00bcd4]">Itch</span></h1>
             <nav class="hidden md:flex items-center space-x-6">
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
+                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="community">Community</a>
                 <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
                 <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
                 <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
@@ -430,6 +430,7 @@
         let currentSortBy = 'newest'; // Default sort order for community feed
         let currentPricingFilter = 'all'; // Default pricing filter
         let currentAiContentFilter = 'all'; // New: Default AI content filter
+        let currentSearchQuery = ''; // New: Stores the current search query
 
         // Global array to store selected genres, persisting across search filters
         let selectedGenres = []; 
@@ -468,7 +469,9 @@
 
 
         let editingPostId = null; // Stores the ID of the post currently being edited
-        let isPostModalOpen = false; // Flag to prevent multiple view increments
+        let isPostModalOpen = false; // Flag to indicate if the post modal is currently open
+        let currentOpenPostId = null; // Stores the ID of the post currently displayed in the modal
+        let viewedPostIds = new Set(); // Stores IDs of posts for which views have been incremented in this session
 
 
         // --- HELPER FUNCTIONS ---
@@ -606,8 +609,8 @@
                         return; // Do nothing if media placeholder, YouTube link button, or other button was clicked
                     }
                     const postId = card.dataset.id;
-                    // Only open the post modal if it's not already open
-                    if (!isPostModalOpen) {
+                    // Only open the post modal if it's not already open or if a different post is being opened
+                    if (!isPostModalOpen || currentOpenPostId !== postId) {
                         await openPostModal(postId);
                     }
                 });
@@ -690,20 +693,11 @@
             listenForPostsRealtime(); // Start real-time listening for ALL posts
             setupNavListeners(); // Set up navigation event handlers
             
-            // Check for postId in URL and open modal if present
-            const urlParams = new URLSearchParams(window.location.search);
-            const postIdFromUrl = urlParams.get('postId');
-            if (postIdFromUrl) {
-                // Wait for posts to be fetched before attempting to open the modal
-                const checkPostsInterval = setInterval(() => {
-                    if (allFetchedPosts.length > 0) {
-                        clearInterval(checkPostsInterval);
-                        openPostModal(postIdFromUrl);
-                    }
-                }, 100); // Check every 100ms
-            } else {
-                switchTab('community'); // Load the default community feed tab if no postId in URL
-            }
+            // Handle initial URL state for SPA navigation
+            handleUrlChange();
+
+            // Add event listener for popstate to handle browser back/forward buttons
+            window.addEventListener('popstate', handleUrlChange);
             
             // Add event listener for the new video modal close button
             closeVideoModalBtn.addEventListener('click', closeVideoModal);
@@ -718,14 +712,78 @@
                     e.preventDefault();
                     const tab = e.target.getAttribute('data-tab');
                     if (tab) {
-                        switchTab(tab);
+                        // Use navigateTo instead of switchTab directly for URL management
+                        navigateTo(tab);
                         mobileMenu.classList.add('hidden'); // Hide mobile menu on tab selection
                     }
                 });
             });
         }
 
-        // --- NAVIGATION LOGIC ---
+        // --- SPA NAVIGATION LOGIC ---
+        // Handles URL changes, either from direct access, history.pushState, or popstate.
+        function handleUrlChange() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const section = urlParams.get('section') || 'community'; // Default to 'community'
+            const postIdFromUrl = urlParams.get('postId');
+            const queryFromUrl = urlParams.get('query') || '';
+            const sortByFromUrl = urlParams.get('sortBy') || 'newest';
+            const pricingFromUrl = urlParams.get('pricing') || 'all';
+            const aiContentFromUrl = urlParams.get('aiContent') || 'all';
+
+            // Update global state variables based on URL
+            currentSortBy = sortByFromUrl;
+            currentPricingFilter = pricingFromUrl;
+            currentAiContentFilter = aiContentFromUrl;
+            currentSearchQuery = queryFromUrl;
+
+            // If a postId is in the URL, open the modal
+            if (postIdFromUrl) {
+                // Wait for posts to be fetched before attempting to open the modal
+                const checkPostsInterval = setInterval(() => {
+                    if (allFetchedPosts.length > 0) {
+                        clearInterval(checkPostsInterval);
+                        openPostModal(postIdFromUrl);
+                    }
+                }, 100);
+            } else {
+                // Otherwise, switch to the appropriate tab
+                switchTab(section); // No need to pass pushState false, as handleUrlChange is the source of truth
+            }
+        }
+
+        // Navigates to a new section, updating the URL using history.pushState.
+        function navigateTo(tab, pushState = true, params = {}) {
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('section', tab);
+
+            // Clear previous parameters if switching sections, unless explicitly provided
+            if (tab !== 'search') {
+                currentUrl.searchParams.delete('query');
+            }
+            if (tab !== 'community' && tab !== 'promos' && tab !== 'devlogs' && tab !== 'my-posts') {
+                currentUrl.searchParams.delete('sortBy');
+                currentUrl.searchParams.delete('pricing');
+                currentUrl.searchParams.delete('aiContent');
+            }
+
+            // Add/update specific parameters
+            for (const key in params) {
+                if (params[key] !== undefined) {
+                    currentUrl.searchParams.set(key, params[key]);
+                } else {
+                    currentUrl.searchParams.delete(key);
+                }
+            }
+            // Always remove postId when navigating to a new tab
+            currentUrl.searchParams.delete('postId');
+
+            if (pushState) {
+                window.history.pushState({ section: tab, params: params }, '', currentUrl.toString());
+            }
+            switchTab(tab); // Call switchTab to render the content
+        }
+
         // Switches the active tab and renders its content.
         function switchTab(tab) {
             // Update active navigation item styling
@@ -919,7 +977,13 @@
                     sortBySelect.addEventListener('change', (e) => {
                         currentSortBy = e.target.value;
                         displayLimit = postsPerPage; // Reset limit on sort change
-                        renderPostsGrid(targetElement, posts, pageTitle, includePricingFilter, includeSortBy, includeAiContentFilter, isMyPostPage);
+                        // Update URL when sort changes
+                        const currentTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
+                        navigateTo(currentTab, true, {
+                            sortBy: currentSortBy,
+                            pricing: currentPricingFilter,
+                            aiContent: currentAiContentFilter
+                        });
                     });
                 }
             }
@@ -929,17 +993,29 @@
                     pricingFilterSelect.addEventListener('change', (e) => {
                         currentPricingFilter = e.target.value;
                         displayLimit = postsPerPage; // Reset limit on filter change
-                        renderPostsGrid(targetElement, posts, pageTitle, includePricingFilter, includeSortBy, includeAiContentFilter, isMyPostPage);
+                        // Update URL when pricing filter changes
+                        const currentTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
+                        navigateTo(currentTab, true, {
+                            sortBy: currentSortBy,
+                            pricing: currentPricingFilter,
+                            aiContent: currentAiContentFilter
+                        });
                     });
                 }
             }
             if (includeAiContentFilter) {
                 const aiContentFilterSelect = targetElement.querySelector('#ai-content-filter');
                 if (aiContentFilterSelect) {
-                    aiContentFilterSelect.addEventListener('change', (e) => {
+                    aiContentFilter.addEventListener('change', (e) => {
                         currentAiContentFilter = e.target.value;
                         displayLimit = postsPerPage; // Reset limit on filter change
-                        renderPostsGrid(targetElement, posts, pageTitle, includePricingFilter, includeSortBy, includeAiContentFilter, isMyPostPage);
+                        // Update URL when AI content filter changes
+                        const currentTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
+                        navigateTo(currentTab, true, {
+                            sortBy: currentSortBy,
+                            pricing: currentPricingFilter,
+                            aiContent: currentAiContentFilter
+                        });
                     });
                 }
             }
@@ -1189,7 +1265,7 @@
                 const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
                 const youtubeLinkSection = form.querySelector('#youtube-link-section');
                 const imageLinkSection = form.querySelector('#image-link-section');
-                const customYoutubeTextSection = form.querySelector('#custom-youtube-text-section');
+                const customYoutubeTextSection = form.querySelector('#custom-youtube-link-section');
                 const youtubeLinkHelp = form.querySelector('.youtube-link-help');
                 const imageLinkHelp = form.querySelector('.image-link-help');
                 const itchLinkInput = form.querySelector('#itch-link');
@@ -1253,14 +1329,13 @@
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         // Only YouTube link is required for 'youtube'
                         trailerLinkInput.setAttribute('required', 'true');
-                    } else if (selectedMedia === 'image') {
+                    } else { // 'none', 'image' or 'itch_embed'
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         // Only Image URL is required for 'image'
-                        imageUrlInput.setAttribute('required', 'true');
-                    } else { // 'none' or 'itch_embed'
-                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
+                        if (selectedMedia === 'image') {
+                            imageUrlInput.setAttribute('required', 'true');
+                        }
                         // No media inputs are required for 'none' or 'itch_embed'
                     }
 
@@ -1531,7 +1606,7 @@
                 <div class="max-w-3xl mx-auto">
                     <h2 class="text-3xl font-bold mb-6 text-center text-white">Search for Games</h2>
                     <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                        <input type="text" id="search-input" class="w-full p-3 input-bg rounded-md" placeholder="Search by title, genre, platform, tags...">
+                        <input type="text" id="search-input" class="w-full p-3 input-bg rounded-md" placeholder="Search by title, genre, platform, tags..." value="${currentSearchQuery}">
                         <button id="search-btn" class="btn-primary text-white font-bold py-3 px-6 rounded-md">Search</button>
                     </div>
                     <div id="search-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1539,10 +1614,18 @@
                     </div>
                 </div>
             `;
-            document.getElementById('search-btn').addEventListener('click', handleSearch);
-            document.getElementById('search-input').addEventListener('keyup', (e) => {
-                if (e.key === 'Enter') handleSearch();
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+
+            searchBtn.addEventListener('click', () => handleSearch(searchInput.value));
+            searchInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') handleSearch(searchInput.value);
             });
+
+            // If there's a current search query from the URL, execute the search immediately
+            if (currentSearchQuery) {
+                handleSearch(currentSearchQuery, false); // Don't push state again
+            }
         }
 
         // Renders the user's own posts page.
@@ -1613,18 +1696,46 @@
                 });
 
                 // Re-render the currently active tab to reflect the updated data
-                const activeTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
-                if (activeTab === 'community') {
-                    renderCommunityPage(); // Re-render community page with potentially new/updated posts
-                } else if (activeTab === 'my-posts') {
-                    renderMyPostsPage(); // Re-render my posts page
-                } else if (activeTab === 'promos') {
-                    renderPromosPage();
-                } else if (activeTab === 'devlogs') {
-                    renderDevlogsPage();
-                } else if (activeTab === 'search') {
-                    // Re-run search if on search tab to update results based on new data
-                    handleSearch();
+                // This is now handled by handleUrlChange, which will be triggered by popstate or initial load
+                // We just need to ensure the current tab is re-rendered with the updated data
+                const urlParams = new URLSearchParams(window.location.search);
+                const activeTab = urlParams.get('section') || 'community';
+                const postIdFromUrl = urlParams.get('postId');
+
+                if (postIdFromUrl && isPostModalOpen && currentOpenPostId === postIdFromUrl) {
+                    // If modal is open for the same post, re-render it with updated post data
+                    // No need to increment views again here, as that's handled by viewedPostIds
+                    openPostModal(postIdFromUrl);
+                } else {
+                    // Otherwise, re-render the current tab
+                    switch (activeTab) {
+                        case 'community':
+                            renderCommunityPage();
+                            break;
+                        case 'promos':
+                            renderPromosPage();
+                            break;
+                        case 'devlogs':
+                            renderDevlogsPage();
+                            break;
+                        case 'post':
+                            renderPostPage(contentPost);
+                            break;
+                        case 'search':
+                            handleSearch(currentSearchQuery, false); // Re-run search with current query
+                            break;
+                        case 'my-posts':
+                            renderMyPostsPage();
+                            break;
+                        case 'about':
+                            renderAboutPage();
+                            break;
+                        case 'rules':
+                            renderRulesPage();
+                            break;
+                        default:
+                            renderCommunityPage();
+                    }
                 }
             }, error => {
                 console.error("Error listening for posts:", error);
@@ -1838,7 +1949,7 @@
                     showAlert("Post updated successfully!").then(() => {
                         closePostModal(); // Close modal after update
                         displayLimit = postsPerPage; // Reset display limit for community page
-                        switchTab('my-posts'); // Navigate back to my posts
+                        navigateTo('my-posts'); // Navigate back to my posts
                     });
                 } else {
                     // Add new post
@@ -1871,7 +1982,7 @@
                         // Re-render genre checkboxes to clear selections visually
                         const genreCheckboxesContainer = form.querySelector('#genre-checkboxes');
                         renderGenreCheckboxes(genreCheckboxesContainer);
-                        switchTab('my-posts'); // Navigate directly to my posts after new post
+                        navigateTo('my-posts'); // Navigate directly to my posts after new post
                     });
                 }
             } catch (error) {
@@ -1914,23 +2025,34 @@
         }
         
         // Handles searching for posts based on a query term.
-        function handleSearch() {
-            const queryTerm = document.getElementById('search-input').value.toLowerCase().trim();
+        function handleSearch(queryTerm = currentSearchQuery, pushState = true) {
+            currentSearchQuery = queryTerm.toLowerCase().trim(); // Update global search query
             const resultsContainer = document.getElementById('search-results');
-            if (!queryTerm) {
+            const searchInput = document.getElementById('search-input');
+
+            if (searchInput) {
+                searchInput.value = queryTerm; // Ensure input field reflects current query
+            }
+
+            if (!currentSearchQuery) {
                 resultsContainer.innerHTML = '<p class="col-span-full text-center text-gray-400">Please enter a search term.</p>';
+                // If query is empty, update URL to remove query param
+                if (pushState) {
+                    navigateTo('search', true, { query: '' });
+                }
                 return;
             }
+
             // Filter posts based on title, description, genres, platforms, or tags
             const results = allFetchedPosts.filter(post => // Use allFetchedPosts
-                post.title.toLowerCase().includes(queryTerm) ||
-                post.description.toLowerCase().includes(queryTerm) ||
-                (post.genres && post.genres.some(g => g.toLowerCase().includes(queryTerm))) || // Check if genres exist
-                (post.platforms && post.platforms.some(p => p.toLowerCase().includes(queryTerm))) || // Check if platforms exist
-                (post.madeWith && post.madeWith.toLowerCase().includes(queryTerm)) || // Search 'madeWith' field
-                (post.tags && post.tags.some(t => t.toLowerCase().includes(queryTerm))) || // Search 'tags' field
-                (post.aiContent && post.aiContent.toLowerCase().includes(queryTerm)) || // Search 'aiContent' field
-                (post.devlogType && post.devlogType.toLowerCase().includes(queryTerm)) // Search 'devlogType' field
+                post.title.toLowerCase().includes(currentSearchQuery) ||
+                post.description.toLowerCase().includes(currentSearchQuery) ||
+                (post.genres && post.genres.some(g => g.toLowerCase().includes(currentSearchQuery))) || // Check if genres exist
+                (post.platforms && post.platforms.some(p => p.toLowerCase().includes(currentSearchQuery))) || // Check if platforms exist
+                (post.madeWith && post.madeWith.toLowerCase().includes(currentSearchQuery)) || // Search 'madeWith' field
+                (post.tags && post.tags.some(t => t.toLowerCase().includes(currentSearchQuery))) || // Search 'tags' field
+                (post.aiContent && post.aiContent.toLowerCase().includes(currentSearchQuery)) || // Search 'aiContent' field
+                (post.devlogType && post.devlogType.toLowerCase().includes(currentSearchQuery)) // Search 'devlogType' field
             );
             
             if (results.length > 0) {
@@ -1939,184 +2061,206 @@
             } else {
                 resultsContainer.innerHTML = '<p class="col-span-full text-center text-gray-400">No games or devlogs found matching your search.</p>';
             }
+
+            // Update URL with search query
+            if (pushState) {
+                navigateTo('search', true, { query: currentSearchQuery });
+            }
         }
 
         // --- MODAL LOGIC FOR INDIVIDUAL POST VIEW ---
         // Opens a modal displaying detailed information about a selected post.
         async function openPostModal(postId, focusComment = false) { 
-            // Set flag to true immediately to prevent multiple increments
-            isPostModalOpen = true; 
-
             const post = allFetchedPosts.find(p => p.id === postId); // Use allFetchedPosts
             if (!post) {
                 showAlert("Post not found!");
-                isPostModalOpen = false; // Reset flag if post not found
                 return;
             }
 
-            // Increment view count for ALL post types AFTER the modal is confirmed to open
-            try {
-                const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
-                await updateDoc(postRef, { views: (post.views || 0) + 1 });
-                // Optimistically update the local data
-                post.views = (post.views || 0) + 1;
-            } catch (error) {
-                console.error("Error incrementing view count:", error);
-            }
-
-            let mediaHtml = '';
-            let modalYoutubeLinkHtml = ''; // New variable for combo link in modal
-            // Dynamically render media content within the modal
-            if (post.mediaType === 'youtube' && post.trailerLink) {
-                const videoId = getYouTubeVideoId(post.trailerLink);
-                if (videoId) {
-                    // For YouTube, directly embed the video in the modal
-                    const embedSrc = getYouTubeEmbedSrc(videoId);
-                    mediaHtml = `<div class="aspect-video w-full rounded-md overflow-hidden"><iframe class="w-full h-full" src="${embedSrc}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
+            // Increment view count only if this post hasn't been viewed in this session yet
+            if (!viewedPostIds.has(postId)) {
+                try {
+                    const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
+                    await updateDoc(postRef, { views: (post.views || 0) + 1 });
+                    // Optimistically update the local data
+                    post.views = (post.views || 0) + 1;
+                    viewedPostIds.add(postId); // Mark as viewed for this session
+                } catch (error) {
+                    console.error("Error incrementing view count:", error);
                 }
-            } else if (post.mediaType === 'image' && post.imageUrl) {
-                mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md">
-                                <img src="${post.imageUrl}" alt="${post.title}" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Image+Not+Found';">
-                            </div>`;
-            } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
-                // For combo in modal, display the image and a separate clickable button
-                mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md mb-4">
-                                <img src="${post.imageUrl}" alt="Custom Thumbnail" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Custom+Thumbnail+Not+Found';">
-                            </div>`;
-                const videoId = getYouTubeVideoId(post.trailerLink);
-                if (videoId) {
-                    modalYoutubeLinkHtml = `
-                        <div class="flex justify-center my-4">
-                            <button id="open-video-player-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base" data-video-id="${videoId}">
-                                <i class="fab fa-youtube"></i> ${post.customYoutubeLinkText || 'Watch Trailer'}
-                            </button>
-                        </div>
-                    `;
-                }
-            } else if (post.mediaType === 'itch_embed' && post.itchLink) {
-                mediaHtml = getItchEmbedHtml(post.itchLink); // Use the updated function for Itch.io
             }
 
-            // Fallback if no valid media is available for the post (or mediaType is 'none')
-            if (!mediaHtml || post.mediaType === 'none') {
-                mediaHtml = `<div class="h-48 bg-[#101010] flex items-center justify-center text-gray-500 rounded-md"><i class="fas fa-image fa-4x"></i><p class="ml-4">No media available</p></div>`;
-            }
-
-            modalContent.innerHTML = `
-                <div class="flex justify-between items-center mb-4">
-                    <button id="close-modal-btn" class="modal-action-btn"><i class="fas fa-arrow-left"></i></button>
-                    <button id="share-post-btn" class="modal-action-btn" data-post-id="${postId}"><i class="fa-solid fa-share"></i></button>
-                </div>
-                <h2 class="text-2xl sm:text-3xl font-bold mb-4 text-white">${post.title}</h2>
-                ${mediaHtml}
-                ${modalYoutubeLinkHtml} <!-- Add the combo link button here -->
-                <div class="mt-6 flex flex-wrap gap-2 text-gray-400 text-sm">
-                    <span><strong>Posted:</strong> ${post.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString() : 'N/A'}</span>
-                    ${post.postType === 'Game Promotion' ? `<span><strong>Pricing:</strong> ${post.pricing}</span>` : ''}
-                    <span><strong>Type:</strong> ${post.postType}</span>
-                    ${post.postType === 'Devlog' && post.devlogType ? `<span><strong>Devlog Type:</strong> ${post.devlogType}</span>` : ''}
-                    ${post.madeWith ? `<span><strong>Made With:</strong> ${post.madeWith}</span>` : ''}
-                    <span><strong>AI Content:</strong> ${post.aiContent}</span>
-                    <span><strong>Views:</strong> ${post.views || 0}</span> <!-- View count for all post types -->
-                    ${post.postType === 'Game Promotion' ? `
-                        <span><strong>Visits:</strong> ${post.visits || 0}</span>
-                    ` : ''}
-                </div>
-                <p class="text-gray-300 my-4 text-justify text-sm sm:text-base">${post.description}</p>
-                
-                <div class="flex flex-wrap gap-2 mb-4">
-                    ${post.postType === 'Game Promotion' && post.genres && post.genres.length > 0 ? post.genres.map(g => `<span class="bg-blue-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${g}</span>`).join('') : ''}
-                    ${post.postType === 'Game Promotion' && post.platforms && post.platforms.length > 0 ? post.platforms.map(p => `<span class="bg-green-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${p}</span>`).join('') : ''}
-                    ${post.tags && post.tags.length > 0 ? post.tags.map(t => `<span class="bg-purple-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${t}</span>`).join('') : ''}
-                </div>
-
-                <div class="flex justify-center my-6 gap-4">
-                    <a href="${post.itchLink}" target="_blank" id="visit-itch-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base">
-                        <i class="fas fa-external-link-alt"></i> Visit Itch.io
-                    </a>
-                    ${post.postType === 'Devlog' && post.linkedGamePromoId ? `
-                        <button id="view-linked-game-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base">
-                            <i class="fas fa-gamepad"></i> View Linked Linked Game
-                        </button>
-                    ` : ''}
-                </div>
-
-                ${post.general ? `<div class="mt-4"><h3 class="font-semibold text-lg text-gray-200">General Info:</h3><p class="text-gray-300 text-sm sm:text-base">${post.general}</p></div>` : ''}
-                ${post.reason ? `<div class="mt-4"><h3 class="font-semibold text-lg text-gray-200">Why I'm Posting:</h3><p class="text-gray-300 text-sm sm:text-base">${post.reason}</p></div>` : ''}
-
-                ${post.allowComments !== false ? ` <!-- Conditional rendering for comments section -->
-                    <div class="mt-8 border-t border-gray-700 pt-6">
-                        <h3 class="text-xl font-bold mb-4 text-gray-200">Comments (${post.comments?.length || 0})</h3>
-                        <div id="comments-list" class="space-y-4 mb-6">
-                            ${post.comments && post.comments.length > 0 ? post.comments.map(comment => `
-                                <div class="bg-[#1a1a1a] p-4 rounded-md shadow-sm">
-                                    <p class="text-gray-300 text-sm sm:text-base">${comment.text}</p>
-                                    <p class="text-right text-xs text-gray-500 mt-2">Comment by Anonymous on ${new Date(comment.timestamp.toDate()).toLocaleDateString()}</p>
-                                </div>
-                            `).join('') : '<p class="text-gray-400 text-sm sm:text-base">No comments yet. Be the first to leave feedback!</p>'}
-                        </div>
-                        <form id="comment-form" class="flex gap-2">
-                            <input type="text" id="comment-input" class="flex-grow p-3 input-bg rounded-md text-sm sm:text-base" placeholder="Add a comment..." required>
-                            <button type="submit" class="btn-primary text-white font-bold py-2 px-4 rounded-md text-sm sm:text-base">Post</button>
-                        </form>
-                    </div>
-                ` : `<div class="mt-8 border-t border-gray-700 pt-6 text-center text-gray-400">Comments are disabled for this post.</div>`}
-            `;
-            postModal.classList.remove('hidden'); // Show the modal
-            document.getElementById('close-modal-btn').addEventListener('click', closePostModal);
-            
-            // Add event listener for "Visit Itch.io" button to increment visits
-            const visitItchBtn = document.getElementById('visit-itch-btn');
-            if (visitItchBtn) {
-                visitItchBtn.addEventListener('click', async (e) => {
-                    // Only increment if it's a Game Promotion post
-                    if (post.postType === 'Game Promotion') {
-                        try {
-                            const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
-                            await updateDoc(postRef, { visits: (post.visits || 0) + 1 });
-                            // Optimistically update the local data
-                            post.visits = (post.visits || 0) + 1;
-                        } catch (error) {
-                            console.error("Error incrementing visit count:", error);
-                        }
-                    }
-                });
-            }
-
-            // Add event listener for "View Linked Game" button
-            const viewLinkedGameBtn = document.getElementById('view-linked-game-btn');
-            if (viewLinkedGameBtn && post.linkedGamePromoId) {
-                viewLinkedGameBtn.addEventListener('click', async () => {
-                    await openPostModal(post.linkedGamePromoId);
-                });
-            }
-
-            // Add event listener for the new custom YouTube link button
-            const openVideoPlayerBtn = document.getElementById('open-video-player-btn');
-            if (openVideoPlayerBtn) {
-                openVideoPlayerBtn.addEventListener('click', (e) => {
-                    e.preventDefault(); // Prevent default link behavior
-                    const videoId = e.currentTarget.dataset.videoId;
+            // Only re-render modal content if a different post is being opened,
+            // or if the modal is currently closed.
+            if (!isPostModalOpen || currentOpenPostId !== postId) {
+                let mediaHtml = '';
+                let modalYoutubeLinkHtml = ''; // New variable for combo link in modal
+                // Dynamically render media content within the modal
+                if (post.mediaType === 'youtube' && post.trailerLink) {
+                    const videoId = getYouTubeVideoId(post.trailerLink);
                     if (videoId) {
-                        openVideoModal(videoId);
-                    } else {
-                        showAlert("Video ID not found for playback.");
+                        // For YouTube, directly embed the video in the modal
+                        const embedSrc = getYouTubeEmbedSrc(videoId);
+                        mediaHtml = `<div class="aspect-video w-full rounded-md overflow-hidden"><iframe class="w-full h-full" src="${embedSrc}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
                     }
+                } else if (post.mediaType === 'image' && post.imageUrl) {
+                    mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md">
+                                    <img src="${post.imageUrl}" alt="${post.title}" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Image+Not+Found';">
+                                </div>`;
+                } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
+                    // For combo in modal, display the image and a separate clickable button
+                    mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md mb-4">
+                                    <img src="${post.imageUrl}" alt="Custom Thumbnail" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Custom+Thumbnail+Not+Found';">
+                                </div>`;
+                    const videoId = getYouTubeVideoId(post.trailerLink);
+                    if (videoId) {
+                        modalYoutubeLinkHtml = `
+                            <div class="flex justify-center my-4">
+                                <button id="open-video-player-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base" data-video-id="${videoId}">
+                                    <i class="fab fa-youtube"></i> ${post.customYoutubeLinkText || 'Watch Trailer'}
+                                </button>
+                            </div>
+                        `;
+                    }
+                } else if (post.mediaType === 'itch_embed' && post.itchLink) {
+                    mediaHtml = getItchEmbedHtml(post.itchLink); // Use the updated function for Itch.io
+                }
+
+                // Fallback if no valid media is available for the post (or mediaType is 'none')
+                if (!mediaHtml || post.mediaType === 'none') {
+                    mediaHtml = `<div class="h-48 bg-[#101010] flex items-center justify-center text-gray-500 rounded-md"><i class="fas fa-image fa-4x"></i><p class="ml-4">No media available</p></div>`;
+                }
+
+                modalContent.innerHTML = `
+                    <div class="flex justify-between items-center mb-4">
+                        <button id="close-modal-btn" class="modal-action-btn"><i class="fas fa-arrow-left"></i></button>
+                        <button id="share-post-btn" class="modal-action-btn" data-post-id="${postId}"><i class="fa-solid fa-share"></i></button>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-bold mb-4 text-white">${post.title}</h2>
+                    ${mediaHtml}
+                    ${modalYoutubeLinkHtml} <!-- Add the combo link button here -->
+                    <div class="mt-6 flex flex-wrap gap-2 text-gray-400 text-sm">
+                        <span><strong>Posted:</strong> ${post.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString() : 'N/A'}</span>
+                        ${post.postType === 'Game Promotion' ? `<span><strong>Pricing:</strong> ${post.pricing}</span>` : ''}
+                        <span><strong>Type:</strong> ${post.postType}</span>
+                        ${post.postType === 'Devlog' && post.devlogType ? `<span><strong>Devlog Type:</strong> ${post.devlogType}</span>` : ''}
+                        ${post.madeWith ? `<span><strong>Made With:</strong> ${post.madeWith}</span>` : ''}
+                        <span><strong>AI Content:</strong> ${post.aiContent}</span>
+                        <span><strong>Views:</strong> ${post.views || 0}</span> <!-- View count for all post types -->
+                        ${post.postType === 'Game Promotion' ? `
+                            <span><strong>Visits:</strong> ${post.visits || 0}</span>
+                        ` : ''}
+                    </div>
+                    <p class="text-gray-300 my-4 text-justify text-sm sm:text-base">${post.description}</p>
+                    
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        ${post.postType === 'Game Promotion' && post.genres && post.genres.length > 0 ? post.genres.map(g => `<span class="bg-blue-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${g}</span>`).join('') : ''}
+                        ${post.postType === 'Game Promotion' && post.platforms && post.platforms.length > 0 ? post.platforms.map(p => `<span class="bg-green-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${p}</span>`).join('') : ''}
+                        ${post.tags && post.tags.length > 0 ? post.tags.map(t => `<span class="bg-purple-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${t}</span>`).join('') : ''}
+                    </div>
+
+                    <div class="flex justify-center my-6 gap-4">
+                        <a href="${post.itchLink}" target="_blank" id="visit-itch-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base">
+                            <i class="fas fa-external-link-alt"></i> Visit Itch.io
+                        </a>
+                        ${post.postType === 'Devlog' && post.linkedGamePromoId ? `
+                            <button id="view-linked-game-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base">
+                                <i class="fas fa-gamepad"></i> View Linked Linked Game
+                            </button>
+                        ` : ''}
+                    </div>
+
+                    ${post.general ? `<div class="mt-4"><h3 class="font-semibold text-lg text-gray-200">General Info:</h3><p class="text-gray-300 text-sm sm:text-base">${post.general}</p></div>` : ''}
+                    ${post.reason ? `<div class="mt-4"><h3 class="font-semibold text-lg text-gray-200">Why I'm Posting:</h3><p class="text-gray-300 text-sm sm:text-base">${post.reason}</p></div>` : ''}
+
+                    ${post.allowComments !== false ? ` <!-- Conditional rendering for comments section -->
+                        <div class="mt-8 border-t border-gray-700 pt-6">
+                            <h3 class="text-xl font-bold mb-4 text-gray-200">Comments (${post.comments?.length || 0})</h3>
+                            <div id="comments-list" class="space-y-4 mb-6">
+                                ${post.comments && post.comments.length > 0 ? post.comments.map(comment => `
+                                    <div class="bg-[#1a1a1a] p-4 rounded-md shadow-sm">
+                                        <p class="text-gray-300 text-sm sm:text-base">${comment.text}</p>
+                                        <p class="text-right text-xs text-gray-500 mt-2">Comment by Anonymous on ${new Date(comment.timestamp.toDate()).toLocaleDateString()}</p>
+                                    </div>
+                                `).join('') : '<p class="text-gray-400 text-sm sm:text-base">No comments yet. Be the first to leave feedback!</p>'}
+                            </div>
+                            <form id="comment-form" class="flex gap-2">
+                                <input type="text" id="comment-input" class="flex-grow p-3 input-bg rounded-md text-sm sm:text-base" placeholder="Add a comment..." required>
+                                <button type="submit" class="btn-primary text-white font-bold py-2 px-4 rounded-md text-sm sm:text-base">Post</button>
+                            </form>
+                        </div>
+                    ` : `<div class="mt-8 border-t border-gray-700 pt-6 text-center text-gray-400">Comments are disabled for this post.</div>`}
+                `;
+                postModal.classList.remove('hidden'); // Show the modal
+                isPostModalOpen = true; // Mark modal as open
+                currentOpenPostId = postId; // Store the ID of the currently open post
+
+                // Update URL to include postId
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('postId', postId);
+                window.history.pushState({ postId: postId, section: currentUrl.searchParams.get('section') }, '', currentUrl.toString());
+
+                document.getElementById('close-modal-btn').addEventListener('click', closePostModal);
+                
+                // Add event listener for "Visit Itch.io" button to increment visits
+                const visitItchBtn = document.getElementById('visit-itch-btn');
+                if (visitItchBtn) {
+                    visitItchBtn.addEventListener('click', async (e) => {
+                        // Only increment if it's a Game Promotion post
+                        if (post.postType === 'Game Promotion') {
+                            try {
+                                const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
+                                await updateDoc(postRef, { visits: (post.visits || 0) + 1 });
+                                // Optimistically update the local data
+                                post.visits = (post.visits || 0) + 1;
+                            } catch (error) {
+                                console.error("Error incrementing visit count:", error);
+                            }
+                        }
+                    });
+                }
+
+                // Add event listener for "View Linked Game" button
+                const viewLinkedGameBtn = document.getElementById('view-linked-game-btn');
+                if (viewLinkedGameBtn && post.linkedGamePromoId) {
+                    viewLinkedGameBtn.addEventListener('click', async () => {
+                        await openPostModal(post.linkedGamePromoId);
+                    });
+                }
+
+                // Add event listener for the new custom YouTube link button
+                const openVideoPlayerBtn = document.getElementById('open-video-player-btn');
+                if (openVideoPlayerBtn) {
+                    openVideoPlayerBtn.addEventListener('click', (e) => {
+                        e.preventDefault(); // Prevent default link behavior
+                        const videoId = e.currentTarget.dataset.videoId;
+                        if (videoId) {
+                            openVideoModal(videoId);
+                        } else {
+                            showAlert("Video ID not found for playback.");
+                        }
+                    });
+                }
+
+                // Add event listener for share button
+                document.getElementById('share-post-btn').addEventListener('click', () => {
+                    const shareLink = `https://postitchindie.github.io/?postId=${postId}`;
+                    copyToClipboard(shareLink);
+                    showAlert("Link copied to clipboard!");
                 });
-            }
-
-            // Add event listener for share button
-            document.getElementById('share-post-btn').addEventListener('click', () => {
-                const shareLink = `https://postitchindie.github.io/?postId=${postId}`;
-                copyToClipboard(shareLink);
-                showAlert("Link copied to clipboard!");
-            });
 
 
-            if (post.allowComments !== false) { // Only add comment form listener if comments are allowed
-                document.getElementById('comment-form').addEventListener('submit', (e) => handleCommentSubmit(e, postId));
-                if (focusComment) {
-                    document.getElementById('comment-input').focus(); // Optionally focus the comment input
+                if (post.allowComments !== false) { // Only add comment form listener if comments are allowed
+                    document.getElementById('comment-form').addEventListener('submit', (e) => handleCommentSubmit(e, postId));
+                    if (focusComment) {
+                        document.getElementById('comment-input').focus(); // Optionally focus the comment input
+                    }
+                }
+            } else if (focusComment) {
+                // If modal is already open for the same post and focusComment is true, just focus comment input
+                const commentInput = document.getElementById('comment-input');
+                if (commentInput) {
+                    commentInput.focus();
                 }
             }
         }
@@ -2126,16 +2270,12 @@
             postModal.classList.add('hidden');
             modalContent.innerHTML = ''; // Clear content to prevent old data from flashing on next open
             editingPostId = null; // Reset editing state
-            isPostModalOpen = false; // Reset flag when modal is closed
-            // Re-enable post type selection when closing the edit modal
-            const postTypeSelect = document.getElementById('post-type');
-            if (postTypeSelect) {
-                postTypeSelect.disabled = false;
-            }
+            isPostModalOpen = false;
+            currentOpenPostId = null; // Clear currently open post ID
             // Remove postId from URL when modal is closed
             const url = new URL(window.location.href);
             url.searchParams.delete('postId');
-            window.history.replaceState({}, document.title, url.toString());
+            window.history.pushState({}, document.title, url.toString());
         }
 
         // Handles the submission of a new comment for a post.
