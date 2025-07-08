@@ -682,32 +682,35 @@
         });
 
         // Initializes the main application state after authentication.
-        function initializeAppState() {
-            console.log("PostItch App Initializing...");
-            console.log("Using Firebase Project ID (as App ID):", appId); // Crucial for debugging security rules
-            console.log("Firestore Collection Path for posts:", `artifacts/${appId}/public/data/posts`); // Crucial for debugging security rules
-            loader.style.display = 'none'; // Hide the loading spinner
-            listenForPostsRealtime(); // Start real-time listening for ALL posts
-            setupNavListeners(); // Set up navigation event handlers
-            
-            // Check for postId in URL and open modal if present
-            const urlParams = new URLSearchParams(window.location.search);
-            const postIdFromUrl = urlParams.get('postId');
-            if (postIdFromUrl) {
-                // Wait for posts to be fetched before attempting to open the modal
-                const checkPostsInterval = setInterval(() => {
-                    if (allFetchedPosts.length > 0) {
-                        clearInterval(checkPostsInterval);
-                        openPostModal(postIdFromUrl);
-                    }
-                }, 100); // Check every 100ms
-            } else {
-                switchTab('community'); // Load the default community feed tab if no postId in URL
-            }
-            
-            // Add event listener for the new video modal close button
-            closeVideoModalBtn.addEventListener('click', closeVideoModal);
-        }
+		function initializeAppState() {
+			console.log("PostItch App Initializing...");
+			console.log("Using Firebase Project ID (as App ID):", appId);
+			console.log("Firestore Collection Path for posts:", `artifacts/${appId}/public/data/posts`);
+			loader.style.display = 'none'; // Hide the loading spinner
+			listenForPostsRealtime(); // Start real-time listening for ALL posts
+			setupNavListeners(); // Set up navigation event handlers
+
+			// Check for postId in URL and open modal if present
+			const urlParams = new URLSearchParams(window.location.search);
+			const postIdFromUrl = urlParams.get('postId');
+			const sectionFromUrl = urlParams.get('section'); // NEW: Check for 'section' parameter
+
+			if (postIdFromUrl) {
+				// Wait for posts to be fetched before attempting to open the modal
+				const checkPostsInterval = setInterval(() => {
+					if (allFetchedPosts.length > 0) {
+						clearInterval(checkPostsInterval);
+						openPostModal(postIdFromUrl);
+					}
+				}, 100); // Check every 100ms
+			} else if (sectionFromUrl) { // NEW: If 'section' parameter is present
+				switchTab(sectionFromUrl); // Switch to the specified section
+			} else {
+				switchTab('community'); // Load the default community feed tab if no postId or section in URL
+			}
+			// Add event listener for the new video modal close button
+			closeVideoModalBtn.addEventListener('click', closeVideoModal);
+		}
         
         // Sets up event listeners for navigation buttons (desktop and mobile).
         function setupNavListeners() {
