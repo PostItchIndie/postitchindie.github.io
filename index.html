@@ -608,7 +608,9 @@
                     const postId = card.dataset.id;
                     // Only open the post modal if it's not already open
                     if (!isPostModalOpen) {
-                        navigateTo({ postId: postId }); // Use navigateTo to update URL
+                        // Preserve current section in URL when opening modal
+                        const currentSection = new URLSearchParams(window.location.search).get('section') || 'community';
+                        navigateTo({ section: currentSection, postId: postId }); // Use navigateTo to update URL
                     }
                 });
             });
@@ -627,7 +629,12 @@
             });
 
             document.querySelectorAll('.comment-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => { e.stopPropagation(); navigateTo({ postId: btn.dataset.id, focusComment: true }); }); // Use navigateTo
+                btn.addEventListener('click', (e) => { 
+                    e.stopPropagation(); 
+                    // Preserve current section in URL when opening modal
+                    const currentSection = new URLSearchParams(window.location.search).get('section') || 'community';
+                    navigateTo({ section: currentSection, postId: btn.dataset.id, focusComment: true }); 
+                });
             });
 
             // Only add delete/edit listeners if on My Posts page
@@ -721,6 +728,7 @@
             const url = new URL(window.location.origin + window.location.pathname);
             let state = {};
 
+            // Always set section if provided, otherwise clear it
             if (params.section) {
                 url.searchParams.set('section', params.section);
                 state.section = params.section;
@@ -728,6 +736,7 @@
                 url.searchParams.delete('section');
             }
 
+            // Handle postId
             if (params.postId) {
                 url.searchParams.set('postId', params.postId);
                 state.postId = params.postId;
@@ -735,11 +744,44 @@
                 url.searchParams.delete('postId');
             }
 
+            // Handle focusComment
             if (params.focusComment) {
                 url.searchParams.set('focusComment', 'true');
                 state.focusComment = true;
             } else {
                 url.searchParams.delete('focusComment');
+            }
+
+            // Handle sortBy
+            if (params.sortBy) {
+                url.searchParams.set('sortBy', params.sortBy);
+                state.sortBy = params.sortBy;
+            } else {
+                url.searchParams.delete('sortBy');
+            }
+
+            // Handle pricingFilter
+            if (params.pricingFilter) {
+                url.searchParams.set('pricingFilter', params.pricingFilter);
+                state.pricingFilter = params.pricingFilter;
+            } else {
+                url.searchParams.delete('pricingFilter');
+            }
+
+            // Handle aiContentFilter
+            if (params.aiContentFilter) {
+                url.searchParams.set('aiContentFilter', params.aiContentFilter);
+                state.aiContentFilter = params.aiContentFilter;
+            } else {
+                url.searchParams.delete('aiContentFilter');
+            }
+
+            // Handle genres (as comma-separated string)
+            if (params.genres && params.genres.length > 0) {
+                url.searchParams.set('genres', params.genres.join(','));
+                state.genres = params.genres;
+            } else {
+                url.searchParams.delete('genres');
             }
 
             // Push the new state to the browser history
@@ -749,6 +791,21 @@
             handleUrlChange();
         }
 
+        // Helper to get a readable title for a section
+        function getSectionTitle(section) {
+            switch (section) {
+                case 'community': return 'Community Feed';
+                case 'promos': return 'Game Promotions';
+                case 'devlogs': return 'Devlogs';
+                case 'post': return 'Create Post';
+                case 'search': return 'Search Games';
+                case 'my-posts': return 'My Posts';
+                case 'about': return 'About Us';
+                case 'rules': return 'Community Rules';
+                default: return 'PostItch';
+            }
+        }
+
         // Handles URL changes (initial load and popstate events) to display correct content
         function handleUrlChange() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -756,21 +813,36 @@
             const sectionFromUrl = urlParams.get('section');
             const focusCommentFromUrl = urlParams.get('focusComment') === 'true';
 
+            // Update global filter/sort states from URL
+            currentSortBy = urlParams.get('sortBy') || 'newest';
+            currentPricingFilter = urlParams.get('pricingFilter') || 'all';
+            currentAiContentFilter = urlParams.get('aiContentFilter') || 'all';
+            selectedGenres = urlParams.get('genres') ? urlParams.get('genres').split(',') : [];
+
             if (postIdFromUrl) {
                 // If postId is present, open the post modal
                 // Wait for posts to be fetched before attempting to open the modal
                 const checkPostsInterval = setInterval(() => {
                     if (allFetchedPosts.length > 0) {
                         clearInterval(checkPostsInterval);
-                        openPostModal(postIdFromUrl, focusCommentFromUrl);
+                        const post = allFetchedPosts.find(p => p.id === postIdFromUrl);
+                        if (post) {
+                            document.title = `PostItch | ${post.title}`;
+                            openPostModal(postIdFromUrl, focusCommentFromUrl);
+                        } else {
+                            // If post not found, navigate to default section
+                            navigateTo({ section: 'community' });
+                        }
                     }
                 }, 100); // Check every 100ms
             } else if (sectionFromUrl) {
                 // If a section is specified, switch to that tab
+                document.title = `PostItch | ${getSectionTitle(sectionFromUrl)}`;
                 switchTab(sectionFromUrl);
                 closePostModal(); // Ensure modal is closed if navigating to a section
             } else {
                 // Default to community feed if no specific section or post is in the URL
+                document.title = 'PostItch | Community Feed';
                 switchTab('community');
                 closePostModal(); // Ensure modal is closed
             }
@@ -787,6 +859,9 @@
                 content.classList.toggle('hidden', content.id !== `content-${tab}`);
             });
             
+            // Reset display limit when switching tabs
+            displayLimit = postsPerPage;
+
             // Map tab names to their respective rendering functions
             const renderMap = {
                 community: renderCommunityPage,
@@ -907,6 +982,13 @@
                 });
             }
 
+            // Apply genre filtering if selectedGenres is not empty
+            if (selectedGenres.length > 0) {
+                filteredPosts = filteredPosts.filter(post => 
+                    post.genres && selectedGenres.every(g => post.genres.includes(g))
+                );
+            }
+
             let sortedPosts = [...filteredPosts];
             if (includeSortBy) {
                 if (currentSortBy === 'popular') sortedPosts.sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0));
@@ -963,13 +1045,20 @@
                 </div>
             `;
 
+            // Get current section to pass to navigateTo for filter/sort changes
+            const currentSection = new URLSearchParams(window.location.search).get('section') || 'community';
+
             if (includeSortBy) {
                 const sortBySelect = targetElement.querySelector('#sort-by');
                 if (sortBySelect) {
                     sortBySelect.addEventListener('change', (e) => {
-                        currentSortBy = e.target.value;
-                        displayLimit = postsPerPage; // Reset limit on sort change
-                        renderPostsGrid(targetElement, posts, pageTitle, includePricingFilter, includeSortBy, includeAiContentFilter, isMyPostPage);
+                        navigateTo({ 
+                            section: currentSection, 
+                            sortBy: e.target.value,
+                            pricingFilter: currentPricingFilter, // Keep other filters
+                            aiContentFilter: currentAiContentFilter,
+                            genres: selectedGenres 
+                        });
                     });
                 }
             }
@@ -977,9 +1066,13 @@
                 const pricingFilterSelect = targetElement.querySelector('#pricing-filter');
                 if (pricingFilterSelect) {
                     pricingFilterSelect.addEventListener('change', (e) => {
-                        currentPricingFilter = e.target.value;
-                        displayLimit = postsPerPage; // Reset limit on filter change
-                        renderPostsGrid(targetElement, posts, pageTitle, includePricingFilter, includeSortBy, includeAiContentFilter, isMyPostPage);
+                        navigateTo({ 
+                            section: currentSection, 
+                            pricingFilter: e.target.value,
+                            sortBy: currentSortBy, // Keep other filters
+                            aiContentFilter: currentAiContentFilter,
+                            genres: selectedGenres 
+                        });
                     });
                 }
             }
@@ -987,9 +1080,13 @@
                 const aiContentFilterSelect = targetElement.querySelector('#ai-content-filter');
                 if (aiContentFilterSelect) {
                     aiContentFilterSelect.addEventListener('change', (e) => {
-                        currentAiContentFilter = e.target.value;
-                        displayLimit = postsPerPage; // Reset limit on filter change
-                        renderPostsGrid(targetElement, posts, pageTitle, includePricingFilter, includeSortBy, includeAiContentFilter, isMyPostPage);
+                        navigateTo({ 
+                            section: currentSection, 
+                            aiContentFilter: e.target.value,
+                            sortBy: currentSortBy, // Keep other filters
+                            pricingFilter: currentPricingFilter,
+                            genres: selectedGenres 
+                        });
                     });
                 }
             }
@@ -1593,6 +1690,13 @@
             document.getElementById('search-input').addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') handleSearch();
             });
+            // Ensure search input reflects URL parameter if any
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchTermFromUrl = urlParams.get('searchTerm');
+            if (searchTermFromUrl) {
+                document.getElementById('search-input').value = searchTermFromUrl;
+                handleSearch(); // Run search on load if term exists
+            }
         }
 
         // Renders the user's own posts page.
@@ -1663,22 +1767,7 @@
                 });
 
                 // Re-render the currently active tab to reflect the updated data
-                const urlParams = new URLSearchParams(window.location.search);
-                const postIdFromUrl = urlParams.get('postId');
-                const sectionFromUrl = urlParams.get('section');
-
-                if (postIdFromUrl) {
-                    // If a post modal is open, ensure its content is updated
-                    const post = allFetchedPosts.find(p => p.id === postIdFromUrl);
-                    if (post && isPostModalOpen) { // Only update if modal is currently open
-                        // Re-render the modal content to reflect updated comments/likes/views
-                        openPostModal(postIdFromUrl, urlParams.get('focusComment') === 'true');
-                    }
-                } else if (sectionFromUrl) {
-                    switchTab(sectionFromUrl);
-                } else {
-                    switchTab('community'); // Default to community if nothing specific
-                }
+                handleUrlChange(); // Re-evaluate URL and render based on updated data
             }, error => {
                 console.error("Error listening for posts:", error);
                 showAlert(`Error fetching posts: ${error.message || error}. Please check your Firebase Security Rules.`);
@@ -1968,8 +2057,13 @@
         
         // Handles searching for posts based on a query term.
         function handleSearch() {
-            const queryTerm = document.getElementById('search-input').value.toLowerCase().trim();
+            const searchInput = document.getElementById('search-input');
+            const queryTerm = searchInput.value.toLowerCase().trim();
             const resultsContainer = document.getElementById('search-results');
+
+            // Update URL with search term
+            navigateTo({ section: 'search', searchTerm: queryTerm });
+
             if (!queryTerm) {
                 resultsContainer.innerHTML = '<p class="col-span-full text-center text-gray-400">Please enter a search term.</p>';
                 return;
@@ -2116,7 +2210,11 @@
                 ` : `<div class="mt-8 border-t border-gray-700 pt-6 text-center text-gray-400">Comments are disabled for this post.</div>`}
             `;
             postModal.classList.remove('hidden'); // Show the modal
-            document.getElementById('close-modal-btn').addEventListener('click', () => navigateTo({ section: (new URLSearchParams(window.location.search)).get('section') || 'community' })); // Close modal and navigate back to previous section
+            document.getElementById('close-modal-btn').addEventListener('click', () => {
+                // When closing the modal, navigate back to the section that was active before the modal opened
+                const currentSection = new URLSearchParams(window.location.search).get('section') || 'community';
+                navigateTo({ section: currentSection });
+            });
 
             // Add event listener for "Visit Itch.io" button to increment visits
             const visitItchBtn = document.getElementById('visit-itch-btn');
@@ -2140,7 +2238,9 @@
             const viewLinkedGameBtn = document.getElementById('view-linked-game-btn');
             if (viewLinkedGameBtn && post.linkedGamePromoId) {
                 viewLinkedGameBtn.addEventListener('click', async () => {
-                    navigateTo({ postId: post.linkedGamePromoId }); // Use navigateTo
+                    // Open the linked game post modal
+                    const currentSection = new URLSearchParams(window.location.search).get('section') || 'community';
+                    navigateTo({ section: currentSection, postId: post.linkedGamePromoId });
                 });
             }
 
