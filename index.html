@@ -2800,25 +2800,25 @@
                 `;
             }
 
-            modalContent.innerHTML = `
-                <div class="flex justify-between items-center mb-4">
-                    <button id="close-modal-btn" class="modal-action-btn"><i class="fas fa-arrow-left"></i></button>
-                    <button id="share-post-btn" class="modal-action-btn" data-post-id="${postId}"><i class="fa-solid fa-share"></i></button>
-                </div>
-                <h2 class="text-2xl sm:text-3xl font-bold mb-4 text-white">${post.title}</h2>
-                <p class="text-gray-500 text-sm mb-2">Posted: ${post.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p> <!-- Removed "by ${post.authorId}" -->
-                ${mediaHtml}
-                ${modalYoutubeLinkHtml} <!-- Add the combo link button here -->
-                <div class="mt-6 flex flex-wrap gap-2 text-gray-400 text-sm">
-                    ${post.postType === 'Game Promotion' ? `<span><strong>Pricing:</strong> ${post.pricing}</span>` : ''}
-                    <span><strong>Type:</strong> ${post.postType}</span>
-                    ${post.postType === 'Devlog' && post.devlogType ? `<span><strong>Devlog Type:</strong> ${post.devlogType}</span>` : ''}
-                    ${post.madeWith ? `<span><strong>Made With:</strong> ${post.madeWith}</span>` : ''}
-                    <span><strong>AI Content:</strong> ${post.aiContent}</span>
-                    <span><strong>Views:</strong> ${formatNumberForDisplay(post.views || 0)}</span> <!-- View count for all post types -->
-                    ${post.postType === 'Game Promotion' ? `
-                        <span><strong>Visits:</strong> ${formatNumberForDisplay(post.visits || 0)}</span>
-                    ` : ''}
+			modalContent.innerHTML = `
+				<div class="flex justify-between items-center mb-4">
+					<button id="close-modal-btn" class="modal-action-btn"><i class="fas fa-arrow-left"></i></button>
+					<button id="share-post-btn" class="modal-action-btn" data-post-id="${postId}"><i class="fa-solid fa-share"></i></button>
+				</div>
+				<h2 class="text-2xl sm:text-3xl font-bold mb-4 text-white">${post.title}</h2>
+				${mediaHtml}
+				${modalYoutubeLinkHtml} <!-- Add the combo link button here -->
+				<div class="mt-6 flex flex-wrap gap-2 text-gray-400 text-sm">
+					<span><strong>Posted:</strong> ${post.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString() : 'N/A'}</span>
+					${post.postType === 'Game Promotion' ? `<span><strong>Pricing:</strong> ${post.pricing}</span>` : ''}
+					<span><strong>Type:</strong> ${post.postType}</span>
+					${post.postType === 'Devlog' && post.devlogType ? `<span><strong>Devlog Type:</strong> ${post.devlogType}</span>` : ''}
+					${post.madeWith ? `<span><strong>Made With:</strong> ${post.madeWith}</span>` : ''}
+					<span><strong>AI Content:</strong> ${post.aiContent}</span>
+					<span><strong>Views:</strong> ${formatNumberForDisplay(post.views || 0)}</span>
+					${post.postType === 'Game Promotion' ? `
+						<span><strong>Visits:</strong> ${formatNumberForDisplay(post.visits || 0)}</span>
+					` : ''}
                 </div>
                 <p class="text-gray-300 my-4 text-justify text-sm sm:text-base">${post.description}</p>
                 
