@@ -30,7 +30,7 @@
         .card-bg {
             background-color: #1c1c1c; /* Darker card background */
             border: 1px solid #3a3a3a; /* Darker, more defined border */
-            border-radius: 12px; /* More rounded corners */
+            border-radius: 24px; /* More rounded corners - Increased from 12px */
             transition: all 0.3s ease-in-out; /* Keep general transition */
             opacity: 0.98; /* Almost opaque */
             box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* Initial shadow */
@@ -160,30 +160,6 @@
             transform: translate(-50%, -50%);
             z-index: 50;
         }
-
-
-        /* For mobile, stack vertically */
-        @media (max-width: 767px) {
-            .modal-fullscreen #modal-content {
-                flex-direction: column !important; /* Stack vertically on small screens */
-            }
-            .modal-fullscreen .media-display-area {
-                flex: none;
-                width: 100%;
-                height: 60%;
-                border-radius: 12px 12px 0 0; /* Rounded top corners */
-            }
-            .modal-fullscreen .text-content-area {
-                flex: none;
-                width: 100%;
-                height: 40%;
-                border-left: none;
-                border-top: 1px solid rgba(40, 40, 40, 0.6);
-                border-radius: 0 0 12px 12px; /* Rounded bottom corners */
-            }
-        }
-
-
         /* Custom Checkbox (general style) */
         .custom-checkbox input { display: none; }
         .custom-checkbox span {
@@ -236,67 +212,63 @@
             color: #8b949e;
         }
 
-/* Improved card styling for media thumbnails */
-.card-bg .thumbnail-container {
-	width: 100%;
-	height: 192px; /* h-48 */
-	overflow: hidden;
-	background-color: #101010; /* Very dark background for empty media */
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border-bottom: 1px solid #2a2a2a; /* Separator for media */
-	position: relative; /* For play button overlay */
-    border-radius: 0px 0px 0 0; /* Rounded top corners for thumbnail */
-}
+        /* Improved card styling for media thumbnails */
+        .card-bg .thumbnail-container {
+            width: 100%;
+            height: 192px; /* h-48 */
+            overflow: hidden;
+            background-color: #101010; /* Very dark background for empty media */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #2a2a2a; /* Separator for media */
+            position: relative; /* For play button overlay */
+            border-radius: 0px 0px 0 0; /* Rounded top corners for thumbnail */
+        }
 
-.card-bg .thumbnail-container img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-    border-radius: 0px 0px 0 0; /* Apply rounded corners to image as well */
-}
+        /* Ensure image and iframe inside thumbnail container are NOT rounded themselves */
+        /* Added !important to ensure override */
+        .card-bg .thumbnail-container img,
+        .card-bg .thumbnail-container iframe {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0 !important; /* Explicitly remove rounding from the media element itself */
+        }
 
-.card-bg .thumbnail-container iframe {
-	width: 100%;
-	height: 100%;
-	border: none;
-    border-radius: 0px 0px 0 0; /* Apply rounded corners to iframe */
-}
+        /* Play button overlay for YouTube thumbnails */
+        .play-button-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, rgba(9, 148, 144, 0.8), rgba(40, 170, 219, 0.8)); /* Faded blue-teal */
+            border-radius: 50%;
+            width: 60px; /* Slightly larger but cleaner */
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease; /* Keep transition for scale effect */
+            box-shadow: 0 0 8px rgba(40, 170, 219, 0.3); /* Subtle blue glow */
+            backdrop-filter: blur(2px); /* Optional glassy effect */
+            z-index: 10; /* Ensure it's above the image */
+        }
 
-/* Play button overlay for YouTube thumbnails */
-.play-button-overlay {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	background: linear-gradient(135deg, rgba(9, 148, 144, 0.8), rgba(40, 170, 219, 0.8)); /* Faded blue-teal */
-	border-radius: 50%;
-	width: 60px; /* Slightly larger but cleaner */
-	height: 60px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-	transition: all 0.3s ease; /* Keep transition for scale effect */
-	box-shadow: 0 0 8px rgba(40, 170, 219, 0.3); /* Subtle blue glow */
-	backdrop-filter: blur(2px); /* Optional glassy effect */
-    z-index: 10; /* Ensure it's above the image */
-}
+        .play-button-overlay:hover {
+            transform: translate(-50%, -50%) scale(1.1); /* Only scale on hover, removed pulse */
+        }
 
-.play-button-overlay:hover {
-	transform: translate(-50%, -50%) scale(1.1); /* Only scale on hover, removed pulse */
-}
+        /* Play icon style */
+        .play-button-overlay i {
+            color: white;
+            font-size: 2rem; /* Slightly smaller than before for balance */
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            line-height: 1;
+        }
 
-/* Play icon style */
-.play-button-overlay i {
-	color: white;
-	font-size: 2rem; /* Slightly smaller than before for balance */
-	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-	line-height: 1;
-}
-
-/* Removed @keyframes pulse as it's no longer used */
+        /* Removed @keyframes pulse as it's no longer used */
 
         /* Z-index for dropdown to appear above other elements */
         #more-dropdown {
@@ -388,19 +360,18 @@
             color: #007bff; /* A distinct blue for hover */
         }
 
-        /* NEW: Light mode styling for unselected custom checkboxes */
+        /* Light mode styling for unselected custom checkboxes */
         body.light-mode .custom-checkbox span {
-            background-color: #f0f0f0; /* Lighter background */
-            border: 1px solid #d0d0d0; /* Lighter border */
+            background-color: #f0f0f0; /* Light gray background */
+            border-color: #d0d0d0; /* Slightly darker border */
             color: #4a4a4a; /* Darker text for readability */
         }
         body.light-mode .custom-checkbox input:checked + span {
-            background: linear-gradient(90deg, #007bff, #00bcd4); /* Keep vibrant gradient */
+            background: linear-gradient(90deg, #007bff, #00bcd4);
             color: white;
             border-color: #00bcd4;
-            box-shadow: 0 2px 10px rgba(0, 188, 212, 0.2); /* Soften shadow */
+            box-shadow: 0 2px 10px rgba(0, 188, 212, 0.5);
         }
-
 
         /* Text size classes */
         body.text-sm { font-size: 0.875rem; } /* 14px */
@@ -498,7 +469,7 @@
 				</button>
 			</div>
 			<div class="aspect-video w-full rounded-md overflow-hidden relative">
-				<iframe id="video-player-iframe" class="w-full h-full rounded-md" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+				<iframe id="video-player-iframe" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                 <!-- Removed video-overlay-play-button as per request -->
 			</div>
 		</div>
@@ -524,7 +495,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, serverTimestamp, query, where, getDocs, limit, orderBy, startAfter, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, serverTimestamp, query, where, getDocs, limit, orderBy, startAfter, writeBatch, deleteField } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Your web app's Firebase configuration - DIRECTLY INCLUDED AS REQUESTED
         const firebaseConfig = {
@@ -571,11 +542,13 @@
             showPostCounts: true, // true, false
             defaultPostType: 'Game Promotion', // 'Game Promotion', 'Devlog'
             defaultSortOrder: 'newest', // 'newest', 'popular', 'oldest', 'most-viewed', 'most-visited'
-            defaultPostCountDisplay: 'abbreviated', // 'exact', 'abbreviated' - Default changed to 'abbreviated'
+            defaultPostCountDisplay: 'abbreviated' // 'exact', 'abbreviated' - Default changed to 'abbreviated'
         };
 
-        // Set to store post IDs that have already been viewed in the current session
-        const sessionViewedPosts = new Set();
+        // Map to store last view timestamp for each post to prevent spamming views
+        // Key: postId, Value: timestamp (Date.now())
+        const lastViewTimestamps = new Map();
+        const VIEW_COOLDOWN_MS = 10000; // 10 seconds cooldown for view increments
 
         // --- DOM ELEMENTS ---
         const loader = document.getElementById('loader');
@@ -609,7 +582,7 @@
 
 
         let editingPostId = null; // Stores the ID of the post currently being edited
-        let isPostModalOpen = false; // Flag to prevent multiple view increments
+        let isPostModalOpen = false; // Flag to prevent multiple modal instances
 
 
         // --- HELPER FUNCTIONS ---
@@ -617,22 +590,9 @@
         function showAlert(message) {
             document.getElementById('alert-message').textContent = message;
             alertModal.classList.remove('hidden');
-            // Apply fullscreen class if setting is enabled
-            if (userSettings.fullscreenModals) {
-                alertModal.classList.add('modal-fullscreen');
-                alertModal.querySelector('.modal').classList.add('modal-fullscreen'); // Apply to inner modal div as well
-                document.body.style.overflow = 'hidden'; // Hide body scrollbar
-            } else {
-                alertModal.classList.remove('modal-fullscreen');
-                alertModal.querySelector('.modal').classList.remove('modal-fullscreen');
-                document.body.style.overflow = ''; // Restore body scrollbar
-            }
             return new Promise(resolve => {
                 document.getElementById('alert-ok-btn').onclick = () => {
                     alertModal.classList.add('hidden');
-                    alertModal.classList.remove('modal-fullscreen'); // Clean up fullscreen class
-                    alertModal.querySelector('.modal').classList.remove('modal-fullscreen');
-                    document.body.style.overflow = ''; // Restore body scrollbar
                     resolve();
                 };
             });
@@ -642,29 +602,13 @@
         function showConfirm(message) {
             document.getElementById('confirm-message').textContent = message;
             confirmModal.classList.remove('hidden');
-            // Apply fullscreen class if setting is enabled
-            if (userSettings.fullscreenModals) {
-                confirmModal.classList.add('modal-fullscreen');
-                confirmModal.querySelector('.modal').classList.add('modal-fullscreen');
-                document.body.style.overflow = 'hidden'; // Hide body scrollbar
-            } else {
-                confirmModal.classList.remove('modal-fullscreen');
-                confirmModal.querySelector('.modal').classList.remove('modal-fullscreen');
-                document.body.style.overflow = ''; // Restore body scrollbar
-            }
             return new Promise(resolve => {
                 document.getElementById('confirm-yes-btn').onclick = () => {
                     confirmModal.classList.add('hidden');
-                    confirmModal.classList.remove('modal-fullscreen'); // Clean up fullscreen class
-                    confirmModal.querySelector('.modal').classList.remove('modal-fullscreen');
-                    document.body.style.overflow = ''; // Restore body scrollbar
                     resolve(true);
                 };
                 document.getElementById('confirm-no-btn').onclick = () => {
                     confirmModal.classList.add('hidden');
-                    confirmModal.classList.remove('modal-fullscreen'); // Clean up fullscreen class
-                    confirmModal.querySelector('.modal').classList.remove('modal-fullscreen');
-                    document.body.style.overflow = ''; // Restore body scrollbar
                     resolve(false);
                 };
             });
@@ -683,16 +627,6 @@
             inputField.value = ''; // Clear previous input
             confirmBtn.disabled = true; // Disable confirm button initially
             confirmInputModal.classList.remove('hidden');
-            // Apply fullscreen class if setting is enabled
-            if (userSettings.fullscreenModals) {
-                confirmInputModal.classList.add('modal-fullscreen');
-                confirmInputModal.querySelector('.modal').classList.add('modal-fullscreen');
-                document.body.style.overflow = 'hidden'; // Hide body scrollbar
-            } else {
-                confirmInputModal.classList.remove('modal-fullscreen');
-                confirmInputModal.querySelector('.modal').classList.remove('modal-fullscreen');
-                document.body.style.overflow = ''; // Restore body scrollbar
-            }
 
             return new Promise(resolve => {
                 const inputListener = () => {
@@ -704,18 +638,12 @@
                 confirmBtn.onclick = () => {
                     inputField.removeEventListener('input', inputListener);
                     confirmInputModal.classList.add('hidden');
-                    confirmInputModal.classList.remove('modal-fullscreen'); // Clean up fullscreen class
-                    confirmInputModal.querySelector('.modal').classList.remove('modal-fullscreen');
-                    document.body.style.overflow = ''; // Restore body scrollbar
                     resolve(true);
                 };
 
                 cancelBtn.onclick = () => {
                     inputField.removeEventListener('input', inputListener);
                     confirmInputModal.classList.add('hidden');
-                    confirmInputModal.classList.remove('modal-fullscreen'); // Clean up fullscreen class
-                    confirmInputModal.querySelector('.modal').classList.remove('modal-fullscreen');
-                    document.body.style.overflow = ''; // Restore body scrollbar
                     resolve(false);
                 };
             });
@@ -764,7 +692,7 @@
             const embedSrc = getYouTubeEmbedSrc(videoId, true); // Autoplay when clicked
             if (embedSrc) {
                 // Ensure the container has a defined height for the iframe to render correctly
-                containerElement.innerHTML = `<iframe class="w-full h-full rounded-t-lg" src="${embedSrc}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+                containerElement.innerHTML = `<iframe class="w-full h-full rounded-none" src="${embedSrc}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
                 console.log("Iframe embedded:", embedSrc);
             } else {
                 console.warn("No valid YouTube embed source generated for videoId:", videoId);
@@ -777,16 +705,6 @@
             if (embedSrc) {
                 videoPlayerIframe.src = embedSrc; 
                 videoModal.classList.remove('hidden');
-                // Apply fullscreen class if setting is enabled
-                if (userSettings.fullscreenModals) {
-                    videoModal.classList.add('modal-fullscreen');
-                    videoModalContent.classList.add('modal-fullscreen');
-                    document.body.style.overflow = 'hidden'; // Hide body scrollbar
-                } else {
-                    videoModal.classList.remove('modal-fullscreen');
-                    videoModalContent.classList.remove('modal-fullscreen');
-                    document.body.style.overflow = ''; // Restore body scrollbar
-                }
             } else {
                 showAlert("Could not play video: Invalid YouTube link.");
             }
@@ -796,9 +714,6 @@
         function closeVideoModal() {
             videoModal.classList.add('hidden');
             videoPlayerIframe.src = ''; // Stop video playback by clearing src
-            videoModal.classList.remove('modal-fullscreen'); // Clean up fullscreen class
-            videoModalContent.classList.remove('modal-fullscreen');
-            document.body.style.overflow = ''; // Restore body scrollbar
         }
 
         // Function to render genre checkboxes based on a filtered list
@@ -865,26 +780,6 @@
                 body.classList.add('no-animations');
             }
 
-            // Apply fullscreen modal preference to existing modals (if any are visible)
-            const modals = [postModal, alertModal, confirmModal, confirmInputModal, videoModal];
-            modals.forEach(modal => {
-                if (!modal.classList.contains('hidden')) { // Only apply if modal is currently visible
-                    if (userSettings.fullscreenModals) {
-                        modal.classList.add('modal-fullscreen');
-                        // Also apply to the inner modal content div if it exists
-                        const innerModal = modal.querySelector('.modal');
-                        if (innerModal) innerModal.classList.add('modal-fullscreen');
-                        document.body.style.overflow = 'hidden'; // Hide body scrollbar
-                    } else {
-                        modal.classList.remove('modal-fullscreen');
-                        const innerModal = modal.querySelector('.modal');
-                        if (innerModal) innerModal.classList.remove('modal-fullscreen');
-                        document.body.style.overflow = ''; // Restore body scrollbar
-                    }
-                }
-            });
-
-
             // Re-render current page to apply changes that affect post cards (e.g., count display)
             const activeTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
             // currentSortBy is always 'newest' now as the setting is removed.
@@ -945,7 +840,7 @@
                     const postId = card.dataset.id;
                     // Only open the post modal if it's not already open
                     if (!isPostModalOpen) {
-                        await openPostModal(postId);
+                        await openPostModal(postId, false, true); // Explicitly increment view for user-initiated open
                     }
                 });
             });
@@ -964,7 +859,7 @@
             });
 
             document.querySelectorAll('.comment-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => { e.stopPropagation(); openPostModal(btn.dataset.id, true); });
+                btn.addEventListener('click', (e) => { e.stopPropagation(); openPostModal(btn.dataset.id, true, false); }); // Don't increment view when opening from comment button
             });
 
             // Only add delete/edit listeners if on My Posts page
@@ -1038,7 +933,7 @@
 				const checkPostsInterval = setInterval(() => {
 					if (allFetchedPosts.length > 0) {
 						clearInterval(checkPostsInterval);
-						openPostModal(postIdFromUrl);
+						openPostModal(postIdFromUrl, false, true); // Increment view if opened via URL
 					}
 				}, 100); // Check every 100ms
 			} else if (sectionFromUrl) { // NEW: If 'section' parameter is present
@@ -1112,7 +1007,7 @@
                     const thumbnailUrl = getYouTubeThumbnailUrl(videoId);
                     mediaHtml = `
                         <div class="media-placeholder w-full h-full relative cursor-pointer" data-video-id="${videoId}">
-                            <img src="${thumbnailUrl}" alt="YouTube Thumbnail" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Video+Not+Found';">
+                            <img src="${thumbnailUrl}" alt="YouTube Thumbnail" class="w-full h-full object-cover rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Video+Not+Found';">
                             <div class="play-button-overlay">
                                 <i class="fas fa-play"></i>
                             </div>
@@ -1120,10 +1015,10 @@
                     `;
                 }
             } else if (post.mediaType === 'image' && post.imageUrl) {
-                 mediaHtml = `<img src="${post.imageUrl}" alt="${post.title}" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Image+Not+Found';">`;
+                 mediaHtml = `<img src="${post.imageUrl}" alt="${post.title}" class="w-full h-full object-cover rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Image+Not+Found';">`;
             } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
                 // For combo, display only the image on the preview card
-                mediaHtml = `<img src="${post.imageUrl}" alt="Custom Thumbnail" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Custom+Thumbnail+Not+Found';">`;
+                mediaHtml = `<img src="${post.imageUrl}" alt="Custom Thumbnail" class="w-full h-full object-cover rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Custom+Thumbnail+Not+Found';">`;
                 // The comboLinkHtml is intentionally NOT added here for preview cards
             } else if (post.mediaType === 'itch_embed' && post.itchLink) {
                 // For Itch.io, always show the placeholder due to embedding restrictions
@@ -1387,7 +1282,10 @@
                         </div>
 
                         <div id="poll-section" class="hidden border-t border-gray-700 pt-6">
-                            <h3 class="text-xl font-bold mb-4 text-gray-200">Poll Details</h3>
+                            <h3 class="text-xl font-bold mb-4 text-gray-400">Poll Details</h3>
+                            <p class="text-sm text-red-600 mb-4">
+                                Important: Polls cannot be deleted or modified after the post is first submitted.
+                            </p>
                             <div>
                                 <label for="poll-question" class="block mb-2 font-semibold text-gray-300">Poll Question</label>
                                 <input type="text" id="poll-question" class="w-full p-3 input-bg rounded-md" placeholder="e.g., What feature should we add next?">
@@ -1813,16 +1711,6 @@
                 <div id="edit-form-container"></div>
             `;
             postModal.classList.remove('hidden'); // Show the modal
-            // Apply fullscreen class if setting is enabled
-            if (userSettings.fullscreenModals) {
-                postModal.classList.add('modal-fullscreen');
-                modalContent.classList.add('modal-fullscreen');
-                document.body.style.overflow = 'hidden'; // Hide body scrollbar
-            } else {
-                postModal.classList.remove('modal-fullscreen');
-                modalContent.classList.remove('modal-fullscreen');
-                document.body.style.overflow = ''; // Restore body scrollbar
-            }
             document.getElementById('close-modal-btn').addEventListener('click', closePostModal);
             
             // Before rendering, set selectedGenres from the post being edited
@@ -1859,8 +1747,25 @@
 
                 // Populate poll fields if devlogType is 'Poll' or if it's a Game Promotion with a poll
                 const addGamePromoPollRadios = form.querySelectorAll('input[name="add-game-promo-poll"]');
+                const pollSection = form.querySelector('#poll-section');
+
                 if ((post.postType === 'Devlog' && post.devlogType === 'Poll' && post.poll) || 
                     (post.postType === 'Game Promotion' && post.poll)) { // Check for poll in Game Promotion
+                    
+                    // Disable poll fields if a poll already exists
+                    if (pollSection) {
+                        pollSection.classList.remove('hidden'); // Ensure poll section is visible
+                        pollSection.querySelectorAll('input, button').forEach(element => {
+                            element.disabled = true;
+                            element.classList.add('opacity-50', 'cursor-not-allowed');
+                        });
+                        // Add a message indicating poll cannot be edited
+                        const pollMessage = document.createElement('p');
+                        pollMessage.className = 'text-sm text-red-600 mb-4';
+                        pollMessage.textContent = 'This post already has a poll. Polls cannot be modified or deleted after creation.';
+                        pollSection.prepend(pollMessage);
+                    }
+
                     form.querySelector('#poll-question').value = post.poll.question || '';
                     const pollOptionsContainer = form.querySelector('#poll-options-container');
                     pollOptionsContainer.innerHTML = ''; // Clear existing options
@@ -1868,29 +1773,19 @@
                         const newOptionDiv = document.createElement('div');
                         newOptionDiv.className = 'flex gap-2';
                         newOptionDiv.innerHTML = `
-                            <input type="text" class="poll-option-input w-full p-3 input-bg rounded-md" placeholder="Option ${index + 1}" value="${option.text}" required>
-                            <button type="button" class="remove-poll-option-btn bg-red-600 hover:bg-red-700 text-white p-3 rounded-md"><i class="fas fa-minus"></i></button>
+                            <input type="text" class="poll-option-input w-full p-3 input-bg rounded-md" placeholder="Option ${index + 1}" value="${option.text}" required disabled>
+                            <button type="button" class="remove-poll-option-btn bg-red-600 hover:bg-red-700 text-white p-3 rounded-md hidden" disabled><i class="fas fa-minus"></i></button>
                         `;
                         pollOptionsContainer.appendChild(newOptionDiv);
                     });
-                    // Manually trigger update for remove buttons
-                    const removeButtons = pollOptionsContainer.querySelectorAll('.remove-poll-option-btn');
-                    if (removeButtons.length <= 2) {
-                        removeButtons.forEach(btn => btn.classList.add('hidden'));
-                    } else {
-                        removeButtons.forEach(btn => btn.classList.remove('hidden'));
-                    }
-                    const addPollOptionBtn = form.querySelector('#add-poll-option-btn');
-                    if (removeButtons.length >= 5) {
-                        addPollOptionBtn.disabled = true;
-                        addPollOptionBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    } else {
-                        addPollOptionBtn.disabled = false;
-                        addPollOptionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    }
                     // Set 'Yes' for 'Add Poll' toggle if it's a Game Promotion with a poll
                     if (post.postType === 'Game Promotion' && post.poll) {
                         form.querySelector('input[name="add-game-promo-poll"][value="true"]').checked = true;
+                        // Disable the radio buttons for poll toggle
+                        addGamePromoPollRadios.forEach(radio => {
+                            radio.disabled = true;
+                            radio.closest('label').classList.add('opacity-50', 'cursor-not-allowed');
+                        });
                     }
                 } else if (post.postType === 'Game Promotion') { // Ensure 'No' is selected if it's a Game Promo without a poll
                     form.querySelector('input[name="add-game-promo-poll"][value="false"]').checked = true;
@@ -1947,7 +1842,6 @@
                 const itchLinkHelp = form.querySelector('#itch-link-help');
                 const devlogTypeSection = form.querySelector('#devlog-type-section');
                 const gamePromoPollToggle = form.querySelector('#game-promo-poll-toggle'); // New
-                const pollSection = form.querySelector('#poll-section'); // New poll section
                 const genreSection = form.querySelector('#genre-section');
                 const platformSection = form.querySelector('#platform-section');
                 const pricingSection = form.querySelector('#pricing-section');
@@ -2040,7 +1934,15 @@
                             if (pollSection) pollSection.classList.remove('hidden');
                             form.querySelector('#poll-question')?.setAttribute('required', 'true');
                             form.querySelectorAll('.poll-option-input').forEach(input => input.setAttribute('required', 'true'));
-                            updateRemovePollOptionButtons();
+                            // Poll fields are disabled if a poll already exists on the post
+                            if (post.poll) {
+                                pollSection.querySelectorAll('input, button').forEach(element => {
+                                    element.disabled = true;
+                                    element.classList.add('opacity-50', 'cursor-not-allowed');
+                                });
+                            } else {
+                                updateRemovePollOptionButtons();
+                            }
                         }
                     } else { // Game Promotion
                         if (devlogTypeSection) devlogTypeSection.classList.add('hidden');
@@ -2056,7 +1958,15 @@
                              if (pollSection) pollSection.classList.remove('hidden');
                              form.querySelector('#poll-question')?.setAttribute('required', 'true');
                              form.querySelectorAll('.poll-option-input').forEach(input => input.setAttribute('required', 'true'));
-                             updateRemovePollOptionButtons();
+                            // Poll fields are disabled if a poll already exists on the post
+                            if (post.poll) {
+                                pollSection.querySelectorAll('input, button').forEach(element => {
+                                    element.disabled = true;
+                                    element.classList.add('opacity-50', 'cursor-not-allowed');
+                                });
+                            } else {
+                                updateRemovePollOptionButtons();
+                            }
                         }
 
                         if (itchLinkInput) {
@@ -2128,7 +2038,7 @@
 					<p class="text-base sm:text-lg text-gray-300 mb-6">
 						Our goal is to spark discovery, inspiration, and connection in the indie dev community. Players can explore a curated feed of hidden gems, while developers can gain visibility and feedback without revealing personal details or dealing with social media stress.
 					</p>
-					<p class="text-gray-400 text-xs sm:text-sm mb-6">
+					<p class="text-gray-400 text-sm sm:text-base mb-6">
 						Built with love for the indie scene, PostItch is completely free and privacy-first. Your creativity matters here. Share what you love, get inspired, and join a movement that values honesty, experimentation, and play.
 					</p>
 					<p class="text-gray-500 text-xs sm:text-sm mt-8">
@@ -2144,7 +2054,7 @@
                     </div>
                     <!-- QR Code Section -->
                     <div class="mt-8 pt-6 border-t border-gray-700 flex flex-col items-center">
-                        <h3 class="text-xl font-bold mb-4 text-gray-200">Share this QR code for better accessibility to PostItch</h3>
+                        <h3 class="text-xl font-bold mb-4 text-gray-500">Share this QR code for better accessibility to PostItch</h3>
                         <img src="https://i.postimg.cc/Ghf3NBzg/u-DURLf-1.png" alt="QR Code" class="w-24 h-24 sm:w-32 sm:h-32 rounded-lg object-contain">
                     </div>
 				</div>
@@ -2174,7 +2084,7 @@
                         <li class="flex items-start"><i class="fas fa-check-circle text-cyan-400 mt-1 mr-3"></i><span><strong>Anonymity is Key:</strong> This platform uses anonymous sign-in. Do not attempt to de-anonymize others or share personal information.</span></li>
                     </ul>
                     <div class="mt-8 pt-6 border-t border-gray-700">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-200">Content Quality Guidelines</h3>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-700">Content Quality Guidelines</h3>
                         <ul class="space-y-4 text-gray-300">
                             <li class="flex items-start"><i class="fas fa-exclamation-triangle text-yellow-400 mt-1 mr-3"></i><span><strong>Image Quality:</strong> Thumbnails and images must be clear, high quality, and directly related to the game. Blurry, stretched, low-effort, or unrelated visuals may lead to your post being removed or modified. Avoid random text-heavy or poorly designed thumbnails—only clean, appealing images are allowed.</span></li>
                             <li class="flex items-start"><i class="fas fa-robot text-red-400 mt-1 mr-3"></i><span><strong> AI Generated Content:</strong> AI-generated images that are low quality or visually unappealing will be removed. Visually appealing AI-generated content is allowed but must be clearly labeled as AI-generated. Any AI content that is misleading or lacks proper disclosure may be subject to removal.</span></li>
@@ -2283,7 +2193,7 @@
                         </div>
 
                         <div class="mt-8 pt-6 border-t border-gray-700 space-y-4">
-                            <h3 class="text-xl font-bold text-gray-200">Danger Zone</h3>
+                            <h3 class="text-xl font-bold text-red-600">Danger Zone</h3>
                             <button id="delete-all-posts-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-md w-full flex items-center justify-center gap-2 transition-all duration-300">
                                 <i class="fas fa-trash mr-2"></i> Delete All My Posts
                             </button>
@@ -2336,15 +2246,6 @@
                 radio.addEventListener('change', (e) => {
                     userSettings.defaultPostCountDisplay = e.target.value;
                     applySettings(); // Re-apply to update post count display on feeds
-                    saveUserSettings();
-                });
-            });
-
-            // NEW: Event listener for fullscreen modals setting
-            contentSettings.querySelectorAll('input[name="fullscreen-modals"]').forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    userSettings.fullscreenModals = e.target.value === 'true';
-                    applySettings(); // Re-apply to update modal styling if any are open
                     saveUserSettings();
                 });
             });
@@ -2430,8 +2331,8 @@
                 if (isPostModalOpen) {
                     const currentPostId = modalContent.querySelector('.modal-action-btn[data-post-id]')?.dataset.postId || editingPostId;
                     if (currentPostId) {
-                        // Re-open the modal, but do NOT increment views again if already viewed in session
-                        openPostModal(currentPostId, false, true); // Pass true for isReRender
+                        // Re-open the modal, but do NOT increment views again via this re-render
+                        openPostModal(currentPostId, false, false); // Pass false for incrementView
                     }
                 }
             }, error => {
@@ -2633,12 +2534,14 @@
                     pricing: form.querySelector('#pricing').value,
                     genres: genres,
                     platforms: platforms,
-                    ...(addGamePromoPoll && pollData && { poll: pollData }) // Add poll data if it's a Game Promotion AND poll is enabled
+                    // If addGamePromoPoll is true and pollData exists, add poll. Otherwise, explicitly remove poll.
+                    poll: addGamePromoPoll && pollData ? pollData : deleteField() 
                 }),
                 ...(postType === 'Devlog' && { // Add linkedGamePromoId and devlogType for Devlogs
                     linkedGamePromoId: linkedGamePromoId,
                     devlogType: devlogType,
-                    ...(devlogType === 'Poll' && pollData && { poll: pollData }) // Add poll data if devlog type is poll
+                    // If devlogType is 'Poll' and pollData exists, add poll. Otherwise, explicitly remove poll.
+                    poll: (devlogType === 'Poll' && pollData) ? pollData : deleteField() 
                 }),
                 general: form.querySelector('#general').value.trim(),
                 reason: form.querySelector('#reason').value.trim(),
@@ -2661,18 +2564,20 @@
                             views: existingPost.views || 0,
                             visits: existingPost.visits || 0,
                             createdAt: existingPost.createdAt, // Preserve original creation timestamp
-                            // Preserve poll votes and voters if updating an existing poll
-                            ...((postType === 'Devlog' && devlogType === 'Poll' && existingPost.poll) || (postType === 'Game Promotion' && existingPost.poll) && {
-                                poll: {
-                                    question: pollData ? pollData.question : existingPost.poll.question, // Use new question if pollData exists, else old
-                                    options: pollData ? pollData.options.map((newOpt, index) => ({
-                                        text: newOpt.text,
-                                        votes: existingPost.poll.options[index]?.votes || 0 // Preserve existing votes
-                                    })) : existingPost.poll.options, // Use new options if pollData exists, else old
-                                    voters: existingPost.poll.voters || [] // Preserve existing voters
-                                }
-                            })
                         };
+
+                        // Handle poll updates specifically for existing posts
+                        // If a poll already exists, it cannot be modified or deleted.
+                        if (existingPost.poll) {
+                            updatedData.poll = existingPost.poll; // Preserve existing poll data
+                        } else if (postData.poll) {
+                            // If a new poll is being added during an edit (which should be prevented by UI but as a fallback)
+                            updatedData.poll = postData.poll;
+                        } else {
+                            // If no poll exists and no new poll is being added, ensure it's deleted if it was previously present
+                            updatedData.poll = deleteField();
+                        }
+                        
                         await updateDoc(postRef, updatedData);
                     } else {
                         // If for some reason existingPost is not found in allFetchedPosts,
@@ -2789,8 +2694,8 @@
 
         // --- MODAL LOGIC FOR INDIVIDUAL POST VIEW ---
         // Opens a modal displaying detailed information about a selected post.
-        async function openPostModal(postId, focusComment = false, isReRender = false) { 
-            // Set flag to true immediately to prevent multiple increments
+        async function openPostModal(postId, focusComment = false, incrementView = true) { // Added incrementView parameter
+            // Set flag to true immediately to prevent multiple modal instances
             isPostModalOpen = true; 
 
             const post = allFetchedPosts.find(p => p.id === postId); // Use allFetchedPosts
@@ -2800,87 +2705,66 @@
                 return;
             }
 
-            // Increment view count only if this post hasn't been viewed in the current session
-            // and it's not just a re-render of an already open modal.
-            if (!sessionViewedPosts.has(postId) && !isReRender) {
-                try {
-                    const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
-                    await updateDoc(postRef, { views: (post.views || 0) + 1 });
-                    // Optimistically update the local data
-                    post.views = (post.views || 0) + 1;
-                    sessionViewedPosts.add(postId); // Add to session viewed posts
-                } catch (error) {
-                    console.error("Error incrementing view count:", error);
+            if (incrementView) { // Only increment view if explicitly requested (i.e., user clicked card)
+                const currentTime = Date.now();
+                const lastViewTime = lastViewTimestamps.get(postId);
+
+                // Increment view count only if enough time has passed since the last view for this post
+                if (!lastViewTime || (currentTime - lastViewTime > VIEW_COOLDOWN_MS)) {
+                    try {
+                        const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
+                        await updateDoc(postRef, { views: (post.views || 0) + 1 });
+                        // Optimistically update the local data
+                        post.views = (post.views || 0) + 1; // Update the local 'post' object immediately
+                        lastViewTimestamps.set(postId, currentTime); // Record this view timestamp
+                        console.log(`View for post ${postId} incremented. New views: ${post.views}`);
+                    } catch (error) {
+                        console.error("Error incrementing view count:", error);
+                    }
+                } else {
+                    console.log(`View for post ${postId} not incremented due to cooldown. Last view: ${((currentTime - lastViewTime) / 1000).toFixed(1)}s ago.`);
                 }
             }
 
+
             let mediaHtml = '';
             let modalYoutubeLinkHtml = ''; // New variable for combo link in modal
-
             // Dynamically render media content within the modal
-            if (userSettings.fullscreenModals) {
-                if (post.mediaType === 'youtube' && post.trailerLink) {
-                    const videoId = getYouTubeVideoId(post.trailerLink);
-                    if (videoId) {
-                        const embedSrc = getYouTubeEmbedSrc(videoId, true);
-                        mediaHtml = `<iframe src="${embedSrc}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
-                    }
-                } else if (post.mediaType === 'image' && post.imageUrl) {
-                    mediaHtml = `<img src="${post.imageUrl}" alt="${post.title}" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Image+Not+Found';">`;
-                } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
-                    mediaHtml = `<img src="${post.imageUrl}" alt="Custom Thumbnail" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Custom+Thumbnail+Not+Found';">`;
-                    const videoId = getYouTubeVideoId(post.trailerLink);
-                    if (videoId) {
-                        modalYoutubeLinkHtml = `
-                            <div class="flex justify-center my-4">
-                                <button id="open-video-player-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base" data-video-id="${videoId}">
-                                    <i class="fab fa-youtube"></i> ${post.customYoutubeLinkText || 'Watch Trailer'}
-                                </button>
-                            </div>
-                        `;
-                    }
-                } else if (post.mediaType === 'itch_embed' && post.itchLink) {
-                    mediaHtml = getItchEmbedHtml(post.itchLink); // This returns a div, which is fine
-                }
-
-                if (!mediaHtml || post.mediaType === 'none') {
-                    mediaHtml = `<div class="w-full h-full bg-[#101010] flex items-center justify-center text-gray-500"><i class="fas fa-image fa-4x"></i><p class="ml-4"></p></div>`;
-                }
-            } else {
-                // Original mediaHtml generation for non-fullscreen mode
-                if (post.mediaType === 'youtube' && post.trailerLink) {
-                    const videoId = getYouTubeVideoId(post.trailerLink);
-                    if (videoId) {
-                        const embedSrc = getYouTubeEmbedSrc(videoId, true);
-                        mediaHtml = `<div class="aspect-video w-full rounded-md overflow-hidden relative">
-                                        <iframe class="w-full h-full rounded-md" src="${embedSrc}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                                    </div>`;
-                    }
-                } else if (post.mediaType === 'image' && post.imageUrl) {
-                    mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md">
-                                    <img src="${post.imageUrl}" alt="${post.title}" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Image+Not+Found';">
+            if (post.mediaType === 'youtube' && post.trailerLink) {
+                const videoId = getYouTubeVideoId(post.trailerLink);
+                if (videoId) {
+                    // For YouTube, directly embed the video in the modal
+                    const embedSrc = getYouTubeEmbedSrc(videoId, true); // Always autoplay in modal
+                    mediaHtml = `<div class="aspect-video w-full rounded-md overflow-hidden relative">
+                                    <iframe class="w-full h-full rounded-none" src="${embedSrc}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                                 </div>`;
-                } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
-                    mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md mb-4">
-                                    <img src="${post.imageUrl}" alt="Custom Thumbnail" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Custom+Thumbnail+Not+Found';">
-                                </div>`;
-                    const videoId = getYouTubeVideoId(post.trailerLink);
-                    if (videoId) {
-                        modalYoutubeLinkHtml = `
-                            <div class="flex justify-center my-4">
-                                <button id="open-video-player-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base" data-video-id="${videoId}">
-                                    <i class="fab fa-youtube"></i> ${post.customYoutubeLinkText || 'Watch Trailer'}
-                                </button>
-                            </div>
-                        `;
-                    }
-                } else if (post.mediaType === 'itch_embed' && post.itchLink) {
-                    mediaHtml = getItchEmbedHtml(post.itchLink);
                 }
+            } else if (post.mediaType === 'image' && post.imageUrl) {
+                mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md">
+                                <img src="${post.imageUrl}" alt="${post.title}" class="max-w-full max-h-full object-contain rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Image+Not+Found';">
+                            </div>`;
+            } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
+                // For combo in modal, display the image and a separate clickable button
+                mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md mb-4">
+                                <img src="${post.imageUrl}" alt="Custom Thumbnail" class="max-w-full max-h-full object-contain rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Custom+Thumbnail+Not+Found';">
+                            </div>`;
+                const videoId = getYouTubeVideoId(post.trailerLink);
+                if (videoId) {
+                    modalYoutubeLinkHtml = `
+                        <div class="flex justify-center my-4">
+                            <button id="open-video-player-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base" data-video-id="${videoId}">
+                                <i class="fab fa-youtube"></i> ${post.customYoutubeLinkText || 'Watch Trailer'}
+                            </button>
+                        </div>
+                    `;
+                }
+            } else if (post.mediaType === 'itch_embed' && post.itchLink) {
+                mediaHtml = getItchEmbedHtml(post.itchLink); // Use the updated function for Itch.io
+            }
 
-                if (!mediaHtml || post.mediaType === 'none') {
-                    mediaHtml = `<div class="h-48 bg-[#101010] flex items-center justify-center text-gray-500 rounded-md"><i class="fas fa-image fa-4x"></i><p class="ml-4"></p></div>`;
-                }
+            // Fallback if no valid media is available for the post (or mediaType is 'none')
+            if (!mediaHtml || post.mediaType === 'none') {
+                mediaHtml = `<div class="h-48 bg-[#101010] flex items-center justify-center text-gray-500 rounded-md"><i class="fas fa-image fa-4x"></i><p class="ml-4">No media available</p></div>`;
             }
 
             // Render poll section if devlogType is 'Poll' or if postType is 'Game Promotion' and it has a poll
@@ -2889,7 +2773,7 @@
                 const totalVotes = post.poll.options.reduce((sum, option) => sum + (option.votes || 0), 0);
                 pollHtml = `
                     <div class="mt-8 border-t border-gray-700 pt-6">
-                        <h3 class="text-xl font-bold mb-4 text-gray-200">Poll: ${post.poll.question}</h3>
+                        <h3 class="text-xl font-bold mb-4 text-gray-700">Poll: ${post.poll.question}</h3>
                         <div class="space-y-3">
                             ${post.poll.options.map((option, index) => {
                                 const percentage = totalVotes > 0 ? ((option.votes || 0) / totalVotes * 100).toFixed(1) : 0;
@@ -2916,166 +2800,80 @@
                 `;
             }
 
-            // Determine if fullscreen layout should be used
-            if (userSettings.fullscreenModals) {
-                modalContent.innerHTML = `
-                    <div class="modal-content-wrapper">
-                        <div class="media-display-area">
-                            ${mediaHtml}
-                        </div>
-                        <div class="text-content-area">
-                            <div class="flex justify-between items-center mb-4">
-                                <button id="close-modal-btn" class="modal-action-btn"><i class="fas fa-arrow-left"></i></button>
-                                <button id="share-post-btn" class="modal-action-btn" data-post-id="${postId}"><i class="fa-solid fa-share"></i></button>
-                            </div>
-                            <h2 class="text-2xl sm:text-3xl font-bold mb-4 text-white">${post.title}</h2>
-                            ${modalYoutubeLinkHtml}
-                            <div class="mt-6 flex flex-wrap gap-2 text-gray-400 text-sm">
-                                <span><strong>Posted:</strong> ${post.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString() : 'N/A'}</span>
-                                ${post.postType === 'Game Promotion' ? `<span><strong>Pricing:</strong> ${post.pricing}</span>` : ''}
-                                <span><strong>Type:</strong> ${post.postType}</span>
-                                ${post.postType === 'Devlog' && post.devlogType ? `<span><strong>Devlog Type:</strong> ${post.devlogType}</span>` : ''}
-                                ${post.madeWith ? `<span><strong>Made With:</strong> ${post.madeWith}</span>` : ''}
-                                <span><strong>AI Content:</strong> ${post.aiContent}</span>
-                                <span><strong>Views:</strong> ${formatNumberForDisplay(post.views || 0)}</span>
-                                ${post.postType === 'Game Promotion' ? `
-                                    <span><strong>Visits:</strong> ${formatNumberForDisplay(post.visits || 0)}</span>
-                                ` : ''}
-                            </div>
-                            <p class="text-gray-300 my-4 text-justify text-sm sm:text-base">${post.description}</p>
+            modalContent.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <button id="close-modal-btn" class="modal-action-btn"><i class="fas fa-arrow-left"></i></button>
+                    <button id="share-post-btn" class="modal-action-btn" data-post-id="${postId}"><i class="fa-solid fa-share"></i></button>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-bold mb-4 text-white">${post.title}</h2>
+                <p class="text-gray-500 text-sm mb-2">Posted: ${post.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p> <!-- Removed "by ${post.authorId}" -->
+                ${mediaHtml}
+                ${modalYoutubeLinkHtml} <!-- Add the combo link button here -->
+                <div class="mt-6 flex flex-wrap gap-2 text-gray-400 text-sm">
+                    ${post.postType === 'Game Promotion' ? `<span><strong>Pricing:</strong> ${post.pricing}</span>` : ''}
+                    <span><strong>Type:</strong> ${post.postType}</span>
+                    ${post.postType === 'Devlog' && post.devlogType ? `<span><strong>Devlog Type:</strong> ${post.devlogType}</span>` : ''}
+                    ${post.madeWith ? `<span><strong>Made With:</strong> ${post.madeWith}</span>` : ''}
+                    <span><strong>AI Content:</strong> ${post.aiContent}</span>
+                    <span><strong>Views:</strong> ${formatNumberForDisplay(post.views || 0)}</span> <!-- View count for all post types -->
+                    ${post.postType === 'Game Promotion' ? `
+                        <span><strong>Visits:</strong> ${formatNumberForDisplay(post.visits || 0)}</span>
+                    ` : ''}
+                </div>
+                <p class="text-gray-300 my-4 text-justify text-sm sm:text-base">${post.description}</p>
+                
+                <div class="flex flex-wrap gap-2 mb-4">
+                    ${post.postType === 'Game Promotion' && post.genres && post.genres.length > 0 ? post.genres.map(g => `<span class="bg-blue-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${g}</span>`).join('') : ''}
+                    ${post.postType === 'Game Promotion' && post.platforms && post.platforms.length > 0 ? post.platforms.map(p => `<span class="bg-green-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${p}</span>`).join('') : ''}
+                    ${post.tags && post.tags.length > 0 ? post.tags.map(t => `<span class="bg-purple-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${t}</span>`).join('') : ''}
+                </div>
 
-                            <div class="flex flex-wrap gap-2 mb-4">
-                                ${post.postType === 'Game Promotion' && post.genres && post.genres.length > 0 ? post.genres.map(g => `<span class="bg-blue-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${g}</span>`).join('') : ''}
-                                ${post.postType === 'Game Promotion' && post.platforms && post.platforms.length > 0 ? post.platforms.map(p => `<span class="bg-green-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${p}</span>`).join('') : ''}
-                                ${post.tags && post.tags.length > 0 ? post.tags.map(t => `<span class="bg-purple-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${t}</span>`).join('') : ''}
-                            </div>
+                <div class="flex justify-center my-6 gap-4">
+                    <a href="${post.itchLink}" target="_blank" id="visit-itch-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base">
+                        <i class="fas fa-external-link-alt"></i> Visit Itch.io
+                    </a>
+                    ${post.postType === 'Devlog' && post.linkedGamePromoId ? `
+                        <button id="view-linked-game-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base" data-linked-post-id="${post.linkedGamePromoId}">
+                            <i class="fas fa-gamepad"></i> View Linked Game
+                        </button>
+                    ` : ''}
+                </div>
 
-                            <div class="flex justify-center my-6 gap-4">
-                                <a href="${post.itchLink}" target="_blank" id="visit-itch-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base">
-                                    <i class="fas fa-external-link-alt"></i> Visit Itch.io
-                                </a>
-                                ${post.postType === 'Devlog' && post.linkedGamePromoId ? `
-                                    <button id="view-linked-game-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base" data-linked-post-id="${post.linkedGamePromoId}">
-                                        <i class="fas fa-gamepad"></i> View Linked Game
-                                    </button>
-                                ` : ''}
-                            </div>
+                ${post.general ? `<div class="mt-4"><h3 class="font-semibold text-lg text-gray-200">General Info:</h3><p class="text-gray-300 text-sm sm:text-base">${post.general}</p></div>` : ''}
+                ${post.reason ? `<div class="mt-4"><h3 class="font-semibold text-lg text-gray-200">Why I'm Posting:</h3><p class="text-gray-300 text-sm sm:text-base">${post.reason}</p></div>` : ''}
 
-                            ${post.general ? `<div class="mt-4"><h3 class="font-semibold text-lg text-gray-200">General Info:</h3><p class="text-gray-300 text-sm sm:text-base">${post.general}</p></div>` : ''}
-                            ${post.reason ? `<div class="mt-4"><h3 class="font-semibold text-lg text-gray-200">Why I'm Posting:</h3><p class="text-gray-300 text-sm sm:text-base">${post.reason}</p></div>` : ''}
+                ${pollHtml} <!-- Add poll HTML here -->
 
-                            ${pollHtml}
-
-                            ${post.allowComments !== false ? `
-                                <div class="mt-8 border-t border-gray-700 pt-6">
-                                    <h3 class="text-xl font-bold mb-4 text-gray-200">Comments (${formatNumberForDisplay(post.comments?.length || 0)})</h3>
-                                    <div id="comments-list" class="space-y-4 mb-6">
-                                        ${post.comments && post.comments.length > 0 ? post.comments.map((comment, index) => `
-                                            <div class="bg-[#1a1a1a] p-4 rounded-md shadow-sm">
-                                                <p class="text-gray-300 text-sm sm:text-base">${comment.text}</p>
-                                                <div class="flex justify-end items-center mt-2">
-                                                    ${post.authorId === currentUser?.uid ? `
-                                                        <button class="delete-comment-btn text-red-500 hover:text-red-400 transition ml-4" data-post-id="${postId}" data-comment-index="${index}">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    ` : ''}
-                                                    <p class="text-right text-xs text-gray-500 ml-auto">Comment by Anonymous on ${new Date(comment.timestamp.toDate()).toLocaleDateString()}</p>
-                                                </div>
-                                            </div>
-                                        `).join('') : '<p class="text-gray-400 text-sm sm:text-base">No comments yet. Be the first to leave feedback!</p>'}
+                ${post.allowComments !== false ? ` <!-- Conditional rendering for comments section -->
+                    <div class="mt-8 border-t border-gray-700 pt-6">
+                        <h3 class="text-xl font-bold mb-4 text-gray-300">Comments (${formatNumberForDisplay(post.comments?.length || 0)})</h3>
+                        <div id="comments-list" class="space-y-4 mb-6">
+                            ${post.comments && post.comments.length > 0 ? post.comments.map((comment, index) => `
+                                <div class="bg-[#1a1a1a] p-4 rounded-md shadow-sm">
+                                    <p class="text-gray-300 text-sm sm:text-base">${comment.text}</p>
+                                    <div class="flex justify-between items-center mt-2">
+                                        <button class="comment-like-btn text-gray-400 hover:text-red-500 transition" data-post-id="${postId}" data-comment-index="${index}">
+                                            <i class="${comment.likes?.includes(currentUser?.uid) ? 'fas text-red-500' : 'far'} fa-heart"></i>
+                                            <span class="ml-1">${formatNumberForDisplay(comment.likes?.length || 0)}</span>
+                                        </button>
+                                        ${post.authorId === currentUser?.uid ? `
+                                            <button class="delete-comment-btn text-red-500 hover:text-red-400 transition ml-4" data-post-id="${postId}" data-comment-index="${index}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        ` : ''}
+                                        <p class="text-right text-xs text-gray-500">Comment by Anonymous on ${new Date(comment.timestamp.toDate()).toLocaleDateString()}</p>
                                     </div>
-                                    <form id="comment-form" class="flex gap-2">
-                                        <input type="text" id="comment-input" class="flex-grow p-3 input-bg rounded-md text-sm sm:text-base" placeholder="Add a comment..." required>
-                                        <button type="submit" class="btn-primary text-white font-bold py-2 px-4 rounded-md text-sm sm:text-base">Post</button>
-                                    </form>
                                 </div>
-                            ` : `<div class="mt-8 border-t border-gray-700 pt-6 text-center text-gray-400">Comments are disabled for this post.</div>`}
+                            `).join('') : '<p class="text-gray-400 text-sm sm:text-base">No comments yet. Be the first to leave feedback!</p>'}
                         </div>
+                        <form id="comment-form" class="flex gap-2">
+                            <input type="text" id="comment-input" class="flex-grow p-3 input-bg rounded-md text-sm sm:text-base" placeholder="Add a comment..." required>
+                            <button type="submit" class="btn-primary text-white font-bold py-2 px-4 rounded-md text-sm sm:text-base">Post</button>
+                        </form>
                     </div>
-                `;
-            } else {
-                // Original modal content for non-fullscreen mode
-                modalContent.innerHTML = `
-                    <div class="flex justify-between items-center mb-4">
-                        <button id="close-modal-btn" class="modal-action-btn"><i class="fas fa-arrow-left"></i></button>
-                        <button id="share-post-btn" class="modal-action-btn" data-post-id="${postId}"><i class="fa-solid fa-share"></i></button>
-                    </div>
-                    <h2 class="text-2xl sm:text-3xl font-bold mb-4 text-white">${post.title}</h2>
-                    ${mediaHtml}
-                    ${modalYoutubeLinkHtml}
-                    <div class="mt-6 flex flex-wrap gap-2 text-gray-400 text-sm">
-                        <span><strong>Posted:</strong> ${post.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString() : 'N/A'}</span>
-                        ${post.postType === 'Game Promotion' ? `<span><strong>Pricing:</strong> ${post.pricing}</span>` : ''}
-                        <span><strong>Type:</strong> ${post.postType}</span>
-                        ${post.postType === 'Devlog' && post.devlogType ? `<span><strong>Devlog Type:</strong> ${post.devlogType}</span>` : ''}
-                        ${post.madeWith ? `<span><strong>Made With:</strong> ${post.madeWith}</span>` : ''}
-                        <span><strong>AI Content:</strong> ${post.aiContent}</span>
-                        <span><strong>Views:</strong> ${formatNumberForDisplay(post.views || 0)}</span>
-                        ${post.postType === 'Game Promotion' ? `
-                            <span><strong>Visits:</strong> ${formatNumberForDisplay(post.visits || 0)}</span>
-                        ` : ''}
-                    </div>
-                    <p class="text-gray-300 my-4 text-justify text-sm sm:text-base">${post.description}</p>
-
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        ${post.postType === 'Game Promotion' && post.genres && post.genres.length > 0 ? post.genres.map(g => `<span class="bg-blue-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${g}</span>`).join('') : ''}
-                        ${post.postType === 'Game Promotion' && post.platforms && post.platforms.length > 0 ? post.platforms.map(p => `<span class="bg-green-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${p}</span>`).join('') : ''}
-                        ${post.tags && post.tags.length > 0 ? post.tags.map(t => `<span class="bg-purple-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${t}</span>`).join('') : ''}
-                    </div>
-
-                    <div class="flex justify-center my-6 gap-4">
-                        <a href="${post.itchLink}" target="_blank" id="visit-itch-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base">
-                            <i class="fas fa-external-link-alt"></i> Visit Itch.io
-                        </a>
-                        ${post.postType === 'Devlog' && post.linkedGamePromoId ? `
-                            <button id="view-linked-game-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base" data-linked-post-id="${post.linkedGamePromoId}">
-                                <i class="fas fa-gamepad"></i> View Linked Game
-                            </button>
-                        ` : ''}
-                    </div>
-
-                    ${post.general ? `<div class="mt-4"><h3 class="font-semibold text-lg text-gray-200">General Info:</h3><p class="text-gray-300 text-sm sm:text-base">${post.general}</p></div>` : ''}
-                    ${post.reason ? `<div class="mt-4"><h3 class="font-semibold text-lg text-gray-200">Why I'm Posting:</h3><p class="text-gray-300 text-sm sm:text-base">${post.reason}</p></div>` : ''}
-
-                    ${pollHtml}
-
-                    ${post.allowComments !== false ? `
-                        <div class="mt-8 border-t border-gray-700 pt-6">
-                            <h3 class="text-xl font-bold mb-4 text-gray-200">Comments (${formatNumberForDisplay(post.comments?.length || 0)})</h3>
-                            <div id="comments-list" class="space-y-4 mb-6">
-                                ${post.comments && post.comments.length > 0 ? post.comments.map((comment, index) => `
-                                    <div class="bg-[#1a1a1a] p-4 rounded-md shadow-sm">
-                                        <p class="text-gray-300 text-sm sm:text-base">${comment.text}</p>
-                                        <div class="flex justify-end items-center mt-2">
-                                            ${post.authorId === currentUser?.uid ? `
-                                                <button class="delete-comment-btn text-red-500 hover:text-red-400 transition ml-4" data-post-id="${postId}" data-comment-index="${index}">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            ` : ''}
-                                            <p class="text-right text-xs text-gray-500 ml-auto">Comment by Anonymous on ${new Date(comment.timestamp.toDate()).toLocaleDateString()}</p>
-                                        </div>
-                                    </div>
-                                `).join('') : '<p class="text-gray-400 text-sm sm:text-base">No comments yet. Be the first to leave feedback!</p>'}
-                            </div>
-                            <form id="comment-form" class="flex gap-2">
-                                <input type="text" id="comment-input" class="flex-grow p-3 input-bg rounded-md text-sm sm:text-base" placeholder="Add a comment..." required>
-                                <button type="submit" class="btn-primary text-white font-bold py-2 px-4 rounded-md text-sm sm:text-base">Post</button>
-                            </form>
-                        </div>
-                    ` : `<div class="mt-8 border-t border-gray-700 pt-6 text-center text-gray-400">Comments are disabled for this post.</div>`}
-                `;
-            }
+                ` : `<div class="mt-8 border-t border-gray-700 pt-6 text-center text-gray-400">Comments are disabled for this post.</div>`}
+            `;
             postModal.classList.remove('hidden'); // Show the modal
-            // Apply fullscreen class if setting is enabled
-            if (userSettings.fullscreenModals) {
-                postModal.classList.add('modal-fullscreen');
-                modalContent.classList.add('modal-fullscreen');
-                document.body.style.overflow = 'hidden'; // Hide body scrollbar
-            } else {
-                postModal.classList.remove('modal-fullscreen');
-                modalContent.classList.remove('modal-fullscreen');
-                document.body.style.overflow = ''; // Restore body scrollbar
-            }
             document.getElementById('close-modal-btn').addEventListener('click', closePostModal);
             
             // Add event listener for "Visit Itch.io" button to increment visits
@@ -3104,7 +2902,7 @@
                     e.stopPropagation(); // Crucial: Prevent click from bubbling to modal backdrop
                     // Close the current modal before opening the new one
                     closePostModal(); 
-                    await openPostModal(e.currentTarget.dataset.linkedPostId);
+                    await openPostModal(e.currentTarget.dataset.linkedPostId, false, true); // When opening a linked game, it's a new user-initiated view
                 });
             }
 
@@ -3134,7 +2932,15 @@
 
             if (post.allowComments !== false) { // Only add comment form listener if comments are allowed
                 document.getElementById('comment-form').addEventListener('submit', (e) => handleCommentSubmit(e, postId));
-                // Removed event listeners for comment likes
+                // Add event listeners for comment likes
+                document.querySelectorAll('.comment-like-btn').forEach(btn => {
+                    btn.removeEventListener('click', (e) => { /* remove old listener */ }); // Remove existing listeners to prevent duplicates
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const commentIndex = parseInt(btn.dataset.commentIndex);
+                        toggleCommentLike(postId, commentIndex);
+                    });
+                });
                 // Add event listeners for comment delete buttons
                 document.querySelectorAll('.delete-comment-btn').forEach(btn => {
                     btn.removeEventListener('click', (e) => { /* remove old listener */ }); // Remove existing listeners to prevent duplicates
@@ -3176,10 +2982,6 @@
             const url = new URL(window.location.href);
             url.searchParams.delete('postId');
             window.history.replaceState({}, document.title, url.toString());
-            // Clean up fullscreen class
-            postModal.classList.remove('modal-fullscreen');
-            modalContent.classList.remove('modal-fullscreen');
-            document.body.style.overflow = ''; // Restore body scrollbar
         }
 
         // Handles the submission of a new comment for a post.
@@ -3212,7 +3014,7 @@
                 authorId: currentUser.uid, // Store the anonymous user's UID
                 text: commentText,
                 timestamp: new Date(), // Use client-side Date object for timestamp in array
-                // Removed likes initialization for new comment
+                likes: [] // Initialize likes for new comment
             }];
 
             try {
@@ -3226,7 +3028,43 @@
             }
         }
 
-        // Removed function: toggleCommentLike(postId, commentIndex)
+        // Toggles a like on a specific comment.
+        async function toggleCommentLike(postId, commentIndex) {
+            if (!currentUser || !isAuthReady) {
+                showAlert("Please wait a moment for authentication to complete before liking comments.");
+                return;
+            }
+
+            const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
+            const post = allFetchedPosts.find(p => p.id === postId);
+
+            if (!post || !post.comments || commentIndex < 0 || commentIndex >= post.comments.length) {
+                console.error("Comment not found for liking:", postId, commentIndex);
+                showAlert("Could not like comment: Comment not found.");
+                return;
+            }
+
+            const currentComment = post.comments[commentIndex];
+            let newCommentLikes = currentComment.likes || [];
+
+            if (newCommentLikes.includes(currentUser.uid)) {
+                newCommentLikes = newCommentLikes.filter(uid => uid !== currentUser.uid); // Unlike
+            } else {
+                newCommentLikes.push(currentUser.uid); // Like
+            }
+
+            // Create a deep copy of comments to modify
+            const updatedComments = JSON.parse(JSON.stringify(post.comments));
+            updatedComments[commentIndex].likes = newCommentLikes;
+
+            try {
+                await updateDoc(postRef, { comments: updatedComments });
+                // The onSnapshot listener will re-render the modal with updated likes
+            } catch (error) {
+                console.error("Error toggling comment like:", error);
+                showAlert(`Failed to toggle comment like: ${error.message || error}.`);
+            }
+        }
 
         // Deletes a specific comment from a post.
         async function deleteComment(postId, commentIndex) {
