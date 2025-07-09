@@ -1623,9 +1623,11 @@
                     // Reset all devlog specific fields to hidden and optional
                     if (devlogTypeSection) devlogTypeSection.classList.add('hidden');
                     if (gamePromoPollToggle) gamePromoPollToggle.classList.add('hidden'); // Hide game promo poll toggle by default
-                    if (pollSection) pollSection.classList.add('hidden');
+                    if (pollSection) pollSection.classList.add('hidden'); // <--- THIS IS KEY. It hides it by default.
                     form.querySelector('#poll-question')?.removeAttribute('required');
                     form.querySelectorAll('.poll-option-input').forEach(input => input.removeAttribute('required'));
+
+                    console.log("togglePostTypeFieldsInternal: selectedPostType =", selectedPostType, "selectedDevlogType =", selectedDevlogType, "addGamePromoPoll =", addGamePromoPoll);
 
                     if (selectedPostType === 'Devlog') {
                         if (devlogTypeSection) devlogTypeSection.classList.remove('hidden');
@@ -1665,13 +1667,14 @@
                         if (itchLinkHelp) itchLinkHelp.textContent = '(Required for Game Promotion. Optional for Devlog. Example: https://yourusername.itch.io/your-game)';
                         
                         // Poll option for Game Promotion
-                        if (addGamePromoPoll) {
-                            if (pollSection) pollSection.classList.remove('hidden');
-                            form.querySelector('#poll-question')?.setAttribute('required', 'true');
-                            form.querySelectorAll('.poll-option-input').forEach(input => input.setAttribute('required', 'true'));
-                            updateRemovePollOptionButtons();
+                        if (addGamePromoPoll) { // If 'Yes' is selected for add poll
+                             if (pollSection) pollSection.classList.remove('hidden');
+                             form.querySelector('#poll-question')?.setAttribute('required', 'true');
+                             form.querySelectorAll('.poll-option-input').forEach(input => input.setAttribute('required', 'true'));
+                             updateRemovePollOptionButtons();
                         }
                     }
+                    console.log("pollSection hidden after toggle:", pollSection.classList.contains('hidden'));
                 }
                 postTypeSelect.addEventListener('change', togglePostTypeFieldsInternal);
                 devlogTypeSelect?.addEventListener('change', togglePostTypeFieldsInternal); // Listen for devlog type change
@@ -1916,6 +1919,9 @@
                     form.querySelector('#poll-question')?.removeAttribute('required');
                     form.querySelectorAll('.poll-option-input').forEach(input => input.removeAttribute('required'));
 
+                    console.log("togglePostTypeFieldsEdit: selectedPostType =", selectedPostType, "selectedDevlogType =", selectedDevlogType, "addGamePromoPoll =", addGamePromoPoll);
+
+
                     if (selectedPostType === 'Devlog') {
                         if (devlogTypeSection) devlogTypeSection.classList.remove('hidden');
                         if (genreSection) genreSection.classList.add('hidden');
@@ -1975,6 +1981,7 @@
                         }
                         if (itchLinkHelp) itchLinkHelp.textContent = '(Required for Game Promotion. Optional for Devlog. Example: https://yourusername.itch.io/your-game)';
                     }
+                    console.log("pollSection hidden after toggle:", pollSection.classList.contains('hidden'));
                 }
                 postTypeSelect.addEventListener('change', togglePostTypeFieldsEdit);
                 devlogTypeSelect?.addEventListener('change', togglePostTypeFieldsEdit); // Listen for devlog type change
@@ -2084,7 +2091,7 @@
                         <li class="flex items-start"><i class="fas fa-check-circle text-cyan-400 mt-1 mr-3"></i><span><strong>Anonymity is Key:</strong> This platform uses anonymous sign-in. Do not attempt to de-anonymize others or share personal information.</span></li>
                     </ul>
                     <div class="mt-8 pt-6 border-t border-gray-700">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-700">Content Quality Guidelines</h3>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-500">Content Quality Guidelines</h3>
                         <ul class="space-y-4 text-gray-300">
                             <li class="flex items-start"><i class="fas fa-exclamation-triangle text-yellow-400 mt-1 mr-3"></i><span><strong>Image Quality:</strong> Thumbnails and images must be clear, high quality, and directly related to the game. Blurry, stretched, low-effort, or unrelated visuals may lead to your post being removed or modified. Avoid random text-heavy or poorly designed thumbnails—only clean, appealing images are allowed.</span></li>
                             <li class="flex items-start"><i class="fas fa-robot text-red-400 mt-1 mr-3"></i><span><strong> AI Generated Content:</strong> AI-generated images that are low quality or visually unappealing will be removed. Visually appealing AI-generated content is allowed but must be clearly labeled as AI-generated. Any AI content that is misleading or lacks proper disclosure may be subject to removal.</span></li>
@@ -2515,7 +2522,7 @@
             }
             // If mediaType is 'none' or 'itch_embed', trailerLink and imageUrl will remain empty, which is correct.
 
-            const postData = {
+            const basePostData = {
                 authorId: currentUser.uid,
                 title: form.querySelector('#game-title').value.trim(),
                 description: form.querySelector('#description').value.trim(),
@@ -2529,77 +2536,101 @@
                 aiContent: aiContent, // New required field
                 tags: tags, // Store tags
                 allowComments: allowComments, // Store comments setting
-                // Only include genres, platforms, pricing if it's a Game Promotion
-                ...(postType === 'Game Promotion' && {
-                    pricing: form.querySelector('#pricing').value,
-                    genres: genres,
-                    platforms: platforms,
-                    // If addGamePromoPoll is true and pollData exists, add poll. Otherwise, explicitly remove poll.
-                    poll: addGamePromoPoll && pollData ? pollData : deleteField() 
-                }),
-                ...(postType === 'Devlog' && { // Add linkedGamePromoId and devlogType for Devlogs
-                    linkedGamePromoId: linkedGamePromoId,
-                    devlogType: devlogType,
-                    // If devlogType is 'Poll' and pollData exists, add poll. Otherwise, explicitly remove poll.
-                    poll: (devlogType === 'Poll' && pollData) ? pollData : deleteField() 
-                }),
                 general: form.querySelector('#general').value.trim(),
                 reason: form.querySelector('#reason').value.trim(),
-                // Likes, comments, views, visits are not updated during post edit/creation
-                // createdAt is only set on creation, not updated
             };
 
             try {
                 if (editingPostId) {
                     // Update existing post
                     const postRef = doc(db, `artifacts/${appId}/public/data/posts`, editingPostId);
-                    // Fetch the existing post to preserve non-editable fields like likes, comments, views, visits, and createdAt
                     const existingPost = allFetchedPosts.find(p => p.id === editingPostId);
-                    if (existingPost) {
-                        // Merge existing non-editable fields with updated data
-                        const updatedData = {
-                            ...postData,
-                            likes: existingPost.likes || [],
-                            comments: existingPost.comments || [],
-                            views: existingPost.views || 0,
-                            visits: existingPost.visits || 0,
-                            createdAt: existingPost.createdAt, // Preserve original creation timestamp
-                        };
 
-                        // Handle poll updates specifically for existing posts
-                        // If a poll already exists, it cannot be modified or deleted.
-                        if (existingPost.poll) {
-                            updatedData.poll = existingPost.poll; // Preserve existing poll data
-                        } else if (postData.poll) {
-                            // If a new poll is being added during an edit (which should be prevented by UI but as a fallback)
-                            updatedData.poll = postData.poll;
-                        } else {
-                            // If no poll exists and no new poll is being added, ensure it's deleted if it was previously present
-                            updatedData.poll = deleteField();
-                        }
-                        
-                        await updateDoc(postRef, updatedData);
-                    } else {
-                        // If for some reason existingPost is not found in allFetchedPosts,
-                        // proceed with just postData, but log a warning.
-                        console.warn("Existing post not found in local cache during update, updating with provided data only.", editingPostId);
-                        await updateDoc(postRef, postData);
+                    if (!existingPost) {
+                        showAlert("Error: Existing post not found for update.");
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Update Post';
+                        return;
                     }
 
+                    let updatePayload = {
+                        ...basePostData, // Start with all common fields
+                        // Preserve existing non-editable fields
+                        likes: existingPost.likes || [],
+                        comments: existingPost.comments || [],
+                        views: existingPost.views || 0,
+                        visits: existingPost.visits || 0,
+                        createdAt: existingPost.createdAt, // Preserve original creation timestamp
+                    };
+
+                    // Handle poll specifically for updates
+                    if (existingPost.poll) {
+                        // If a poll already exists, it cannot be modified or deleted. Preserve it.
+                        updatePayload.poll = existingPost.poll;
+                    } else {
+                        // If no poll exists on the original post
+                        if ((postType === 'Devlog' && devlogType === 'Poll') || (postType === 'Game Promotion' && addGamePromoPoll)) {
+                            // If a new poll is being added during this edit
+                            updatePayload.poll = pollData;
+                        } else {
+                            // If no poll exists and no new poll is being added, explicitly delete it in case it was there before
+                            updatePayload.poll = deleteField();
+                        }
+                    }
+
+                    // Handle type-specific fields for updates
+                    if (postType === 'Game Promotion') {
+                        updatePayload.pricing = form.querySelector('#pricing').value;
+                        updatePayload.genres = genres;
+                        updatePayload.platforms = platforms;
+                        // Ensure devlog-specific fields are removed if changing type
+                        updatePayload.linkedGamePromoId = deleteField();
+                        updatePayload.devlogType = deleteField();
+                    } else if (postType === 'Devlog') {
+                        updatePayload.linkedGamePromoId = linkedGamePromoId;
+                        updatePayload.devlogType = devlogType;
+                        // Ensure game promo-specific fields are removed if changing type
+                        updatePayload.pricing = deleteField();
+                        updatePayload.genres = deleteField();
+                        updatePayload.platforms = deleteField();
+                    }
+                    
+                    await updateDoc(postRef, updatePayload, { merge: true }); // Use merge: true for deleteField
                     showAlert("Post updated successfully!").then(() => {
                         closePostModal(); // Close modal after update
                         displayLimit = postsPerPage; // Reset display limit for community page
                         switchTab('my-posts'); // Navigate back to my posts
                     });
+
                 } else {
                     // Add new post
-                    postData.likes = []; // Initialize likes for new post
-                    postData.comments = []; // Initialize comments for new post
-                    postData.views = 0; // Initialize views for new post
-                    postData.visits = 0; // Initialize visits for new post
-                    postData.createdAt = serverTimestamp(); // Set timestamp for new post
-                    await addDoc(collection(db, `artifacts/${appId}/public/data/posts`), postData); // Removed newDocRef as it's no longer needed for opening modal
-                    showAlert("Post submitted successfully!").then(() => { // Removed async from inner function as no await is needed
+                    let newPostData = {
+                        ...basePostData,
+                        likes: [], // Initialize likes for new post
+                        comments: [], // Initialize comments for new post
+                        views: 0, // Initialize views for new post
+                        visits: 0, // Initialize visits for new post
+                        createdAt: serverTimestamp(), // Set timestamp for new post
+                    };
+
+                    // Add type-specific fields for new posts
+                    if (postType === 'Game Promotion') {
+                        newPostData.pricing = form.querySelector('#pricing').value;
+                        newPostData.genres = genres;
+                        newPostData.platforms = platforms;
+                        if (addGamePromoPoll && pollData) {
+                            newPostData.poll = pollData;
+                        }
+                    } else if (postType === 'Devlog') {
+                        newPostData.linkedGamePromoId = linkedGamePromoId;
+                        newPostData.devlogType = devlogType;
+                        if (devlogType === 'Poll' && pollData) {
+                            newPostData.poll = pollData;
+                        }
+                    }
+
+                    await addDoc(collection(db, `artifacts/${appId}/public/data/posts`), newPostData);
+                    showAlert("Post submitted successfully!").then(() => {
                         form.reset(); // Clear form fields after successful submission
                         // Reset character count and media selection UI to default
                         form.querySelector('#char-count').textContent = `0/1000`; // Use form.querySelector
@@ -2851,17 +2882,13 @@
                             ${post.comments && post.comments.length > 0 ? post.comments.map((comment, index) => `
                                 <div class="bg-[#1a1a1a] p-4 rounded-md shadow-sm">
                                     <p class="text-gray-300 text-sm sm:text-base">${comment.text}</p>
-                                    <div class="flex justify-between items-center mt-2">
-                                        <button class="comment-like-btn text-gray-400 hover:text-red-500 transition" data-post-id="${postId}" data-comment-index="${index}">
-                                            <i class="${comment.likes?.includes(currentUser?.uid) ? 'fas text-red-500' : 'far'} fa-heart"></i>
-                                            <span class="ml-1">${formatNumberForDisplay(comment.likes?.length || 0)}</span>
-                                        </button>
+                                    <div class="flex justify-end items-center mt-2">
                                         ${post.authorId === currentUser?.uid ? `
                                             <button class="delete-comment-btn text-red-500 hover:text-red-400 transition ml-4" data-post-id="${postId}" data-comment-index="${index}">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         ` : ''}
-                                        <p class="text-right text-xs text-gray-500">Comment by Anonymous on ${new Date(comment.timestamp.toDate()).toLocaleDateString()}</p>
+                                        <p class="text-right text-xs text-gray-500 ml-auto">Comment by Anonymous on ${new Date(comment.timestamp.toDate()).toLocaleDateString()}</p>
                                     </div>
                                 </div>
                             `).join('') : '<p class="text-gray-400 text-sm sm:text-base">No comments yet. Be the first to leave feedback!</p>'}
@@ -2932,15 +2959,7 @@
 
             if (post.allowComments !== false) { // Only add comment form listener if comments are allowed
                 document.getElementById('comment-form').addEventListener('submit', (e) => handleCommentSubmit(e, postId));
-                // Add event listeners for comment likes
-                document.querySelectorAll('.comment-like-btn').forEach(btn => {
-                    btn.removeEventListener('click', (e) => { /* remove old listener */ }); // Remove existing listeners to prevent duplicates
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const commentIndex = parseInt(btn.dataset.commentIndex);
-                        toggleCommentLike(postId, commentIndex);
-                    });
-                });
+                // Removed event listeners for comment likes
                 // Add event listeners for comment delete buttons
                 document.querySelectorAll('.delete-comment-btn').forEach(btn => {
                     btn.removeEventListener('click', (e) => { /* remove old listener */ }); // Remove existing listeners to prevent duplicates
@@ -3014,7 +3033,7 @@
                 authorId: currentUser.uid, // Store the anonymous user's UID
                 text: commentText,
                 timestamp: new Date(), // Use client-side Date object for timestamp in array
-                likes: [] // Initialize likes for new comment
+                // Removed likes: [] for new comment
             }];
 
             try {
@@ -3028,43 +3047,7 @@
             }
         }
 
-        // Toggles a like on a specific comment.
-        async function toggleCommentLike(postId, commentIndex) {
-            if (!currentUser || !isAuthReady) {
-                showAlert("Please wait a moment for authentication to complete before liking comments.");
-                return;
-            }
-
-            const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
-            const post = allFetchedPosts.find(p => p.id === postId);
-
-            if (!post || !post.comments || commentIndex < 0 || commentIndex >= post.comments.length) {
-                console.error("Comment not found for liking:", postId, commentIndex);
-                showAlert("Could not like comment: Comment not found.");
-                return;
-            }
-
-            const currentComment = post.comments[commentIndex];
-            let newCommentLikes = currentComment.likes || [];
-
-            if (newCommentLikes.includes(currentUser.uid)) {
-                newCommentLikes = newCommentLikes.filter(uid => uid !== currentUser.uid); // Unlike
-            } else {
-                newCommentLikes.push(currentUser.uid); // Like
-            }
-
-            // Create a deep copy of comments to modify
-            const updatedComments = JSON.parse(JSON.stringify(post.comments));
-            updatedComments[commentIndex].likes = newCommentLikes;
-
-            try {
-                await updateDoc(postRef, { comments: updatedComments });
-                // The onSnapshot listener will re-render the modal with updated likes
-            } catch (error) {
-                console.error("Error toggling comment like:", error);
-                showAlert(`Failed to toggle comment like: ${error.message || error}.`);
-            }
-        }
+        // Removed function: toggleCommentLike
 
         // Deletes a specific comment from a post.
         async function deleteComment(postId, commentIndex) {
