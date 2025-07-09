@@ -16,6 +16,11 @@
             color: #e6edf3; /* Light text for contrast */
             transition: background-color 0.3s ease, color 0.3s ease, font-size 0.3s ease; /* Smooth transitions for theme/text size */
         }
+        /* New class to prevent body scrolling when a fullscreen modal is active */
+        body.modal-fullscreen-active {
+            overflow: hidden;
+        }
+
         .gradient-bg {
             background-color: #0a0a0a; /* Consistent very dark background */
         }
@@ -159,7 +164,26 @@
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 50;
+            transition: all 0.3s ease-in-out; /* Smooth transition for fullscreen */
+            overflow-y: auto; /* Allow content inside modal to scroll */
         }
+        /* Fullscreen styles for the modal */
+        .modal.fullscreen {
+            top: 0;
+            left: 0;
+            width: 100vw !important; /* Override specific width */
+            height: 100vh !important; /* Override specific height */
+            transform: none; /* Remove translate */
+            border-radius: 0; /* Remove rounded corners */
+            padding: 1rem; /* Adjust padding for fullscreen */
+            max-width: none !important; /* Remove max-width in fullscreen */
+            max-height: none !important; /* Remove max-height in fullscreen */
+        }
+        .modal-backdrop.fullscreen {
+            background-color: #0a0a0a; /* Solid background for fullscreen */
+            backdrop-filter: none; /* Remove blur for fullscreen */
+        }
+
         /* Custom Checkbox (general style) */
         .custom-checkbox input { display: none; }
         .custom-checkbox span {
@@ -463,10 +487,9 @@
 	<div id="video-modal" class="hidden">
 		<div class="modal-backdrop"></div>
 		<div id="video-modal-content" class="modal w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl main-bg rounded-lg shadow-lg p-4 sm:p-6 video-modal-content">
-			<div class="flex justify-end mb-4">
-				<button id="close-video-modal-btn" class="text-gray-400 hover:text-white text-2xl">
-					<i class="fa-solid fa-xmark"></i>
-				</button>
+			<div class="flex justify-between mb-4">
+                <button id="close-video-modal-btn" class="modal-action-btn"><i class="fa-solid fa-xmark"></i></button>
+                <button id="fullscreen-video-toggle-btn" class="modal-action-btn"><i class="fas fa-expand"></i></button>
 			</div>
 			<div class="aspect-video w-full rounded-md overflow-hidden relative">
 				<iframe id="video-player-iframe" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
@@ -542,7 +565,8 @@
             showPostCounts: true, // true, false
             defaultPostType: 'Game Promotion', // 'Game Promotion', 'Devlog'
             defaultSortOrder: 'newest', // 'newest', 'popular', 'oldest', 'most-viewed', 'most-visited'
-            defaultPostCountDisplay: 'abbreviated' // 'exact', 'abbreviated' - Default changed to 'abbreviated'
+            defaultPostCountDisplay: 'abbreviated', // 'exact', 'abbreviated' - Default changed to 'abbreviated'
+            modalFullscreen: false // New setting: automatically open modals in fullscreen
         };
 
         // Map to store last view timestamp for each post to prevent spamming views
@@ -578,7 +602,7 @@
         const videoModalContent = document.getElementById('video-modal-content');
         const videoPlayerIframe = document.getElementById('video-player-iframe');
         const closeVideoModalBtn = document.getElementById('close-video-modal-btn');
-        // Removed videoOverlayPlayButton as per request
+        const fullscreenVideoToggleBtn = document.getElementById('fullscreen-video-toggle-btn'); // New fullscreen toggle for video modal
 
 
         let editingPostId = null; // Stores the ID of the post currently being edited
@@ -705,6 +729,10 @@
             if (embedSrc) {
                 videoPlayerIframe.src = embedSrc; 
                 videoModal.classList.remove('hidden');
+                // Apply fullscreen if setting is enabled
+                if (userSettings.modalFullscreen) {
+                    toggleFullscreen(videoModalContent, true); // Pass true to force fullscreen on open
+                }
             } else {
                 showAlert("Could not play video: Invalid YouTube link.");
             }
@@ -714,6 +742,8 @@
         function closeVideoModal() {
             videoModal.classList.add('hidden');
             videoPlayerIframe.src = ''; // Stop video playback by clearing src
+            // Ensure fullscreen mode is off when closing the video modal
+            toggleFullscreen(videoModalContent, false); // Force fullscreen off on close
         }
 
         // Function to render genre checkboxes based on a filtered list
@@ -876,7 +906,7 @@
                                 // The real-time listener will automatically update the UI.
                             } catch (err) {
                                 console.error("Error deleting post:", err);
-                                showAlert(`Could not delete post: ${err.message || err}. Check console.`);
+                                showAlert(`Could not delete post: ${err.message || err}.`);
                             }
                         }
                     });
@@ -943,6 +973,8 @@
 			}
 			// Add event listener for the new video modal close button
 			closeVideoModalBtn.addEventListener('click', closeVideoModal);
+            // Add event listener for the new video modal fullscreen toggle button
+            fullscreenVideoToggleBtn.addEventListener('click', () => toggleFullscreen(videoModalContent));
         }
         
         // Sets up event listeners for navigation buttons (desktop and mobile).
@@ -1709,12 +1741,16 @@
             modalContent.innerHTML = `
                 <div class="flex justify-between items-center mb-4">
                     <button id="close-modal-btn" class="modal-action-btn"><i class="fas fa-arrow-left"></i></button>
-                    <button id="share-post-btn" class="modal-action-btn" data-post-id="${postId}"><i class="fa-solid fa-share"></i></button>
+                    <div class="flex gap-2">
+                        <button id="share-post-btn" class="modal-action-btn" data-post-id="${postId}"><i class="fa-solid fa-share"></i></button>
+                        <button id="fullscreen-toggle-btn" class="modal-action-btn"><i class="fas fa-expand"></i></button>
+                    </div>
                 </div>
                 <div id="edit-form-container"></div>
             `;
             postModal.classList.remove('hidden'); // Show the modal
             document.getElementById('close-modal-btn').addEventListener('click', closePostModal);
+            document.getElementById('fullscreen-toggle-btn').addEventListener('click', () => toggleFullscreen(modalContent)); // Add listener for fullscreen toggle
             
             // Before rendering, set selectedGenres from the post being edited
             selectedGenres = post.genres || []; 
@@ -2199,6 +2235,20 @@
                             </div>
                         </div>
 
+                        <div>
+                            <label class="block mb-2 font-semibold text-gray-300">Automatically Open Modals Fullscreen</label>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="modal-fullscreen-setting" value="true" ${userSettings.modalFullscreen ? 'checked' : ''}>
+                                    <span>Yes</span>
+                                </label>
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="modal-fullscreen-setting" value="false" ${!userSettings.modalFullscreen ? 'checked' : ''}>
+                                    <span>No</span>
+                                </label>
+                            </div>
+                        </div>
+
                         <div class="mt-8 pt-6 border-t border-gray-700 space-y-4">
                             <h3 class="text-xl font-bold text-red-600">Danger Zone</h3>
                             <button id="delete-all-posts-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-md w-full flex items-center justify-center gap-2 transition-all duration-300">
@@ -2253,6 +2303,14 @@
                 radio.addEventListener('change', (e) => {
                     userSettings.defaultPostCountDisplay = e.target.value;
                     applySettings(); // Re-apply to update post count display on feeds
+                    saveUserSettings();
+                });
+            });
+
+            // New: Event listener for modal fullscreen setting
+            contentSettings.querySelectorAll('input[name="modal-fullscreen-setting"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    userSettings.modalFullscreen = e.target.value === 'true';
                     saveUserSettings();
                 });
             });
@@ -2724,6 +2782,31 @@
         }
 
         // --- MODAL LOGIC FOR INDIVIDUAL POST VIEW ---
+        // Toggles fullscreen mode for a given modal element.
+        // `forceState` (optional boolean): if true, forces fullscreen; if false, forces normal; if undefined, toggles.
+        function toggleFullscreen(modalElement, forceState) {
+            const isFullscreen = modalElement.classList.contains('fullscreen');
+            const shouldBeFullscreen = (forceState !== undefined) ? forceState : !isFullscreen;
+
+            const backdrop = modalElement.previousElementSibling; // Assuming backdrop is the immediate previous sibling
+
+            if (shouldBeFullscreen) {
+                modalElement.classList.add('fullscreen');
+                if (backdrop) backdrop.classList.add('fullscreen');
+                document.body.classList.add('modal-fullscreen-active'); // Prevent body scrolling
+                // Update button icon for the specific modal
+                const toggleBtn = modalElement.id === 'modal-content' ? document.getElementById('fullscreen-toggle-btn') : document.getElementById('fullscreen-video-toggle-btn');
+                if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            } else {
+                modalElement.classList.remove('fullscreen');
+                if (backdrop) backdrop.classList.remove('fullscreen');
+                document.body.classList.remove('modal-fullscreen-active'); // Restore body scrolling
+                // Update button icon for the specific modal
+                const toggleBtn = modalElement.id === 'modal-content' ? document.getElementById('fullscreen-toggle-btn') : document.getElementById('fullscreen-video-toggle-btn');
+                if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        }
+
         // Opens a modal displaying detailed information about a selected post.
         async function openPostModal(postId, focusComment = false, incrementView = true) { // Added incrementView parameter
             // Set flag to true immediately to prevent multiple modal instances
@@ -2834,7 +2917,10 @@
 			modalContent.innerHTML = `
 				<div class="flex justify-between items-center mb-4">
 					<button id="close-modal-btn" class="modal-action-btn"><i class="fas fa-arrow-left"></i></button>
-					<button id="share-post-btn" class="modal-action-btn" data-post-id="${postId}"><i class="fa-solid fa-share"></i></button>
+                    <div class="flex gap-2">
+                        <button id="share-post-btn" class="modal-action-btn" data-post-id="${postId}"><i class="fa-solid fa-share"></i></button>
+                        <button id="fullscreen-toggle-btn" class="modal-action-btn"><i class="fas fa-expand"></i></button>
+                    </div>
 				</div>
 				<h2 class="text-2xl sm:text-3xl font-bold mb-4 text-white">${post.title}</h2>
 				${mediaHtml}
@@ -2901,7 +2987,12 @@
                 ` : `<div class="mt-8 border-t border-gray-700 pt-6 text-center text-gray-400">Comments are disabled for this post.</div>`}
             `;
             postModal.classList.remove('hidden'); // Show the modal
+            // Apply fullscreen if setting is enabled
+            if (userSettings.modalFullscreen) {
+                toggleFullscreen(modalContent, true); // Pass true to force fullscreen on open
+            }
             document.getElementById('close-modal-btn').addEventListener('click', closePostModal);
+            document.getElementById('fullscreen-toggle-btn').addEventListener('click', () => toggleFullscreen(modalContent)); // Add listener for fullscreen toggle
             
             // Add event listener for "Visit Itch.io" button to increment visits
             const visitItchBtn = document.getElementById('visit-itch-btn');
@@ -2992,6 +3083,8 @@
             modalContent.innerHTML = ''; // Clear content to prevent old data from flashing on next open
             editingPostId = null; // Reset editing state
             isPostModalOpen = false; // Reset flag when modal is closed
+            // Ensure fullscreen mode is off when closing the modal
+            toggleFullscreen(modalContent, false); // Force fullscreen off on close
             // Re-enable post type selection when closing the edit modal
             const postTypeSelect = document.getElementById('post-type');
             if (postTypeSelect) {
