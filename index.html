@@ -14,7 +14,13 @@
             font-family: 'Inter', sans-serif;
             background-color: #0a0a0a; /* Very dark background */
             color: #e6edf3; /* Light text for contrast */
+            transition: background-color 0.3s ease, color 0.3s ease, font-size 0.3s ease; /* Smooth transitions for theme/text size */
         }
+        /* New class to prevent body scrolling when a fullscreen modal is active */
+        body.modal-fullscreen-active {
+            overflow: hidden;
+        }
+
         .gradient-bg {
             background-color: #0a0a0a; /* Consistent very dark background */
         }
@@ -29,7 +35,7 @@
         .card-bg {
             background-color: #1c1c1c; /* Darker card background */
             border: 1px solid #3a3a3a; /* Darker, more defined border */
-            border-radius: 12px; /* More rounded corners */
+            border-radius: 24px; /* More rounded corners - Increased from 12px */
             transition: all 0.3s ease-in-out; /* Keep general transition */
             opacity: 0.98; /* Almost opaque */
             box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* Initial shadow */
@@ -40,12 +46,7 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.6); /* Stronger shadow on hover */
             border-color: #00bcd4; /* Vibrant teal border on hover */
         }
-        /* Added active state for a smoother click animation */
-        .card-bg:active {
-            transform: translateY(-2px); /* Slightly less lift than hover, gives a "press" feel */
-            box-shadow: 0 5px 10px rgba(0,0,0,0.4); /* Reduced shadow on active */
-            transition: all 0.1s ease-out; /* Quicker transition for click */
-        }
+        /* Removed active state for a less frequent click animation */
 
         /* Specific styles for Game Promotion cards */
         .card-promo {
@@ -163,7 +164,26 @@
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 50;
+            transition: all 0.3s ease-in-out; /* Smooth transition for fullscreen */
+            overflow-y: auto; /* Allow content inside modal to scroll */
         }
+        /* Fullscreen styles for the modal */
+        .modal.fullscreen {
+            top: 0;
+            left: 0;
+            width: 100vw !important; /* Override specific width */
+            height: 100vh !important; /* Override specific height */
+            transform: none; /* Remove translate */
+            border-radius: 0; /* Remove rounded corners */
+            padding: 1rem; /* Adjust padding for fullscreen */
+            max-width: none !important; /* Remove max-width in fullscreen */
+            max-height: none !important; /* Remove max-height in fullscreen */
+        }
+        .modal-backdrop.fullscreen {
+            background-color: #0a0a0a; /* Solid background for fullscreen */
+            backdrop-filter: none; /* Remove blur for fullscreen */
+        }
+
         /* Custom Checkbox (general style) */
         .custom-checkbox input { display: none; }
         .custom-checkbox span {
@@ -175,7 +195,7 @@
             transition: all 0.2s ease-in-out;
             display: flex; /* Use flexbox for centering */
             align-items: center; /* Vertically center content */
-            justify-content: center; /* Horizontally center content */
+            justify-content: center;
             text-align: center;
             color: #b0b0b0; /* Lighter text color */
             font-weight: 500;
@@ -216,64 +236,63 @@
             color: #8b949e;
         }
 
-/* Improved card styling for media thumbnails */
-.card-bg .thumbnail-container {
-	width: 100%;
-	height: 192px; /* h-48 */
-	overflow: hidden;
-	background-color: #101010; /* Very dark background for empty media */
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border-bottom: 1px solid #2a2a2a; /* Separator for media */
-	position: relative; /* For play button overlay */
-}
+        /* Improved card styling for media thumbnails */
+        .card-bg .thumbnail-container {
+            width: 100%;
+            height: 192px; /* h-48 */
+            overflow: hidden;
+            background-color: #101010; /* Very dark background for empty media */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #2a2a2a; /* Separator for media */
+            position: relative; /* For play button overlay */
+            border-radius: 0px 0px 0 0; /* Rounded top corners for thumbnail */
+        }
 
-.card-bg .thumbnail-container img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-}
+        /* Ensure image and iframe inside thumbnail container are NOT rounded themselves */
+        /* Added !important to ensure override */
+        .card-bg .thumbnail-container img,
+        .card-bg .thumbnail-container iframe {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0 !important; /* Explicitly remove rounding from the media element itself */
+        }
 
-.card-bg .thumbnail-container iframe {
-	width: 100%;
-	height: 100%;
-	border: none;
-}
+        /* Play button overlay for YouTube thumbnails */
+        .play-button-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, rgba(9, 148, 144, 0.8), rgba(40, 170, 219, 0.8)); /* Faded blue-teal */
+            border-radius: 50%;
+            width: 60px; /* Slightly larger but cleaner */
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease; /* Keep transition for scale effect */
+            box-shadow: 0 0 8px rgba(40, 170, 219, 0.3); /* Subtle blue glow */
+            backdrop-filter: blur(2px); /* Optional glassy effect */
+            z-index: 10; /* Ensure it's above the image */
+        }
 
-/* Play button overlay for YouTube thumbnails */
-.play-button-overlay {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	background: linear-gradient(135deg, rgba(9, 148, 144, 0.8), rgba(40, 170, 219, 0.8)); /* Faded blue-teal */
-	border-radius: 50%;
-	width: 60px; /* Slightly larger but cleaner */
-	height: 60px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-	transition: all 0.3s ease; /* Keep transition for scale effect */
-	box-shadow: 0 0 8px rgba(40, 170, 219, 0.3); /* Subtle blue glow */
-	backdrop-filter: blur(2px); /* Optional glassy effect */
-    z-index: 10; /* Ensure it's above the image */
-}
+        .play-button-overlay:hover {
+            transform: translate(-50%, -50%) scale(1.1); /* Only scale on hover, removed pulse */
+        }
 
-.play-button-overlay:hover {
-	transform: translate(-50%, -50%) scale(1.1); /* Only scale on hover, removed pulse */
-}
+        /* Play icon style */
+        .play-button-overlay i {
+            color: white;
+            font-size: 2rem; /* Slightly smaller than before for balance */
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            line-height: 1;
+        }
 
-/* Play icon style */
-.play-button-overlay i {
-	color: white;
-	font-size: 2rem; /* Slightly smaller than before for balance */
-	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-	line-height: 1;
-}
-
-/* Removed @keyframes pulse as it's no longer used */
+        /* Removed @keyframes pulse as it's no longer used */
 
         /* Z-index for dropdown to appear above other elements */
         #more-dropdown {
@@ -285,36 +304,148 @@
             border: 2px solid #00bcd4; /* Greenish/blue border */
             box-shadow: 0 0 20px rgba(0, 188, 212, 0.7); /* Matching glow */
         }
+
+        /* Styles for the back and share buttons in the modal */
+        .modal-action-btn {
+            background-color: transparent; /* Keep background transparent */
+            border: none; /* Remove border */
+            border-radius: 9999px; /* Fully rounded */
+            width: 40px; /* Fixed width */
+            height: 40px; /* Fixed height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af; /* Default grey color (text-gray-400 equivalent) */
+            font-size: 1.25rem; /* Icon size */
+            transition: color 0.2s ease-in-out; /* Only transition color */
+            box-shadow: none; /* Ensure no shadow */
+        }
+
+        .modal-action-btn:hover {
+            background-color: transparent; /* Ensure background remains transparent */
+            border-color: transparent; /* Ensure border remains transparent */
+            color: #ffffff; /* White icon on hover */
+            transform: none; /* Remove any scale effect */
+            box-shadow: none; /* Ensure no shadow on hover */
+        }
+
+        .modal-action-btn:active {
+            transform: none; /* Remove any press effect */
+            box-shadow: none; /* Ensure no shadow on active */
+        }
+
+        /* Theme-specific styles */
+        body.light-mode {
+            background-color: #fcfcfc; /* Very light, almost white */
+            color: #212121; /* Darker text for better readability */
+        }
+        body.light-mode .main-bg {
+            background-color: rgba(255, 255, 255, 0.98); /* Near white, slight transparency */
+            border: 1px solid #e8e8e8; /* Very light border */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03); /* Soft, subtle shadow */
+        }
+        body.light-mode .card-bg {
+            background-color: #ffffff; /* Pure white cards */
+            border: 1px solid #f5f5f5; /* Extremely light border */
+            box-shadow: 0 1px 4px rgba(0,0,0,0.01); /* Very subtle shadow */
+        }
+        body.light-mode .card-bg:hover {
+            border-color: #00bcd4; /* Teal border on hover */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04); /* Slightly more visible shadow */
+        }
+        body.light-mode .input-bg {
+            background-color: #ffffff; /* White input background */
+            border: 1px solid #e0e0e0; /* Light gray border */
+            color: #212121; /* Dark text */
+        }
+        body.light-mode .input-bg:focus-within, body.light-mode .input-bg:focus {
+            border-color: #00bcd4; /* Teal focus */
+            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1); /* Soft teal glow */
+        }
+        body.light-mode .text-gray-300 { color: #4a4a4a; } /* Darker gray for better readability */
+        body.light-mode .text-gray-400 { color: #666666; }
+        body.light-mode .text-gray-500 { color: #888888; }
+        body.light-mode .text-white { color: #212121; } /* Header text in light mode */
+        body.light-mode .bg-[#1a1a1a] { background-color: #f0f0f0; } /* For comments background, very light */
+        body.light-mode .border-gray-700 { border-color: #e0e0e0; } /* Lighter border */
+        body.light-mode .bg-gray-700 { background-color: #e8e8e8; color: #444444; } /* Tag background */
+        body.light-mode .bg-purple-700 { background-color: #f0e6ff; color: #7a3ed6; } /* Purple tag */
+        body.light-mode .bg-blue-700 { background-color: #e0f7fa; color: #007bff; } /* Blue tag */
+        body.light-mode .bg-green-700 { background-color: #e6ffe6; color: #008000; } /* Green tag */
+        body.light-mode .text-red-500 { color: #ef4444; } /* Ensure like button color is visible */
+        body.light-mode .text-blue-500 { color: #3b82f6; } /* Ensure edit button color is visible */
+        body.light-mode .modal-action-btn { color: #6b7280; } /* Darker icon color */
+        body.light-mode .modal-action-btn:hover { color: #212121; } /* Darker icon on hover */
+        
+        /* New: Darker hover effect for like/comment/view/visit buttons in light mode */
+        body.light-mode .like-btn:hover, 
+        body.light-mode .comment-btn:hover,
+        body.light-mode .inline-flex .hover\:text-white:hover { /* Target the parent span's hover */
+            color: #007bff; /* A distinct blue for hover */
+        }
+
+        /* Light mode styling for unselected custom checkboxes */
+        body.light-mode .custom-checkbox span {
+            background-color: #f0f0f0; /* Light gray background */
+            border-color: #d0d0d0; /* Slightly darker border */
+            color: #4a4a4a; /* Darker text for readability */
+        }
+        body.light-mode .custom-checkbox input:checked + span {
+            background: linear-gradient(90deg, #007bff, #00bcd4);
+            color: white;
+            border-color: #00bcd4;
+            box-shadow: 0 2px 10px rgba(0, 188, 212, 0.5);
+        }
+
+        /* Text size classes */
+        body.text-sm { font-size: 0.875rem; } /* 14px */
+        body.text-base { font-size: 1rem; }    /* 16px (default) */
+        body.text-lg { font-size: 1.125rem; }  /* 18px */
+
+        /* Animations toggle */
+        body.no-animations * {
+            transition: none !important;
+            animation: none !important;
+        }
+
+        /* Removed specific styles for video modal play button overlay */
+        /* as it's no longer needed for the video modal itself */
+
+        /* Compact Card View Styles - REMOVED */
     </style>
 </head>
 <body>
 
     <div id="app" class="max-w-7xl mx-auto px-4 py-4 sm:px-6">
         <header class="flex justify-between items-center py-4 px-4 main-bg rounded-lg shadow-lg">
-            <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wider">Post<span class="text-[#00bcd4]">Itch</span></h1>
+		<h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wider">
+			Post<span class="text-[#00bcd4]">Itch</span>
+		</h1>
             <nav class="hidden md:flex items-center space-x-6">
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
+                <a href="https://postitchindie.github.io/?section=community" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
+                <a href="https://postitchindie.github.io/?section=promos" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
+                <a href="https://postitchindie.github.io/?section=devlogs" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
+                <a href="https://postitchindie.github.io/?section=post" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
+                <a href="https://postitchindie.github.io/?section=search" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
+                <a href="https://postitchindie.github.io/?section=my-posts" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
+                <a href="https://postitchindie.github.io/?section=about" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
+                <a href="https://postitchindie.github.io/?section=rules" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
+                <a href="https://postitchindie.github.io/?section=settings" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="settings">Settings</a> <!-- New Settings tab -->
             </nav>
             <div class="md:hidden">
                 <button id="mobile-menu-btn"><i class="fas fa-bars text-2xl"></i></button>
             </div>
         </header>
         <div id="mobile-menu" class="hidden md:hidden main-bg rounded-lg mt-2 p-4">
-             <a href="#" class="block py-2 text-center nav-item" data-tab="community">Community</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="promos">Game Promos</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="devlogs">Devlogs</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="post">Post</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="search">Search</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="my-posts">My Posts</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="about">About</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="rules">Rules</a>
+             <a href="https://postitchindie.github.io/?section=community" class="block py-2 text-center nav-item" data-tab="community">Community</a>
+             <a href="https://postitchindie.github.io/?section=promos" class="block py-2 text-center nav-item" data-tab="promos">Game Promos</a>
+             <a href="https://postitchindie.github.io/?section=devlogs" class="block py-2 text-center nav-item" data-tab="devlogs">Devlogs</a>
+             <a href="https://postitchindie.github.io/?section=post" class="block py-2 text-center nav-item" data-tab="post">Post</a>
+             <a href="https://postitchindie.github.io/?section=search" class="block py-2 text-center nav-item" data-tab="search">Search</a>
+             <a href="https://postitchindie.github.io/?section=my-posts" class="block py-2 text-center nav-item" data-tab="my-posts">My Posts</a>
+             <a href="https://postitchindie.github.io/?section=about" class="block py-2 text-center nav-item" data-tab="about">About</a>
+             <a href="https://postitchindie.github.io/?section=rules" class="block py-2 text-center nav-item" data-tab="rules">Rules</a>
+             <a href="https://postitchindie.github.io/?section=settings" class="block py-2 text-center nav-item" data-tab="settings">Settings</a> <!-- New Settings tab -->
         </div>
 
 
@@ -328,6 +459,7 @@
             <div id="content-my-posts" class="tab-content hidden"></div>
             <div id="content-about" class="tab-content hidden"></div>
             <div id="content-rules" class="tab-content hidden"></div>
+            <div id="content-settings" class="tab-content hidden"></div> <!-- New Settings tab content -->
         </main>
     </div>
     
@@ -353,15 +485,45 @@
         </div>
     </div>
 
-    <!-- New Video Modal -->
-    <div id="video-modal" class="hidden">
+	<!-- New Video Modal -->
+	<div id="video-modal" class="hidden">
+		<div class="modal-backdrop"></div>
+		<div id="video-modal-content" class="modal w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl main-bg rounded-lg shadow-lg p-4 sm:p-6 video-modal-content">
+			<div class="flex justify-between mb-4">
+                <button id="close-video-modal-btn" class="modal-action-btn"><i class="fa-solid fa-xmark"></i></button>
+                <button id="fullscreen-video-toggle-btn" class="modal-action-btn"><i class="fas fa-expand"></i></button>
+			</div>
+			<div class="aspect-video w-full rounded-md overflow-hidden relative">
+				<iframe id="video-player-iframe" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                <!-- Removed video-overlay-play-button as per request -->
+			</div>
+		</div>
+	</div>
+
+    <!-- New Confirmation Input Modal -->
+    <div id="confirm-input-modal" class="hidden">
         <div class="modal-backdrop"></div>
-        <div id="video-modal-content" class="modal w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl main-bg rounded-lg shadow-lg p-4 sm:p-6 video-modal-content">
-            <div class="flex justify-end mb-4">
-                <button id="close-video-modal-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+        <div class="modal w-11/12 max-w-md main-bg rounded-lg shadow-lg p-6 text-center">
+            <p id="confirm-input-message" class="mb-4 text-gray-300"></p>
+            <p id="confirm-input-expected-text" class="mb-4 text-gray-200 font-semibold break-words"></p>
+            <input type="text" id="confirm-input-field" class="w-full p-3 input-bg rounded-md mb-6 text-center" placeholder="Type here to confirm...">
+            <div class="flex justify-center gap-4">
+                <button id="confirm-input-yes-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-md" disabled>Confirm</button>
+                <button id="confirm-input-no-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-md">Cancel</button>
             </div>
-            <div class="aspect-video w-full rounded-md overflow-hidden">
-                <iframe id="video-player-iframe" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <!-- New AI Chat Modal -->
+    <div id="ai-chat-modal" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div id="ai-chat-modal-content" class="modal w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl h-5/6 main-bg rounded-lg shadow-lg p-4 sm:p-6 flex flex-col overflow-hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-white">AI Assistant</h3>
+                <button id="close-ai-chat-modal-btn" class="modal-action-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="ai-agent-container" class="flex-grow overflow-hidden rounded-md">
+                <!-- AI Agent will be embedded here -->
             </div>
         </div>
     </div>
@@ -372,7 +534,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, serverTimestamp, query, where, getDocs, limit, orderBy, startAfter } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, serverTimestamp, query, where, getDocs, limit, orderBy, startAfter, writeBatch, deleteField } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Your web app's Firebase configuration - DIRECTLY INCLUDED AS REQUESTED
         const firebaseConfig = {
@@ -407,7 +569,26 @@
 
         // Global array to store selected genres, persisting across search filters
         let selectedGenres = []; 
+        
+        // Define genres globally so renderGenreCheckboxes can access it
+        const genres = ["Action", "Adventure", "RPG", "Strategy", "Simulation", "Puzzle", "Platformer", "Shooter", "Fighting", "Stealth", "Survival", "Horror", "Visual Novel", "Rhythm", "Sports", "Racing", "MMO", "Indie", "Casual", "Arcade", "Language", "Card & Board", "Roguelike", "Roguelite", "Metroidvania", "Souls-like", "CRPG", "JRPG", "ARPG", "Tactical RPG", "4X", "RTS", "Tower Defense", "Farming Sim", "Life Sim", "Point & Click", "Bullet Hell", "Hack and Slash", "Sandbox", "Open World", "Deck-builder", "City-builder", "Immersive Sim", "Walking Simulator", "Party Game", "Trivia", "Co-op", "Multiplayer", "Singleplayer", "Early Access", "Full Release", "Demo", "Free to Play", "Pay What You Want", "Puzzle-Platformer", "Survival Horror", "Metroidvania-lite", "Story-Rich", "Procedural Generation", "Pixel Art", "Voxel Art", "3D", "2D", "Top-Down", "Side-Scroller", "First-Person", "Third-Person", "Abstract", "Minimalist", "Retro", "Futuristic", "Fantasy", "Sci-Fi", "Historical", "Modern", "Comedy", "Drama", "Mystery", "Thriller", "Educational", "Relaxing", "Challenging", "Fast-Paced", "Slow-Paced", "Exploration", "Crafting", "Building", "Management", "Deckbuilding Roguelike", "Visual Novel RPG", "Action-Adventure", "Strategy RPG", "Turn-Based Strategy", "Real-Time Strategy", "Tactical Shooter", "Arena Shooter", "Battle Royale", "Dungeon Crawler", "Endless Runner", "Idle Game", "Incremental Game", "Interactive Fiction", "Music", "Narrative", "Party", "Pinball", "Platform Fighter", "Precision Platformer", "Programming", "Quick-Time Event", "Quiz", "Rogue-lite", "Role-Playing", "Sandbox RPG", "Sci-Fi RPG", "Shoot 'em Up", "Simulation RPG", "Social Deduction", "Space", "Steampunk", "Story", "Superhero", "Surreal", "Tabletop", "Team-Based", "Text Adventure", "Time Management", "Top-Down Shooter", "Trading", "Train", "Transhumanism", "Travel", "Trigonometry", "Typing", "Uplifting", "Vampire", "Vehicular Combat", "Vertical Shooter", "Visual Novel Horror", "Visual Novel Mystery", "Visual Novel Sci-Fi", "Visual Novel Slice of Life", "Visual Novel Thriller", "Visual Novel Comedy", "Visual Novel Drama", "Visual Novel Fantasy", "Visual Novel Romance", "War", "Western", "Word Game", "Wrestling", "Cooking", "Zombies", "Zoo", "Zork-like"];
 
+        // User settings state - now initialized from local storage or defaults
+        let userSettings = {
+            theme: 'system', // 'system', 'light', 'dark'
+            textSize: 'base', // 'sm', 'base', 'lg'
+            animations: true, // true, false
+            showPostCounts: true, // true, false
+            defaultPostType: 'Game Promotion', // 'Game Promotion', 'Devlog'
+            defaultSortOrder: 'newest', // 'newest', 'popular', 'oldest', 'most-viewed', 'most-visited'
+            defaultPostCountDisplay: 'abbreviated', // 'exact', 'abbreviated' - Default changed to 'abbreviated'
+            modalFullscreen: false // New setting: automatically open modals in fullscreen
+        };
+
+        // Map to store last view timestamp for each post to prevent spamming views
+        // Key: postId, Value: timestamp (Date.now())
+        const lastViewTimestamps = new Map();
+        const VIEW_COOLDOWN_MS = 10000; // 10 seconds cooldown for view increments
 
         // --- DOM ELEMENTS ---
         const loader = document.getElementById('loader');
@@ -424,22 +605,30 @@
         const contentMyPosts = document.getElementById('content-my-posts');
         const contentAbout = document.getElementById('content-about');
         const contentRules = document.getElementById('content-rules');
-
+        const contentSettings = document.getElementById('content-settings'); // New Settings content
 
         const postModal = document.getElementById('post-modal');
         const modalContent = document.getElementById('modal-content');
         const alertModal = document.getElementById('alert-modal');
         const confirmModal = document.getElementById('confirm-modal');
+        const confirmInputModal = document.getElementById('confirm-input-modal'); // New confirmation input modal
 
         // New video modal elements
         const videoModal = document.getElementById('video-modal');
         const videoModalContent = document.getElementById('video-modal-content');
         const videoPlayerIframe = document.getElementById('video-player-iframe');
         const closeVideoModalBtn = document.getElementById('close-video-modal-btn');
+        const fullscreenVideoToggleBtn = document.getElementById('fullscreen-video-toggle-btn'); // New fullscreen toggle for video modal
 
+        // New AI Chat Modal elements
+        const aiChatModal = document.getElementById('ai-chat-modal');
+        const aiChatModalContent = document.getElementById('ai-chat-modal-content');
+        const closeAiChatModalBtn = document.getElementById('close-ai-chat-modal-btn');
+        const aiAgentContainer = document.getElementById('ai-agent-container');
+        // Removed isAiScriptLoaded as we're directly embedding the iframe now.
 
         let editingPostId = null; // Stores the ID of the post currently being edited
-        let isPostModalOpen = false; // Flag to prevent multiple view increments
+        let isPostModalOpen = false; // Flag to prevent multiple modal instances
 
 
         // --- HELPER FUNCTIONS ---
@@ -470,6 +659,41 @@
                 };
             });
         }
+
+        // Displays a custom confirmation dialog with a text input.
+        function showConfirmWithInput(message, expectedText) {
+            const messageEl = document.getElementById('confirm-input-message');
+            const expectedTextEl = document.getElementById('confirm-input-expected-text');
+            const inputField = document.getElementById('confirm-input-field');
+            const confirmBtn = document.getElementById('confirm-input-yes-btn');
+            const cancelBtn = document.getElementById('confirm-input-no-btn');
+
+            messageEl.textContent = message;
+            expectedTextEl.textContent = `Type "${expectedText}" exactly to confirm:`;
+            inputField.value = ''; // Clear previous input
+            confirmBtn.disabled = true; // Disable confirm button initially
+            confirmInputModal.classList.remove('hidden');
+
+            return new Promise(resolve => {
+                const inputListener = () => {
+                    confirmBtn.disabled = (inputField.value !== expectedText);
+                };
+
+                inputField.addEventListener('input', inputListener);
+
+                confirmBtn.onclick = () => {
+                    inputField.removeEventListener('input', inputListener);
+                    confirmInputModal.classList.add('hidden');
+                    resolve(true);
+                };
+
+                cancelBtn.onclick = () => {
+                    inputField.removeEventListener('input', inputListener);
+                    confirmInputModal.classList.add('hidden');
+                    resolve(false);
+                };
+            });
+        }
         
         // Extracts the YouTube video ID from a given URL.
         function getYouTubeVideoId(url) {
@@ -492,9 +716,8 @@
         }
 
         // Generates the YouTube embed source URL.
-        function getYouTubeEmbedSrc(videoId) {
-            // Removed ?autoplay=1 to potentially resolve embedding issues and improve user experience
-            return videoId ? `https://www.youtube.com/embed/${videoId}` : '';
+        function getYouTubeEmbedSrc(videoId, autoplay = false) {
+            return videoId ? `https://www.youtube.com/embed/${videoId}${autoplay ? '?autoplay=1' : ''}` : '';
         }
 
         // Generates the HTML for embedding an Itch.io game.
@@ -502,7 +725,7 @@
             if (!itchLink) return '';
             // Itch.io often prevents embedding on external sites due to security policies (e.g., X-Frame-Options).
             // We will display a message and a direct link instead of trying to embed directly.
-            return `<div class="w-full h-full bg-[#101010] flex flex-col items-center justify-center text-gray-500 p-4 text-center">
+            return `<div class="w-full h-full bg-[#101010] flex flex-col items-center justify-center text-gray-500 p-4 text-center rounded-t-lg">
                         <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
                         <p class="mb-2">Direct Itch.io embedding is often restricted.</p>
                         <a href="${itchLink}" target="_blank" class="text-[#00bcd4] hover:underline">Visit Itch.io Page</a>
@@ -512,10 +735,10 @@
         // Loads the YouTube video by replacing the thumbnail with the iframe.
         function loadYouTubeVideo(containerElement, videoId) {
             console.log("loadYouTubeVideo called for videoId:", videoId, "on container:", containerElement);
-            const embedSrc = getYouTubeEmbedSrc(videoId);
+            const embedSrc = getYouTubeEmbedSrc(videoId, true); // Autoplay when clicked
             if (embedSrc) {
                 // Ensure the container has a defined height for the iframe to render correctly
-                containerElement.innerHTML = `<iframe class="w-full h-full" src="${embedSrc}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+                containerElement.innerHTML = `<iframe class="w-full h-full rounded-none" src="${embedSrc}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
                 console.log("Iframe embedded:", embedSrc);
             } else {
                 console.warn("No valid YouTube embed source generated for videoId:", videoId);
@@ -524,10 +747,14 @@
 
         // Opens the dedicated video modal
         function openVideoModal(videoId) {
-            const embedSrc = getYouTubeEmbedSrc(videoId);
+            const embedSrc = getYouTubeEmbedSrc(videoId, true); // Always autoplay when opened via dedicated button
             if (embedSrc) {
-                videoPlayerIframe.src = `${embedSrc}?autoplay=1`; // Autoplay when opened
+                videoPlayerIframe.src = embedSrc; 
                 videoModal.classList.remove('hidden');
+                // Apply fullscreen if setting is enabled
+                if (userSettings.modalFullscreen) {
+                    toggleFullscreen(videoModalContent, true); // Pass true to force fullscreen on open
+                }
             } else {
                 showAlert("Could not play video: Invalid YouTube link.");
             }
@@ -537,6 +764,116 @@
         function closeVideoModal() {
             videoModal.classList.add('hidden');
             videoPlayerIframe.src = ''; // Stop video playback by clearing src
+            // Ensure fullscreen mode is off when closing the video modal
+            toggleFullscreen(videoModalContent, false); // Force fullscreen off on close
+        }
+
+        // Function to render genre checkboxes based on a filtered list
+        // Moved to global scope for accessibility
+        function renderGenreCheckboxes(targetContainer, filterTerm = '') {
+            console.log("renderGenreCheckboxes called with filterTerm:", filterTerm);
+            const lowerCaseFilterTerm = filterTerm.toLowerCase();
+            const filteredGenres = genres.filter(g => g.toLowerCase().includes(lowerCaseFilterTerm));
+            console.log("Filtered genres count:", filteredGenres.length);
+
+            targetContainer.innerHTML = filteredGenres
+                .map(g => {
+                    const isChecked = selectedGenres.includes(g) ? 'checked' : '';
+                    const isHighlighted = lowerCaseFilterTerm && g.toLowerCase().includes(lowerCaseFilterTerm) ? 'genre-highlight' : '';
+                    return `<label class="custom-checkbox"><input type="checkbox" name="genre" value="${g}" ${isChecked}><span class="${isHighlighted}">${g}</span></label>`;
+                }).join('');
+
+            // Update search status message (assuming a status element exists near the genre checkboxes)
+            const genreSearchStatus = document.getElementById('genre-search-status'); // This needs to be globally accessible or passed
+            if (genreSearchStatus) { // Check if element exists before manipulating
+                if (filterTerm) {
+                    genreSearchStatus.textContent = `Showing genres matching "${filterTerm}"`;
+                    genreSearchStatus.classList.remove('hidden');
+                } else {
+                    genreSearchStatus.classList.add('hidden');
+                }
+            }
+        }
+
+        // Helper function to format numbers (e.g., 1250 -> 1.3k)
+        function formatNumberForDisplay(num) {
+            if (num === undefined || num === null) return 0;
+            if (userSettings.defaultPostCountDisplay === 'abbreviated' && num >= 1000) {
+                return (num / 1000).toFixed(1) + 'k';
+            }
+            return num.toString();
+        }
+
+        // --- SETTINGS FUNCTIONS ---
+        // Applies the current theme, text size, and animation settings to the body.
+        function applySettings() {
+            const body = document.body;
+
+            // Apply theme
+            body.classList.remove('light-mode', 'dark-mode');
+            if (userSettings.theme === 'light') {
+                body.classList.add('light-mode');
+            } else if (userSettings.theme === 'dark') {
+                body.classList.add('dark-mode'); // Currently same as default, but good for explicit control
+            } else { // System preference
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                    body.classList.add('light-mode');
+                }
+            }
+
+            // Apply text size
+            body.classList.remove('text-sm', 'text-base', 'text-lg');
+            body.classList.add(`text-${userSettings.textSize}`);
+
+            // Apply animations preference
+            if (userSettings.animations) {
+                body.classList.remove('no-animations');
+            } else {
+                body.classList.add('no-animations');
+            }
+
+            // Re-render current page to apply changes that affect post cards (e.g., count display)
+            const activeTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
+            // currentSortBy is always 'newest' now as the setting is removed.
+            currentSortBy = 'newest';
+
+            if (activeTab === 'community') {
+                renderCommunityPage();
+            } else if (activeTab === 'my-posts') {
+                renderMyPostsPage();
+            } else if (activeTab === 'promos') {
+                renderPromosPage();
+            } else if (activeTab === 'devlogs') {
+                renderDevlogsPage();
+            } else if (activeTab === 'search') {
+                handleSearch(); // Re-run search to apply changes
+            }
+        }
+
+        // Saves user settings to Local Storage.
+        function saveUserSettings() {
+            try {
+                localStorage.setItem('userSettings', JSON.stringify(userSettings));
+                console.log("User settings saved to local storage:", userSettings);
+            } catch (error) {
+                console.error("Error saving user settings to local storage:", error);
+            }
+        }
+
+        // Loads user settings from Local Storage.
+        function loadUserSettings() {
+            try {
+                const storedSettings = localStorage.getItem('userSettings');
+                if (storedSettings) {
+                    userSettings = { ...userSettings, ...JSON.parse(storedSettings) };
+                    console.log("User settings loaded from local storage:", userSettings);
+                } else {
+                    console.log("No user settings found in local storage, using defaults.");
+                }
+                applySettings(); // Apply loaded or default settings immediately
+            } catch (error) {
+                console.error("Error loading user settings from local storage:", error);
+            }
         }
 
 
@@ -555,7 +892,7 @@
                     const postId = card.dataset.id;
                     // Only open the post modal if it's not already open
                     if (!isPostModalOpen) {
-                        await openPostModal(postId);
+                        await openPostModal(postId, false, true); // Explicitly increment view for user-initiated open
                     }
                 });
             });
@@ -574,7 +911,7 @@
             });
 
             document.querySelectorAll('.comment-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => { e.stopPropagation(); openPostModal(btn.dataset.id, true); });
+                btn.addEventListener('click', (e) => { e.stopPropagation(); openPostModal(btn.dataset.id, true, false); }); // Don't increment view when opening from comment button
             });
 
             // Only add delete/edit listeners if on My Posts page
@@ -591,7 +928,7 @@
                                 // The real-time listener will automatically update the UI.
                             } catch (err) {
                                 console.error("Error deleting post:", err);
-                                showAlert(`Could not delete post. Error: ${err.message || err}. Check console.`);
+                                showAlert(`Could not delete post: ${err.message || err}.`);
                             }
                         }
                     });
@@ -629,17 +966,39 @@
         });
 
         // Initializes the main application state after authentication.
-        function initializeAppState() {
-            console.log("PostItch App Initializing...");
-            console.log("Using Firebase Project ID (as App ID):", appId); // Crucial for debugging security rules
-            console.log("Firestore Collection Path for posts:", `artifacts/${appId}/public/data/posts`); // Crucial for debugging security rules
-            loader.style.display = 'none'; // Hide the loading spinner
-            listenForPostsRealtime(); // Start real-time listening for ALL posts
-            setupNavListeners(); // Set up navigation event handlers
-            switchTab('community'); // Load the default community feed tab
-            
-            // Add event listener for the new video modal close button
-            closeVideoModalBtn.addEventListener('click', closeVideoModal);
+		function initializeAppState() {
+			console.log("PostItch App Initializing...");
+			console.log("Using Firebase Project ID (as App ID):", appId);
+			console.log("Firestore Collection Path for posts:", `artifacts/${appId}/public/data/posts`);
+            loadUserSettings(); // Load settings immediately on app start
+			loader.style.display = 'none'; // Hide the loading spinner
+			listenForPostsRealtime(); // Start real-time listening for ALL posts
+			setupNavListeners(); // Set up navigation event handlers
+
+			// Check for postId in URL and open modal if present
+			const urlParams = new URLSearchParams(window.location.search);
+			const postIdFromUrl = urlParams.get('postId');
+			const sectionFromUrl = urlParams.get('section'); // NEW: Check for 'section' parameter
+
+			if (postIdFromUrl) {
+				// Wait for posts to be fetched before attempting to open the modal
+				const checkPostsInterval = setInterval(() => {
+					if (allFetchedPosts.length > 0) {
+						clearInterval(checkPostsInterval);
+						openPostModal(postIdFromUrl, false, true); // Increment view if opened via URL
+					}
+				}, 100); // Check every 100ms
+			} else if (sectionFromUrl) { // NEW: If 'section' parameter is present
+				switchTab(sectionFromUrl); // Switch to the specified section
+			} else {
+				switchTab('community'); // Load the default community feed tab if no postId or section in URL
+			}
+			// Add event listener for the new video modal close button
+			closeVideoModalBtn.addEventListener('click', closeVideoModal);
+            // Add event listener for the new video modal fullscreen toggle button
+            fullscreenVideoToggleBtn.addEventListener('click', () => toggleFullscreen(videoModalContent));
+            // Add event listener for AI Chat modal close button
+            closeAiChatModalBtn.addEventListener('click', closeAiChatModal);
         }
         
         // Sets up event listeners for navigation buttons (desktop and mobile).
@@ -651,6 +1010,11 @@
                     e.preventDefault();
                     const tab = e.target.getAttribute('data-tab');
                     if (tab) {
+                        // Update URL with section parameter
+                        const newUrl = new URL(window.location.href);
+                        newUrl.searchParams.set('section', tab);
+                        newUrl.searchParams.delete('postId'); // Remove postId if navigating to a section
+                        window.history.pushState({}, '', newUrl.toString());
                         switchTab(tab);
                         mobileMenu.classList.add('hidden'); // Hide mobile menu on tab selection
                     }
@@ -662,7 +1026,7 @@
         // Switches the active tab and renders its content.
         function switchTab(tab) {
             // Update active navigation item styling
-            document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
+            navItems.forEach(item => {
                 item.classList.toggle('active', item.getAttribute('data-tab') === tab);
             });
             // Show/hide corresponding tab content sections
@@ -680,6 +1044,7 @@
                 'my-posts': renderMyPostsPage,
                 about: renderAboutPage,
                 rules: renderRulesPage,
+                settings: renderSettingsPage, // New settings page
             };
             renderMap[tab]?.(); // Call the appropriate rendering function
         }
@@ -698,7 +1063,7 @@
                     const thumbnailUrl = getYouTubeThumbnailUrl(videoId);
                     mediaHtml = `
                         <div class="media-placeholder w-full h-full relative cursor-pointer" data-video-id="${videoId}">
-                            <img src="${thumbnailUrl}" alt="YouTube Thumbnail" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Video+Not+Found';">
+                            <img src="${thumbnailUrl}" alt="YouTube Thumbnail" class="w-full h-full object-cover rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Video+Not+Found';">
                             <div class="play-button-overlay">
                                 <i class="fas fa-play"></i>
                             </div>
@@ -706,10 +1071,10 @@
                     `;
                 }
             } else if (post.mediaType === 'image' && post.imageUrl) {
-                 mediaHtml = `<img src="${post.imageUrl}" alt="${post.title}" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Image+Not+Found';">`;
+                 mediaHtml = `<img src="${post.imageUrl}" alt="${post.title}" class="w-full h-full object-cover rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Image+Not+Found';">`;
             } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
                 // For combo, display only the image on the preview card
-                mediaHtml = `<img src="${post.imageUrl}" alt="Custom Thumbnail" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Custom+Thumbnail+Not+Found';">`;
+                mediaHtml = `<img src="${post.imageUrl}" alt="Custom Thumbnail" class="w-full h-full object-cover rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Custom+Thumbnail+Not+Found';">`;
                 // The comboLinkHtml is intentionally NOT added here for preview cards
             } else if (post.mediaType === 'itch_embed' && post.itchLink) {
                 // For Itch.io, always show the placeholder due to embedding restrictions
@@ -734,38 +1099,49 @@
                             ${post.genres && post.genres.slice(0, 3).map(g => `<span class="bg-gray-700 text-xs font-semibold px-2 py-1 rounded-full text-gray-200">${g}</span>`).join('')}
                             ${post.tags && post.tags.slice(0, 3).map(t => `<span class="bg-purple-700 text-xs font-semibold px-2 py-1 rounded-full text-gray-200">${t}</span>`).join('')}
                         </div>
-                        <div class="flex justify-between items-center mt-auto pt-2 border-t border-gray-700">
-                            <div class="flex space-x-4 text-gray-400">
-                                <button class="like-btn hover:text-white transition" data-id="${post.id}">
-                                    <i class="${post.likes?.includes(currentUser?.uid) ? 'fas text-red-500' : 'far'} fa-heart"></i>
-                                    <span class="ml-1">${post.likes?.length || 0}</span>
-                                </button>
-                                <button class="comment-btn hover:text-white transition" data-id="${post.id}">
-                                    <i class="fas fa-comment"></i> <!-- Changed to solid comment icon -->
-                                    <span class="ml-1">${post.comments?.length || 0}</span>
-                                </button>
-                                <span class="inline-flex items-center">
-                                    <button class="hover:text-white transition cursor-default">
-                                        <i class="fas fa-eye mr-1"></i> <!-- Changed to solid eye icon -->
-                                        <span class="ml-1">${post.views || 0}</span>
+                        ${userSettings.showPostCounts ? `
+                            <div class="flex justify-between items-center mt-auto pt-2 border-t border-gray-700">
+                                <div class="flex space-x-4 text-gray-400">
+                                    <button class="like-btn hover:text-white transition" data-id="${post.id}">
+                                        <i class="${post.likes?.includes(currentUser?.uid) ? 'fas text-red-500' : 'far'} fa-heart"></i>
+                                        <span class="ml-1">${formatNumberForDisplay(post.likes?.length || 0)}</span>
                                     </button>
-                                </span>
-                                ${post.postType === 'Game Promotion' ? `
+                                    <button class="comment-btn hover:text-white transition" data-id="${post.id}">
+                                        <i class="fas fa-comment"></i> <!-- Changed to solid comment icon -->
+                                        <span class="ml-1">${formatNumberForDisplay(post.comments?.length || 0)}</span>
+                                    </button>
                                     <span class="inline-flex items-center">
                                         <button class="hover:text-white transition cursor-default">
-                                            <i class="fas fa-external-link-alt mr-1"></i> <!-- New visit icon -->
-                                            <span class="ml-1">${post.visits || 0}</span>
+                                            <i class="fas fa-eye mr-1"></i> <!-- Changed to solid eye icon -->
+                                            <span class="ml-1">${formatNumberForDisplay(post.views || 0)}</span>
                                         </button>
                                     </span>
+                                    ${post.postType === 'Game Promotion' ? `
+                                        <span class="inline-flex items-center">
+                                            <button class="hover:text-white transition cursor-default">
+                                                <i class="fas fa-external-link-alt mr-1"></i> <!-- New visit icon -->
+                                                <span class="ml-1">${formatNumberForDisplay(post.visits || 0)}</span>
+                                            </button>
+                                        </span>
+                                    ` : ''}
+                                </div>
+                                ${isMyPostPage && isAuthor ? `
+                                    <div class="flex space-x-2">
+                                        <button class="edit-btn text-blue-500 hover:text-blue-400 transition" data-id="${post.id}"><i class="fas fa-edit"></i></button>
+                                        <button class="delete-btn text-red-500 hover:text-red-400 transition" data-id="${post.id}"><i class="fas fa-trash"></i></button>
+                                    </div>
                                 ` : ''}
                             </div>
+                        ` : `
                             ${isMyPostPage && isAuthor ? `
-                                <div class="flex space-x-2">
-                                    <button class="edit-btn text-blue-500 hover:text-blue-400 transition" data-id="${post.id}"><i class="fas fa-edit"></i></button>
-                                    <button class="delete-btn text-red-500 hover:text-red-400 transition" data-id="${post.id}"><i class="fas fa-trash"></i></button>
+                                <div class="flex justify-end mt-auto pt-2 border-t border-gray-700">
+                                    <div class="flex space-x-2">
+                                        <button class="edit-btn text-blue-500 hover:text-blue-400 transition" data-id="${post.id}"><i class="fas fa-edit"></i></button>
+                                        <button class="delete-btn text-red-500 hover:text-red-400 transition" data-id="${post.id}"><i class="fas fa-trash"></i></button>
+                                    </div>
                                 </div>
                             ` : ''}
-                        </div>
+                        `}
                     </div>
                 </div>
             `;
@@ -792,9 +1168,10 @@
 
             let sortedPosts = [...filteredPosts];
             if (includeSortBy) {
+                // Use the currentSortBy which is now updated by userSettings.defaultSortOrder
                 if (currentSortBy === 'popular') sortedPosts.sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0));
                 else if (currentSortBy === 'newest') sortedPosts.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate());
-                else if (currentSortBy === 'oldest') sortedPosts.sort((a, b) => a.createdAt.toDate() - b.createdAt.toDate());
+                else if (currentSortBy === 'oldest') sortedPosts.sort((a, b) => a.createdAt.toDate() - a.createdAt.toDate()); // Fixed: was comparing a to a
                 else if (currentSortBy === 'most-viewed') sortedPosts.sort((a, b) => (b.views || 0) - (a.views || 0));
                 else if (currentSortBy === 'most-visited') sortedPosts.sort((a, b) => (b.visits || 0) - (a.visits || 0));
             }
@@ -915,9 +1292,8 @@
         
         // Renders the form for creating a new post.
         function renderPostPage(targetElement) { // Now accepts a targetElement
-            const genres = ["Action", "Adventure", "RPG", "Strategy", "Simulation", "Puzzle", "Platformer", "Shooter", "Fighting", "Stealth", "Survival", "Horror", "Visual Novel", "Rhythm", "Sports", "Racing", "MMO", "Indie", "Casual", "Arcade", "Language", "Card & Board", "Roguelike", "Roguelite", "Metroidvania", "Souls-like", "CRPG", "JRPG", "ARPG", "Tactical RPG", "4X", "RTS", "Tower Defense", "Farming Sim", "Life Sim", "Point & Click", "Bullet Hell", "Hack and Slash", "Sandbox", "Open World", "Deck-builder", "City-builder", "Immersive Sim", "Walking Simulator", "Party Game", "Trivia", "Co-op", "Multiplayer", "Singleplayer", "Early Access", "Full Release", "Demo", "Free to Play", "Pay What You Want", "Puzzle-Platformer", "Survival Horror", "Metroidvania-lite", "Story-Rich", "Procedural Generation", "Pixel Art", "Voxel Art", "3D", "2D", "Top-Down", "Side-Scroller", "First-Person", "Third-Person", "Abstract", "Minimalist", "Retro", "Futuristic", "Fantasy", "Sci-Fi", "Historical", "Modern", "Comedy", "Drama", "Mystery", "Thriller", "Educational", "Relaxing", "Challenging", "Fast-Paced", "Slow-Paced", "Exploration", "Crafting", "Building", "Management", "Deckbuilding Roguelike", "Visual Novel RPG", "Action-Adventure", "Strategy RPG", "Turn-Based Strategy", "Real-Time Strategy", "Tactical Shooter", "Arena Shooter", "Battle Royale", "Dungeon Crawler", "Endless Runner", "Idle Game", "Incremental Game", "Interactive Fiction", "Music", "Narrative", "Party", "Pinball", "Platform Fighter", "Precision Platformer", "Programming", "Quick-Time Event", "Quiz", "Rogue-lite", "Role-Playing", "Sandbox RPG", "Sci-Fi RPG", "Shoot 'em Up", "Simulation RPG", "Social Deduction", "Space", "Steampunk", "Story", "Superhero", "Surreal", "Tabletop", "Team-Based", "Text Adventure", "Time Management", "Top-Down Shooter", "Trading", "Train", "Transhumanism", "Travel", "Trigonometry", "Typing", "Uplifting", "Vampire", "Vehicular Combat", "Vertical Shooter", "Visual Novel Horror", "Visual Novel Mystery", "Visual Novel Sci-Fi", "Visual Novel Slice of Life", "Visual Novel Thriller", "Visual Novel Comedy", "Visual Novel Drama", "Visual Novel Fantasy", "Visual Novel Romance", "War", "Western", "Word Game", "Wrestling", "Cooking", "Zombies", "Zoo", "Zork-like"];
             const platforms = ["Windows", "macOS", "Linux", "Android", "iOS", "Web / Browser", "Xbox", "PlayStation", "Nintendo Switch", "VR (Vive, Rift, Quest)", "AR"];
-            const devlogTypes = ["Update", "Q&A", "Announcement", "Behind the Scenes", "Concept Art", "Development Progress", "Game Jam Entry", "Post-Mortem", "Release Info", "Tutorial", "Bug Fixes", "Roadmap", "Community Spotlight", "Feedback Request", "Poll", "Patch Notes", "Lore Deep Dive", "Music Showcase", "Art Showcase", "Level Design", "Character Design", "Story Development", "Technical Deep Dive", "Monetization", "Marketing", "Legal", "Other"];
+            const devlogTypes = ["Update", "Q&A", "Announcement", "Behind the Scenes", "Concept Art", "Development Progress", "Game Jam Entry", "Post-Mortem", "Release Info", "Tutorial", "Bug Fixes", "Roadmap", "Community Spotlight", "Poll", "Patch Notes", "Lore Deep Dive", "Music Showcase", "Art Showcase", "Level Design", "Character Design", "Story Development", "Technical Deep Dive", "Monetization", "Marketing", "Legal", "Other"];
 
             // Filter for only Game Promotion posts by the current user to link in Devlogs
             // Ensure currentUser and currentUser.uid are available before filtering
@@ -932,8 +1308,8 @@
                             <label for="post-type" class="block mb-2 font-semibold text-gray-300">What are you posting?</label>
                             <div class="custom-select">
                                 <select id="post-type" class="w-full p-3 input-bg rounded-md" required ${editingPostId ? 'disabled' : ''}>
-                                    <option value="Game Promotion">Game Promotion</option>
-                                    <option value="Devlog">Devlog</option>
+                                    <option value="Game Promotion" ${userSettings.defaultPostType === 'Game Promotion' ? 'selected' : ''}>Game Promotion</option>
+                                    <option value="Devlog" ${userSettings.defaultPostType === 'Devlog' ? 'selected' : ''}>Devlog</option>
                                 </select>
                             </div>
                         </div>
@@ -946,6 +1322,43 @@
                                 </select>
                             </div>
                         </div>
+
+                        <div id="game-promo-poll-toggle" class="hidden">
+                            <label class="block mb-2 font-semibold text-gray-300">Add Poll?</label>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="add-game-promo-poll" value="true">
+                                    <span>Yes</span>
+                                </label>
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="add-game-promo-poll" value="false" checked>
+                                    <span>No</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="poll-section" class="hidden border-t border-gray-700 pt-6">
+                            <h3 class="text-xl font-bold mb-4 text-gray-400">Poll Details</h3>
+                            <p class="text-sm text-red-600 mb-4">
+                                Important: Polls cannot be deleted or modified after the post is first submitted.
+                            </p>
+                            <div>
+                                <label for="poll-question" class="block mb-2 font-semibold text-gray-300">Poll Question</label>
+                                <input type="text" id="poll-question" class="w-full p-3 input-bg rounded-md" placeholder="e.g., What feature should we add next?">
+                            </div>
+                            <div id="poll-options-container" class="mt-4 space-y-2">
+                                <div class="flex gap-2">
+                                    <input type="text" class="poll-option-input w-full p-3 input-bg rounded-md" placeholder="Option 1" required>
+                                    <button type="button" class="remove-poll-option-btn bg-red-600 hover:bg-red-700 text-white p-3 rounded-md hidden"><i class="fas fa-minus"></i></button>
+                                </div>
+                                <div class="flex gap-2">
+                                    <input type="text" class="poll-option-input w-full p-3 input-bg rounded-md" placeholder="Option 2" required>
+                                    <button type="button" class="remove-poll-option-btn bg-red-600 hover:bg-red-700 text-white p-3 rounded-md hidden"><i class="fas fa-minus"></i></button>
+                                </div>
+                            </div>
+                            <button type="button" id="add-poll-option-btn" class="btn-primary text-white font-bold py-2 px-4 rounded-md mt-4"><i class="fas fa-plus mr-2"></i>Add Option</button>
+                        </div>
+
 
                         <div>
                             <label for="game-title" class="block mb-2 font-semibold text-gray-300">Title</label>
@@ -980,10 +1393,7 @@
                                     <input type="radio" name="media-type" value="combo" id="media-combo">
                                     <span>Combo</span>
                                 </label>
-                                <label class="custom-checkbox">
-                                    <input type="radio" name="media-type" value="itch_embed" id="media-itch">
-                                    <span>Itch.io Embed</span>
-                                </label>
+                                <!-- Removed Itch.io Embed option as per user request -->
                                 <label class="custom-checkbox">
                                     <input type="radio" name="media-type" value="none" id="media-none">
                                     <span>None</span>
@@ -1123,13 +1533,17 @@
                 const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
                 const youtubeLinkSection = form.querySelector('#youtube-link-section');
                 const imageLinkSection = form.querySelector('#image-link-section');
-                const customYoutubeTextSection = form.querySelector('#custom-youtube-text-section');
+                const customYoutubeLinkSection = form.querySelector('#custom-youtube-text-section'); // Corrected ID
                 const youtubeLinkHelp = form.querySelector('.youtube-link-help');
                 const imageLinkHelp = form.querySelector('.image-link-help');
                 const itchLinkInput = form.querySelector('#itch-link');
                 const itchLinkHelp = form.querySelector('#itch-link-help');
                 const postTypeSelect = form.querySelector('#post-type');
+                const devlogTypeSelect = form.querySelector('#devlog-type');
                 const devlogTypeSection = form.querySelector('#devlog-type-section');
+                const gamePromoPollToggle = form.querySelector('#game-promo-poll-toggle'); // New
+                const addGamePromoPollRadios = form.querySelectorAll('input[name="add-game-promo-poll"]'); // New
+                const pollSection = form.querySelector('#poll-section'); // New poll section
                 const genreSection = form.querySelector('#genre-section');
                 const platformSection = form.querySelector('#platform-section');
                 const pricingSection = form.querySelector('#pricing-section');
@@ -1137,30 +1551,10 @@
                 const linkedGamePromoSection = form.querySelector('#linked-game-promo-section');
                 const genreSearchInput = form.querySelector('#genre-search');
                 const genreCheckboxesContainer = form.querySelector('#genre-checkboxes');
-                const genreSearchStatus = form.querySelector('#genre-search-status'); // New element
-
-                // Function to render genre checkboxes based on a filtered list
-                function renderGenreCheckboxes(filterTerm = '') {
-                    const lowerCaseFilterTerm = filterTerm.toLowerCase();
-                    const filteredGenres = genres.filter(g => g.toLowerCase().includes(lowerCaseFilterTerm));
-                    genreCheckboxesContainer.innerHTML = filteredGenres
-                        .map(g => {
-                            const isChecked = selectedGenres.includes(g) ? 'checked' : '';
-                            const isHighlighted = lowerCaseFilterTerm && g.toLowerCase().includes(lowerCaseFilterTerm) ? 'genre-highlight' : '';
-                            return `<label class="custom-checkbox"><input type="checkbox" name="genre" value="${g}" ${isChecked}><span class="${isHighlighted}">${g}</span></label>`;
-                        }).join('');
-
-                    // Update search status message
-                    if (filterTerm) {
-                        genreSearchStatus.textContent = `Showing genres matching "${filterTerm}"`;
-                        genreSearchStatus.classList.remove('hidden');
-                    } else {
-                        genreSearchStatus.classList.add('hidden');
-                    }
-                }
+                // const genreSearchStatus = form.querySelector('#genre-search-status'); // Removed local declaration as it's now accessed globally
 
                 // Initial render of all genres
-                renderGenreCheckboxes(genreSearchInput.value); // Render with any existing search term
+                renderGenreCheckboxes(genreCheckboxesContainer, genreSearchInput.value); // Pass container to the global function
 
                 // Event delegation for genre checkboxes to update selectedGenres array
                 genreCheckboxesContainer.addEventListener('change', (e) => {
@@ -1175,27 +1569,72 @@
                     }
                 });
 
+                // Poll option management
+                const pollOptionsContainer = form.querySelector('#poll-options-container');
+                const addPollOptionBtn = form.querySelector('#add-poll-option-btn');
+
+                function updateRemovePollOptionButtons() {
+                    const removeButtons = pollOptionsContainer.querySelectorAll('.remove-poll-option-btn');
+                    if (removeButtons.length <= 2) {
+                        removeButtons.forEach(btn => btn.classList.add('hidden'));
+                    } else {
+                        removeButtons.forEach(btn => btn.classList.remove('hidden'));
+                    }
+                    if (removeButtons.length >= 5) {
+                        addPollOptionBtn.disabled = true;
+                        addPollOptionBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        addPollOptionBtn.disabled = false;
+                        addPollOptionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+
+                addPollOptionBtn.addEventListener('click', () => {
+                    const currentOptions = pollOptionsContainer.querySelectorAll('.poll-option-input').length;
+                    if (currentOptions < 5) {
+                        const newOptionDiv = document.createElement('div');
+                        newOptionDiv.className = 'flex gap-2';
+                        newOptionDiv.innerHTML = `
+                            <input type="text" class="poll-option-input w-full p-3 input-bg rounded-md" placeholder="Option ${currentOptions + 1}" required>
+                            <button type="button" class="remove-poll-option-btn bg-red-600 hover:bg-red-700 text-white p-3 rounded-md"><i class="fas fa-minus"></i></button>
+                        `;
+                        pollOptionsContainer.appendChild(newOptionDiv);
+                        updateRemovePollOptionButtons();
+                    }
+                });
+
+                pollOptionsContainer.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('remove-poll-option-btn') || e.target.closest('.remove-poll-option-btn')) {
+                        const btn = e.target.closest('.remove-poll-option-btn');
+                        btn.parentElement.remove();
+                        updateRemovePollOptionButtons();
+                    }
+                });
 
                 function toggleMediaSectionsInternal() { // Renamed to avoid conflict
                     const selectedMedia = form.querySelector('input[name="media-type"]:checked')?.value; // Added optional chaining
                     console.log("toggleMediaSectionsInternal called. Selected Media:", selectedMedia); // Debugging line
 
-                    if (youtubeLinkSection) youtubeLinkSection.classList.toggle('hidden', selectedMedia !== 'youtube' && selectedMedia !== 'combo');
-                    if (imageLinkSection) imageLinkSection.classList.toggle('hidden', selectedMedia !== 'image' && selectedMedia !== 'combo');
-                    if (customYoutubeTextSection) customYoutubeTextSection.classList.toggle('hidden', selectedMedia !== 'combo');
-                    
                     // Get references to inputs
                     const trailerLinkInput = form.querySelector('#trailer-link');
                     const imageUrlInput = form.querySelector('#image-url');
                     const customYoutubeLinkTextInput = form.querySelector('#custom-youtube-link-text');
+
+                    // Reset visibility for all media sections first
+                    if (youtubeLinkSection) youtubeLinkSection.classList.add('hidden');
+                    if (imageLinkSection) imageLinkSection.classList.add('hidden');
+                    if (customYoutubeLinkSection) customYoutubeLinkSection.classList.add('hidden');
 
                     // Reset required attributes for all media inputs first
                     trailerLinkInput.removeAttribute('required');
                     imageUrlInput.removeAttribute('required');
                     customYoutubeLinkTextInput.removeAttribute('required');
 
-
                     if (selectedMedia === 'combo') {
+                        if (youtubeLinkSection) youtubeLinkSection.classList.remove('hidden');
+                        if (imageLinkSection) imageLinkSection.classList.remove('hidden');
+                        if (customYoutubeLinkSection) customYoutubeLinkSection.classList.remove('hidden'); // Ensure this is visible
+                        
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Required for Combo. Example: https://youtu.be/dQw4w9WgXcQ)';
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Required for Combo. Example: https://example.com/your-game-screenshot.png)';
                         // Make inputs required for combo
@@ -1203,31 +1642,49 @@
                         imageUrlInput.setAttribute('required', 'true');
                         customYoutubeLinkTextInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'youtube') {
+                        if (youtubeLinkSection) youtubeLinkSection.classList.remove('hidden');
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         // Only YouTube link is required for 'youtube'
                         trailerLinkInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'image') {
-                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
+                        if (imageLinkSection) imageLinkSection.classList.remove('hidden');
+                        if (imageLinkHelp) imageLinkHelp.classList.remove('hidden'); // Show image link help
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         // Only Image URL is required for 'image'
                         imageUrlInput.setAttribute('required', 'true');
-                    } else { // 'none' or 'itch_embed'
+                    } else { // 'none'
+                        // All sections remain hidden, and required attributes are already removed.
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
-                        // No media inputs are required for 'none' or 'itch_embed'
                     }
 
-                    if (selectedMedia === 'none' || selectedMedia === 'itch_embed') {
-                        if (youtubeLinkSection) youtubeLinkSection.classList.add('hidden');
-                        if (imageLinkSection) imageLinkSection.classList.add('hidden');
-                    }
+                    // Debugging visibility
+                    console.log("youtubeLinkSection hidden:", youtubeLinkSection.classList.contains('hidden'));
+                    console.log("imageLinkSection hidden:", imageLinkSection.classList.contains('hidden'));
+                    console.log("customYoutubeLinkSection hidden:", customYoutubeLinkSection.classList.contains('hidden'));
+
+                    // Debugging required attributes
+                    console.log("trailerLinkInput required:", trailerLinkInput.hasAttribute('required'));
+                    console.log("imageUrlInput required:", imageUrlInput.hasAttribute('required'));
+                    console.log("customYoutubeLinkTextInput required:", customYoutubeLinkTextInput.hasAttribute('required'));
                 }
                 mediaTypeRadios.forEach(radio => radio.addEventListener('change', toggleMediaSectionsInternal));
                 // Removed unconditional call to toggleMediaSections() here
 
                 function togglePostTypeFieldsInternal() { // Renamed to avoid conflict
                     const selectedPostType = postTypeSelect.value;
+                    const selectedDevlogType = devlogTypeSelect?.value;
+                    const addGamePromoPoll = form.querySelector('input[name="add-game-promo-poll"]:checked')?.value === 'true';
+
+                    // Reset all devlog specific fields to hidden and optional
+                    if (devlogTypeSection) devlogTypeSection.classList.add('hidden');
+                    if (gamePromoPollToggle) gamePromoPollToggle.classList.add('hidden'); // Hide game promo poll toggle by default
+                    if (pollSection) pollSection.classList.add('hidden'); // <--- THIS IS KEY. It hides it by default.
+                    form.querySelector('#poll-question')?.removeAttribute('required');
+                    form.querySelectorAll('.poll-option-input').forEach(input => input.removeAttribute('required'));
+
+                    console.log("togglePostTypeFieldsInternal: selectedPostType =", selectedPostType, "selectedDevlogType =", selectedDevlogType, "addGamePromoPoll =", addGamePromoPoll);
+
                     if (selectedPostType === 'Devlog') {
                         if (devlogTypeSection) devlogTypeSection.classList.remove('hidden');
                         if (genreSection) genreSection.classList.add('hidden');
@@ -1243,6 +1700,13 @@
                         if (itchLinkHelp) itchLinkHelp.textContent = '(Optional for Devlog. Example: https://yourusername.itch.io/your-devlog-page)';
                         document.querySelectorAll('#genre-section input[type="checkbox"]').forEach(checkbox => checkbox.required = false);
                         document.querySelectorAll('#platform-section input[type="checkbox"]').forEach(checkbox => checkbox.required = false);
+
+                        if (selectedDevlogType === 'Poll') {
+                            if (pollSection) pollSection.classList.remove('hidden');
+                            form.querySelector('#poll-question')?.setAttribute('required', 'true');
+                            form.querySelectorAll('.poll-option-input').forEach(input => input.setAttribute('required', 'true'));
+                            updateRemovePollOptionButtons(); // Ensure buttons are correct for poll
+                        }
                     } else { // Game Promotion
                         if (devlogTypeSection) devlogTypeSection.classList.add('hidden');
                         if (genreSection) genreSection.classList.remove('hidden');
@@ -1250,28 +1714,39 @@
                         if (pricingSection) pricingSection.classList.remove('hidden');
                         if (commentsStatusSection) commentsStatusSection.classList.remove('hidden');
                         if (linkedGamePromoSection) linkedGamePromoSection.classList.add('hidden');
+                        if (gamePromoPollToggle) gamePromoPollToggle.classList.remove('hidden'); // Show game promo poll toggle
 
                         if (itchLinkInput) {
                             itchLinkInput.setAttribute('required', 'true');
                             itchLinkInput.setAttribute('pattern', 'https://.*\\.itch\\.io/.*');
                         }
                         if (itchLinkHelp) itchLinkHelp.textContent = '(Required for Game Promotion. Optional for Devlog. Example: https://yourusername.itch.io/your-game)';
+                        
+                        // Poll option for Game Promotion
+                        if (addGamePromoPoll) { // If 'Yes' is selected for add poll
+                             if (pollSection) pollSection.classList.remove('hidden');
+                             form.querySelector('#poll-question')?.setAttribute('required', 'true');
+                             form.querySelectorAll('.poll-option-input').forEach(input => input.setAttribute('required', 'true'));
+                             updateRemovePollOptionButtons();
+                        }
                     }
+                    console.log("pollSection hidden after toggle:", pollSection.classList.contains('hidden'));
                 }
                 postTypeSelect.addEventListener('change', togglePostTypeFieldsInternal);
-                // Removed unconditional call to togglePostTypeFields() here
+                devlogTypeSelect?.addEventListener('change', togglePostTypeFieldsInternal); // Listen for devlog type change
+                addGamePromoPollRadios.forEach(radio => radio.addEventListener('change', togglePostTypeFieldsInternal)); // New listener for game promo poll toggle
 
                 // Only initialize visibility if not in editing mode (i.e., for new posts)
                 if (!editingPostId) {
                     toggleMediaSectionsInternal();
                     togglePostTypeFieldsInternal();
                     selectedGenres = []; // Clear genres for new post
-                    renderGenreCheckboxes(); // Re-render to clear checkboxes
+                    renderGenreCheckboxes(genreCheckboxesContainer); // Re-render to clear checkboxes
                 }
 
                 // Genre search functionality
                 genreSearchInput.addEventListener('input', (e) => {
-                    renderGenreCheckboxes(e.target.value);
+                    renderGenreCheckboxes(genreCheckboxesContainer, e.target.value); // Pass container
                 });
             }
         }
@@ -1288,23 +1763,29 @@
 
             // Render the post page form into the modal content area
             modalContent.innerHTML = `
-                <div class="flex justify-end mb-4">
-                    <button id="close-modal-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+                <div class="flex justify-between items-center mb-4">
+                    <button id="close-modal-btn" class="modal-action-btn"><i class="fas fa-arrow-left"></i></button>
+                    <div class="flex gap-2">
+                        <button id="share-post-btn" class="modal-action-btn" data-post-id="${postId}"><i class="fa-solid fa-share"></i></button>
+                        <button id="fullscreen-toggle-btn" class="modal-action-btn"><i class="fas fa-expand"></i></button>
+                    </div>
                 </div>
                 <div id="edit-form-container"></div>
             `;
             postModal.classList.remove('hidden'); // Show the modal
             document.getElementById('close-modal-btn').addEventListener('click', closePostModal);
+            document.getElementById('fullscreen-toggle-btn').addEventListener('click', () => toggleFullscreen(modalContent)); // Add listener for fullscreen toggle
             
             // Before rendering, set selectedGenres from the post being edited
             selectedGenres = post.genres || []; 
             
             // Render the form directly into the edit-form-container
-            renderPostPage(document.getElementById('edit-form-container'));
+            const editFormContainer = document.getElementById('edit-form-container');
+            renderPostPage(editFormContainer);
             
             // Now, populate the form fields
             // IMPORTANT: Query the form from within the modal's container to ensure correct reference
-            const form = document.getElementById('edit-form-container').querySelector('#post-form'); 
+            const form = editFormContainer.querySelector('#post-form'); 
             
             if (form) { // Ensure form is found before attempting to populate
                 form.querySelector('#game-title').value = post.title || '';
@@ -1322,9 +1803,57 @@
                 postTypeSelect.disabled = true; // Disable post type selection during edit
 
                 // Set Devlog Type if applicable
+                const devlogTypeSelect = form.querySelector('#devlog-type');
                 if (post.postType === 'Devlog' && post.devlogType) {
-                    form.querySelector('#devlog-type').value = post.devlogType;
+                    devlogTypeSelect.value = post.devlogType;
                 }
+
+                // Populate poll fields if devlogType is 'Poll' or if it's a Game Promotion with a poll
+                const addGamePromoPollRadios = form.querySelectorAll('input[name="add-game-promo-poll"]');
+                const pollSection = form.querySelector('#poll-section');
+
+                if ((post.postType === 'Devlog' && post.devlogType === 'Poll' && post.poll) || 
+                    (post.postType === 'Game Promotion' && post.poll)) { // Check for poll in Game Promotion
+                    
+                    // Disable poll fields if a poll already exists
+                    if (pollSection) {
+                        pollSection.classList.remove('hidden'); // Ensure poll section is visible
+                        pollSection.querySelectorAll('input, button').forEach(element => {
+                            element.disabled = true;
+                            element.classList.add('opacity-50', 'cursor-not-allowed');
+                        });
+                        // Add a message indicating poll cannot be edited
+                        const pollMessage = document.createElement('p');
+                        pollMessage.className = 'text-sm text-red-600 mb-4';
+                        pollMessage.textContent = 'This post already has a poll. Polls cannot be modified or deleted after creation.';
+                        pollSection.prepend(pollMessage);
+                    }
+
+                    form.querySelector('#poll-question').value = post.poll.question || '';
+                    const pollOptionsContainer = form.querySelector('#poll-options-container');
+                    pollOptionsContainer.innerHTML = ''; // Clear existing options
+                    post.poll.options.forEach((option, index) => {
+                        const newOptionDiv = document.createElement('div');
+                        newOptionDiv.className = 'flex gap-2';
+                        newOptionDiv.innerHTML = `
+                            <input type="text" class="poll-option-input w-full p-3 input-bg rounded-md" placeholder="Option ${index + 1}" value="${option.text}" required disabled>
+                            <button type="button" class="remove-poll-option-btn bg-red-600 hover:bg-red-700 text-white p-3 rounded-md hidden" disabled><i class="fas fa-minus"></i></button>
+                        `;
+                        pollOptionsContainer.appendChild(newOptionDiv);
+                    });
+                    // Set 'Yes' for 'Add Poll' toggle if it's a Game Promotion with a poll
+                    if (post.postType === 'Game Promotion' && post.poll) {
+                        form.querySelector('input[name="add-game-promo-poll"][value="true"]').checked = true;
+                        // Disable the radio buttons for poll toggle
+                        addGamePromoPollRadios.forEach(radio => {
+                            radio.disabled = true;
+                            radio.closest('label').classList.add('opacity-50', 'cursor-not-allowed');
+                        });
+                    }
+                } else if (post.postType === 'Game Promotion') { // Ensure 'No' is selected if it's a Game Promo without a poll
+                    form.querySelector('input[name="add-game-promo-poll"][value="false"]').checked = true;
+                }
+
 
                 // Set Media Type and links
                 if (post.mediaType) {
@@ -1369,12 +1898,13 @@
                 const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
                 const youtubeLinkSection = form.querySelector('#youtube-link-section');
                 const imageLinkSection = form.querySelector('#image-link-section');
-                const customYoutubeTextSection = form.querySelector('#custom-youtube-link-text-section'); 
+                const customYoutubeLinkSection = form.querySelector('#custom-youtube-text-section'); 
                 const youtubeLinkHelp = form.querySelector('.youtube-link-help');
                 const imageLinkHelp = form.querySelector('.image-link-help');
                 const itchLinkInput = form.querySelector('#itch-link');
                 const itchLinkHelp = form.querySelector('#itch-link-help');
                 const devlogTypeSection = form.querySelector('#devlog-type-section');
+                const gamePromoPollToggle = form.querySelector('#game-promo-poll-toggle'); // New
                 const genreSection = form.querySelector('#genre-section');
                 const platformSection = form.querySelector('#platform-section');
                 const pricingSection = form.querySelector('#pricing-section');
@@ -1385,13 +1915,15 @@
                     const selectedMedia = form.querySelector('input[name="media-type"]:checked')?.value;
                     console.log("toggleMediaSectionsEdit called. Selected Media:", selectedMedia); // Debugging line
 
-                    if (youtubeLinkSection) youtubeLinkSection.classList.toggle('hidden', selectedMedia !== 'youtube' && selectedMedia !== 'combo');
-                    if (imageLinkSection) imageLinkSection.classList.toggle('hidden', selectedMedia !== 'image' && selectedMedia !== 'combo');
-                    if (customYoutubeTextSection) customYoutubeTextSection.classList.toggle('hidden', selectedMedia !== 'combo'); 
-                    
+                    // Get references to inputs
                     const trailerLinkInput = form.querySelector('#trailer-link');
                     const imageUrlInput = form.querySelector('#image-url');
                     const customYoutubeLinkTextInput = form.querySelector('#custom-youtube-link-text');
+
+                    // Reset visibility for all media sections first
+                    if (youtubeLinkSection) youtubeLinkSection.classList.add('hidden');
+                    if (imageLinkSection) imageLinkSection.classList.add('hidden');
+                    if (customYoutubeLinkSection) customYoutubeLinkSection.classList.add('hidden');
 
                     // Reset required attributes for all media inputs first
                     trailerLinkInput.removeAttribute('required');
@@ -1399,34 +1931,57 @@
                     customYoutubeLinkTextInput.removeAttribute('required');
 
                     if (selectedMedia === 'combo') {
+                        if (youtubeLinkSection) youtubeLinkSection.classList.remove('hidden');
+                        if (imageLinkSection) imageLinkSection.classList.remove('hidden');
+                        if (customYoutubeLinkSection) customYoutubeLinkSection.classList.remove('hidden'); // Ensure this is visible
+                        
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Required for Combo. Example: https://youtu.be/dQw4w9WgXcQ)';
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Required for Combo. Example: https://example.com/your-game-screenshot.png)';
                         trailerLinkInput.setAttribute('required', 'true');
                         imageUrlInput.setAttribute('required', 'true');
                         customYoutubeLinkTextInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'youtube') {
-                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)'; 
+                        if (youtubeLinkSection) youtubeLinkSection.classList.remove('hidden');
+                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)'; 
                         trailerLinkInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'image') {
-                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)'; 
+                        if (imageLinkSection) imageLinkSection.classList.remove('hidden');
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         imageUrlInput.setAttribute('required', 'true');
                     } else { 
+                        // All sections remain hidden, and required attributes are already removed.
                         if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                     }
 
-                    if (selectedMedia === 'none' || selectedMedia === 'itch_embed') {
-                        if (youtubeLinkSection) youtubeLinkSection.classList.add('hidden');
-                        if (imageLinkSection) imageLinkSection.classList.add('hidden');
-                    }
+                    // Debugging visibility
+                    console.log("youtubeLinkSection hidden:", youtubeLinkSection.classList.contains('hidden'));
+                    console.log("imageLinkSection hidden:", imageLinkSection.classList.contains('hidden'));
+                    console.log("customYoutubeLinkSection hidden:", customYoutubeLinkSection.classList.contains('hidden'));
+
+                    // Debugging required attributes
+                    console.log("trailerLinkInput required:", trailerLinkInput.hasAttribute('required'));
+                    console.log("imageUrlInput required:", imageUrlInput.hasAttribute('required'));
+                    console.log("customYoutubeLinkTextInput required:", customYoutubeLinkTextInput.hasAttribute('required'));
                 }
                 mediaTypeRadios.forEach(radio => radio.addEventListener('change', toggleMediaSectionsEdit));
                 toggleMediaSectionsEdit(); // Initialize visibility
 
                 function togglePostTypeFieldsEdit() {
                     const selectedPostType = postTypeSelect.value;
+                    const selectedDevlogType = devlogTypeSelect?.value;
+                    const addGamePromoPoll = form.querySelector('input[name="add-game-promo-poll"]:checked')?.value === 'true';
+
+                    // Reset all devlog specific fields to hidden and optional
+                    if (devlogTypeSection) devlogTypeSection.classList.add('hidden');
+                    if (gamePromoPollToggle) gamePromoPollToggle.classList.add('hidden');
+                    if (pollSection) pollSection.classList.add('hidden');
+                    form.querySelector('#poll-question')?.removeAttribute('required');
+                    form.querySelectorAll('.poll-option-input').forEach(input => input.removeAttribute('required'));
+
+                    console.log("togglePostTypeFieldsEdit: selectedPostType =", selectedPostType, "selectedDevlogType =", selectedDevlogType, "addGamePromoPoll =", addGamePromoPoll);
+
+
                     if (selectedPostType === 'Devlog') {
                         if (devlogTypeSection) devlogTypeSection.classList.remove('hidden');
                         if (genreSection) genreSection.classList.add('hidden');
@@ -1440,6 +1995,21 @@
                             itchLinkInput.removeAttribute('pattern'); 
                         }
                         if (itchLinkHelp) itchLinkHelp.textContent = '(Optional for Devlog. Example: https://yourusername.itch.io/your-devlog-page)';
+
+                        if (selectedDevlogType === 'Poll') {
+                            if (pollSection) pollSection.classList.remove('hidden');
+                            form.querySelector('#poll-question')?.setAttribute('required', 'true');
+                            form.querySelectorAll('.poll-option-input').forEach(input => input.setAttribute('required', 'true'));
+                            // Poll fields are disabled if a poll already exists
+                            if (post.poll) {
+                                pollSection.querySelectorAll('input, button').forEach(element => {
+                                    element.disabled = true;
+                                    element.classList.add('opacity-50', 'cursor-not-allowed');
+                                });
+                            } else {
+                                updateRemovePollOptionButtons();
+                            }
+                        }
                     } else { // Game Promotion
                         if (devlogTypeSection) devlogTypeSection.classList.add('hidden');
                         if (genreSection) genreSection.classList.remove('hidden');
@@ -1447,6 +2017,23 @@
                         if (pricingSection) pricingSection.classList.remove('hidden');
                         if (commentsStatusSection) commentsStatusSection.classList.remove('hidden');
                         if (linkedGamePromoSection) linkedGamePromoSection.classList.add('hidden');
+                        if (gamePromoPollToggle) gamePromoPollToggle.classList.remove('hidden'); // Show game promo poll toggle
+
+                        // Poll option for Game Promotion
+                        if (addGamePromoPoll) { // If 'Yes' is selected for add poll
+                             if (pollSection) pollSection.classList.remove('hidden');
+                             form.querySelector('#poll-question')?.setAttribute('required', 'true');
+                             form.querySelectorAll('.poll-option-input').forEach(input => input.setAttribute('required', 'true'));
+                            // Poll fields are disabled if a poll already exists
+                            if (post.poll) {
+                                pollSection.querySelectorAll('input, button').forEach(element => {
+                                    element.disabled = true;
+                                    element.classList.add('opacity-50', 'cursor-not-allowed');
+                                });
+                            } else {
+                                updateRemovePollOptionButtons();
+                            }
+                        }
 
                         if (itchLinkInput) {
                             itchLinkInput.setAttribute('required', 'true'); 
@@ -1454,16 +2041,28 @@
                         }
                         if (itchLinkHelp) itchLinkHelp.textContent = '(Required for Game Promotion. Optional for Devlog. Example: https://yourusername.itch.io/your-game)';
                     }
+                    console.log("pollSection hidden after toggle:", pollSection.classList.contains('hidden'));
                 }
                 postTypeSelect.addEventListener('change', togglePostTypeFieldsEdit);
+                devlogTypeSelect?.addEventListener('change', togglePostTypeFieldsEdit); // Listen for devlog type change
+                addGamePromoPollRadios.forEach(radio => radio.addEventListener('change', togglePostTypeFieldsEdit)); // New listener for game promo poll toggle
                 togglePostTypeFieldsEdit(); // Initialize visibility
 
                 // Update submit button text
                 form.querySelector('#submit-post-btn').textContent = 'Update Post'; // Use form.querySelector
+                
+                // Add event listener for share button
+                document.getElementById('share-post-btn').addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent modal from closing if share button is clicked
+                    const shareLink = `https://postitchindie.github.io/?postId=${postId}`;
+                    copyToClipboard(shareLink);
+                    showAlert("Link copied to clipboard!");
+                });
 
                 // Re-render genre checkboxes to reflect selected genres from the post
                 const genreSearchInput = form.querySelector('#genre-search');
-                renderGenreCheckboxes(genreSearchInput.value);
+                const genreCheckboxesContainerInModal = form.querySelector('#genre-checkboxes');
+                renderGenreCheckboxes(genreCheckboxesContainerInModal, genreSearchInput.value);
             } else {
                 console.error("Form element not found in modal after rendering.");
             }
@@ -1512,8 +2111,42 @@
 					<p class="text-gray-500 text-xs sm:text-sm mt-8">
 						Made by <a href="https://fillabrona.itch.io/" target="_blank" class="text-blue-400 underline hover:text-blue-300">Fillabrona</a>
 					</p>
+                    <div class="mt-8 pt-6 border-t border-gray-700 flex flex-col sm:flex-row justify-center gap-4">
+                        <button id="share-website-btn" class="btn-primary flex-1 text-white font-bold py-3 px-6 rounded-md flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-share mr-2"></i> Share PostItch
+                        </button>
+                        <a href="https://postitchguide.github.io/" target="_blank" class="btn-primary flex-1 text-white font-bold py-3 px-6 rounded-md flex items-center justify-center gap-2">
+                            <i class="fas fa-book mr-2"></i> PostItch Guide
+                        </a>
+                        <button id="open-settings-from-about" class="btn-primary flex-1 text-white font-bold py-3 px-6 rounded-md flex items-center justify-center gap-2">
+                            <i class="fas fa-cog mr-2"></i> Open Settings
+                        </button>
+                    </div>
+                    <!-- New AI Chat Button -->
+                    <div class="mt-8 pt-6 border-t border-gray-700">
+                        <h3 class="text-xl font-bold mb-4 text-gray-500">Need help?</h3>
+                        <button id="open-ai-chat-btn" class="btn-primary w-full text-white font-bold py-3 px-6 rounded-md flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-brain mr-2"></i> Chat with AI Assistant
+                        </button>
+                    </div>
+                    <!-- QR Code Section -->
+                    <div class="mt-8 pt-6 border-t border-gray-700 flex flex-col items-center">
+                        <h3 class="text-xl font-bold mb-4 text-gray-500">Share this QR code for better accessibility to PostItch</h3>
+                        <img src="https://i.postimg.cc/Ghf3NBzg/u-DURLf-1.png" alt="QR Code" class="w-24 h-24 sm:w-32 sm:h-32 rounded-lg object-contain">
+                    </div>
 				</div>
 			`;
+            document.getElementById('open-settings-from-about').addEventListener('click', () => {
+                switchTab('settings');
+            });
+            // Event listener for "Share Website" button
+            document.getElementById('share-website-btn').addEventListener('click', () => {
+                const websiteLink = "https://postitchindie.github.io/?section=community";
+                copyToClipboard(websiteLink);
+                showAlert("Website link copied to clipboard!");
+            });
+            // Event listener for "Chat with AI Assistant" button
+            document.getElementById('open-ai-chat-btn').addEventListener('click', openAiChatModal);
 		}
         
         // Renders the Community Rules page content.
@@ -1530,7 +2163,7 @@
                         <li class="flex items-start"><i class="fas fa-check-circle text-cyan-400 mt-1 mr-3"></i><span><strong>Anonymity is Key:</strong> This platform uses anonymous sign-in. Do not attempt to de-anonymize others or share personal information.</span></li>
                     </ul>
                     <div class="mt-8 pt-6 border-t border-gray-700">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-200">Content Quality Guidelines</h3>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-500">Content Quality Guidelines</h3>
                         <ul class="space-y-4 text-gray-300">
                             <li class="flex items-start"><i class="fas fa-exclamation-triangle text-yellow-400 mt-1 mr-3"></i><span><strong>Image Quality:</strong> Thumbnails and images must be clear, high quality, and directly related to the game. Blurry, stretched, low-effort, or unrelated visuals may lead to your post being removed or modified. Avoid random text-heavy or poorly designed thumbnails—only clean, appealing images are allowed.</span></li>
                             <li class="flex items-start"><i class="fas fa-robot text-red-400 mt-1 mr-3"></i><span><strong> AI Generated Content:</strong> AI-generated images that are low quality or visually unappealing will be removed. Visually appealing AI-generated content is allowed but must be clearly labeled as AI-generated. Any AI content that is misleading or lacks proper disclosure may be subject to removal.</span></li>
@@ -1541,8 +2174,231 @@
                 </div>
             `;
         }
+
+        // Renders the Settings page content.
+        function renderSettingsPage() {
+            contentSettings.innerHTML = `
+                <div class="max-w-3xl mx-auto card-bg p-4 sm:p-8 rounded-lg">
+                    <h2 class="text-3xl sm:text-4xl font-bold mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-600">Settings</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block mb-2 font-semibold text-gray-300">Theme Preference</label>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="theme-preference" value="system" ${userSettings.theme === 'system' ? 'checked' : ''}>
+                                    <span>System Preference</span>
+                                </label>
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="theme-preference" value="dark" ${userSettings.theme === 'dark' ? 'checked' : ''}>
+                                    <span>Dark Mode</span>
+                                </label>
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="theme-preference" value="light" ${userSettings.theme === 'light' ? 'checked' : ''}>
+                                    <span>Light Mode</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block mb-2 font-semibold text-gray-300">Text Size</label>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="text-size" value="sm" ${userSettings.textSize === 'sm' ? 'checked' : ''}>
+                                    <span>Small</span>
+                                </label>
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="text-size" value="base" ${userSettings.textSize === 'base' ? 'checked' : ''}>
+                                    <span>Medium</span>
+                                </label>
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="text-size" value="lg" ${userSettings.textSize === 'lg' ? 'checked' : ''}>
+                                    <span>Large</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block mb-2 font-semibold text-gray-300">Animations</label>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="animations" value="true" ${userSettings.animations ? 'checked' : ''}>
+                                    <span>On</span>
+                                </label>
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="animations" value="false" ${!userSettings.animations ? 'checked' : ''}>
+                                    <span>Off</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block mb-2 font-semibold text-gray-300">Show Post Counts (Likes, Comments, Views, Visits)</label>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="show-post-counts" value="true" ${userSettings.showPostCounts ? 'checked' : ''}>
+                                    <span>On</span>
+                                </label>
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="show-post-counts" value="false" ${!userSettings.showPostCounts ? 'checked' : ''}>
+                                    <span>Off</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block mb-2 font-semibold text-gray-300">Default Post Type</label>
+                            <div class="custom-select">
+                                <select id="default-post-type" class="w-full p-3 input-bg rounded-md">
+                                    <option value="Game Promotion" ${userSettings.defaultPostType === 'Game Promotion' ? 'selected' : ''}>Game Promotion</option>
+                                    <option value="Devlog" ${userSettings.defaultPostType === 'Devlog' ? 'selected' : ''}>Devlog</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Removed Default Feed Sort Order setting as per request -->
+
+                        <div>
+                            <label class="block mb-2 font-semibold text-gray-300">Default Post Count Display</label>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="default-post-count-display" value="exact" ${userSettings.defaultPostCountDisplay === 'exact' ? 'checked' : ''}>
+                                    <span>Exact Numbers (e.g., 1250)</span>
+                                </label>
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="default-post-count-display" value="abbreviated" ${userSettings.defaultPostCountDisplay === 'abbreviated' ? 'checked' : ''}>
+                                    <span>Abbreviated (e.g., 1.3k)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block mb-2 font-semibold text-gray-300">Automatically Open Modals Fullscreen</label>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="modal-fullscreen-setting" value="true" ${userSettings.modalFullscreen ? 'checked' : ''}>
+                                    <span>Yes</span>
+                                </label>
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="modal-fullscreen-setting" value="false" ${!userSettings.modalFullscreen ? 'checked' : ''}>
+                                    <span>No</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-gray-700 space-y-4">
+                            <h3 class="text-xl font-bold text-red-600">Danger Zone</h3>
+                            <button id="delete-all-posts-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-md w-full flex items-center justify-center gap-2 transition-all duration-300">
+                                <i class="fas fa-trash mr-2"></i> Delete All My Posts
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Add event listeners for settings changes
+            contentSettings.querySelectorAll('input[name="theme-preference"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    userSettings.theme = e.target.value;
+                    applySettings();
+                    saveUserSettings();
+                });
+            });
+
+            contentSettings.querySelectorAll('input[name="text-size"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    userSettings.textSize = e.target.value;
+                    applySettings();
+                    saveUserSettings();
+                });
+            });
+
+            contentSettings.querySelectorAll('input[name="animations"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    userSettings.animations = e.target.value === 'true';
+                    applySettings();
+                    saveUserSettings();
+                });
+            });
+
+            contentSettings.querySelectorAll('input[name="show-post-counts"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    userSettings.showPostCounts = e.target.value === 'true';
+                    applySettings(); // Re-apply to update card rendering
+                    saveUserSettings();
+                });
+            });
+
+            contentSettings.querySelector('#default-post-type').addEventListener('change', (e) => {
+                userSettings.defaultPostType = e.target.value;
+                saveUserSettings();
+            });
+
+            // Removed event listener for default-sort-order as the setting is removed.
+
+            contentSettings.querySelectorAll('input[name="default-post-count-display"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    userSettings.defaultPostCountDisplay = e.target.value;
+                    applySettings(); // Re-apply to update post count display on feeds
+                    saveUserSettings();
+                });
+            });
+
+            // New: Event listener for modal fullscreen setting
+            contentSettings.querySelectorAll('input[name="modal-fullscreen-setting"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    userSettings.modalFullscreen = e.target.value === 'true';
+                    saveUserSettings();
+                });
+            });
+
+            // Event listener for "Delete All My Posts" button
+            document.getElementById('delete-all-posts-btn').addEventListener('click', async () => {
+                if (!currentUser || !isAuthReady) {
+                    showAlert("Please wait for authentication to complete before deleting posts.");
+                    return;
+                }
+
+                const confirmStep1 = await showConfirm("Are you absolutely sure you want to delete ALL your posts? This action cannot be undone. Click 'Yes' to proceed.");
+                if (!confirmStep1) {
+                    return;
+                }
+
+                const confirmationText = "I want to delete all my posts from PostItch";
+                const userConfirmedInput = await showConfirmWithInput(
+                    "This is your final warning: ALL your posts will be permanently deleted. There is NO UNDO.",
+                    confirmationText
+                );
+                
+                if (userConfirmedInput) { // If the user typed the correct phrase and clicked confirm
+                    try {
+                        const postsRef = collection(db, `artifacts/${appId}/public/data/posts`);
+                        const q = query(postsRef, where("authorId", "==", currentUser.uid));
+                        const querySnapshot = await getDocs(q);
+
+                        if (querySnapshot.empty) {
+                            showAlert("You have no posts to delete.");
+                            return;
+                        }
+
+                        const batch = writeBatch(db);
+                        querySnapshot.docs.forEach((doc) => {
+                            batch.delete(doc.ref);
+                        });
+
+                        await batch.commit();
+                        showAlert("All your posts have been successfully deleted.").then(() => {
+                            switchTab('community'); // Navigate to community page after deletion
+                        });
+                    } catch (error) {
+                        console.error("Error deleting all posts:", error);
+                        showAlert(`Failed to delete all posts: ${error.message || error}. Please check your browser console.`);
+                    }
+                } else {
+                    showAlert("Deletion cancelled or incorrect confirmation text.");
+                }
+            });
+        }
         
-        // --- DATA HANDLING & LOGIC ---
         // This function now uses onSnapshot to keep 'allFetchedPosts' array updated in real-time.
         function listenForPostsRealtime() {
             const postsColRef = collection(db, `artifacts/${appId}/public/data/posts`);
@@ -1552,6 +2408,7 @@
                 // Ensure posts are sorted by creation date by default for initial display, then apply current sort preference
                 allFetchedPosts.sort((a, b) => {
                     // Handle cases where createdAt might be missing or not a Timestamp object
+                    // Ensure createdAt is treated as a Date object for comparison
                     const dateA = a.createdAt && typeof a.createdAt.toDate === 'function' ? a.createdAt.toDate() : new Date(0);
                     const dateB = b.createdAt && typeof b.createdAt.toDate === 'function' ? b.createdAt.toDate() : new Date(0);
                     return dateB - dateA; // Newest first
@@ -1570,6 +2427,14 @@
                 } else if (activeTab === 'search') {
                     // Re-run search if on search tab to update results based on new data
                     handleSearch();
+                }
+                // If the modal is open, re-render its content to reflect any changes (e.g., comment likes, poll votes)
+                if (isPostModalOpen) {
+                    const currentPostId = modalContent.querySelector('.modal-action-btn[data-post-id]')?.dataset.postId || editingPostId;
+                    if (currentPostId) {
+                        // Re-open the modal, but do NOT increment views again via this re-render
+                        openPostModal(currentPostId, false, false); // Pass false for incrementView
+                    }
                 }
             }, error => {
                 console.error("Error listening for posts:", error);
@@ -1608,11 +2473,32 @@
             const allowComments = form.querySelector('input[name="allow-comments"]:checked')?.value === 'true'; // Get comments setting
             const linkedGamePromoId = form.querySelector('#linked-game-promo')?.value || null; // Get linked game promo ID
             const devlogType = form.querySelector('#devlog-type')?.value || null; // Get devlog type
+            const addGamePromoPoll = form.querySelector('input[name="add-game-promo-poll"]:checked')?.value === 'true'; // New: for Game Promo poll toggle
 
-            // Prepare media-related fields based on selected mediaType
-            let trailerLink = '';
-            let imageUrl = '';
-            let customYoutubeLinkText = ''; // New variable
+            // Poll data if devlogType is 'Poll' or if postType is 'Game Promotion' and addGamePromoPoll is true
+            let pollData = null;
+            if ((postType === 'Devlog' && devlogType === 'Poll') || (postType === 'Game Promotion' && addGamePromoPoll)) {
+                const pollQuestion = form.querySelector('#poll-question').value.trim();
+                const pollOptions = [...form.querySelectorAll('.poll-option-input')].map(input => ({
+                    text: input.value.trim(),
+                    votes: 0 // Initialize votes to 0 for new polls
+                }));
+
+                if (!pollQuestion) {
+                    showAlert("Poll question cannot be empty.");
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = editingPostId ? 'Update Post' : 'Submit Post';
+                    return;
+                }
+                if (pollOptions.length < 2 || pollOptions.length > 5 || pollOptions.some(opt => !opt.text)) {
+                    showAlert("Please provide between 2 and 5 non-empty poll options.");
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = editingPostId ? 'Update Post' : 'Submit Post';
+                    return;
+                }
+                pollData = { question: pollQuestion, options: pollOptions, voters: [] }; // Initialize voters array for new polls
+            }
+
 
             // Validation based on post type
             if (postType === 'Game Promotion') {
@@ -1680,6 +2566,10 @@
                 return;
             }
 
+            let trailerLink = '';
+            let imageUrl = '';
+            let customYoutubeLinkText = '';
+
             if (mediaType === 'youtube' || mediaType === 'combo') {
                 trailerLink = form.querySelector('#trailer-link').value.trim();
                 // Combo requires YouTube link
@@ -1709,6 +2599,7 @@
                 if (imageUrl && !imageUrl.match(/^https?:\/\/[^\s$.?#].[^\s]*$/i)) {
                     showAlert("Please enter a valid URL for the image link.");
                     submitBtn.disabled = false;
+            
                     submitBtn.textContent = editingPostId ? 'Update Post' : 'Submit Post';
                     return;
                 }
@@ -1726,7 +2617,7 @@
             }
             // If mediaType is 'none' or 'itch_embed', trailerLink and imageUrl will remain empty, which is correct.
 
-            const postData = {
+            const basePostData = {
                 authorId: currentUser.uid,
                 title: form.querySelector('#game-title').value.trim(),
                 description: form.querySelector('#description').value.trim(),
@@ -1740,60 +2631,101 @@
                 aiContent: aiContent, // New required field
                 tags: tags, // Store tags
                 allowComments: allowComments, // Store comments setting
-                // Only include genres, platforms, pricing if it's a Game Promotion
-                ...(postType === 'Game Promotion' && {
-                    pricing: form.querySelector('#pricing').value,
-                    genres: genres,
-                    platforms: platforms
-                }),
-                ...(postType === 'Devlog' && { // Add linkedGamePromoId and devlogType for Devlogs
-                    linkedGamePromoId: linkedGamePromoId,
-                    devlogType: devlogType
-                }),
                 general: form.querySelector('#general').value.trim(),
                 reason: form.querySelector('#reason').value.trim(),
-                // Likes, comments, views, visits are not updated during post edit/creation
-                // createdAt is only set on creation, not updated
             };
 
             try {
                 if (editingPostId) {
                     // Update existing post
                     const postRef = doc(db, `artifacts/${appId}/public/data/posts`, editingPostId);
-                    // Fetch the existing post to preserve non-editable fields like likes, comments, views, visits, and createdAt
                     const existingPost = allFetchedPosts.find(p => p.id === editingPostId);
-                    if (existingPost) {
-                        // Merge existing non-editable fields with updated data
-                        const updatedData = {
-                            ...postData,
-                            likes: existingPost.likes || [],
-                            comments: existingPost.comments || [],
-                            views: existingPost.views || 0,
-                            visits: existingPost.visits || 0,
-                            createdAt: existingPost.createdAt // Preserve original creation timestamp
-                        };
-                        await updateDoc(postRef, updatedData);
-                    } else {
-                        // If for some reason existingPost is not found in allFetchedPosts,
-                        // proceed with just postData, but log a warning.
-                        console.warn("Existing post not found in local cache during update, updating with provided data only.", editingPostId);
-                        await updateDoc(postRef, postData);
+
+                    if (!existingPost) {
+                        showAlert("Error: Existing post not found for update.");
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Update Post';
+                        return;
                     }
 
+                    let updatePayload = {
+                        ...basePostData, // Start with all common fields
+                        // Preserve existing non-editable fields
+                        likes: existingPost.likes || [],
+                        comments: existingPost.comments || [],
+                        views: existingPost.views || 0,
+                        visits: existingPost.visits || 0,
+                        createdAt: existingPost.createdAt, // Preserve original creation timestamp
+                    };
+
+                    // Handle poll specifically for updates
+                    if (existingPost.poll) {
+                        // If a poll already exists, it cannot be modified or deleted. Preserve it.
+                        updatePayload.poll = existingPost.poll;
+                    } else {
+                        // If no poll exists on the original post
+                        if ((postType === 'Devlog' && devlogType === 'Poll') || (postType === 'Game Promotion' && addGamePromoPoll)) {
+                            // If a new poll is being added during this edit
+                            updatePayload.poll = pollData;
+                        } else {
+                            // If no poll exists and no new poll is being added, explicitly delete it in case it was there before
+                            updatePayload.poll = deleteField();
+                        }
+                    }
+
+                    // Handle type-specific fields for updates
+                    if (postType === 'Game Promotion') {
+                        updatePayload.pricing = form.querySelector('#pricing').value;
+                        updatePayload.genres = genres;
+                        updatePayload.platforms = platforms;
+                        // Ensure devlog-specific fields are removed if changing type
+                        updatePayload.linkedGamePromoId = deleteField();
+                        updatePayload.devlogType = deleteField();
+                    } else if (postType === 'Devlog') {
+                        updatePayload.linkedGamePromoId = linkedGamePromoId;
+                        updatePayload.devlogType = devlogType;
+                        // Ensure game promo-specific fields are removed if changing type
+                        updatePayload.pricing = deleteField();
+                        updatePayload.genres = deleteField();
+                        updatePayload.platforms = deleteField();
+                    }
+                    
+                    await updateDoc(postRef, updatePayload, { merge: true }); // Use merge: true for deleteField
                     showAlert("Post updated successfully!").then(() => {
                         closePostModal(); // Close modal after update
                         displayLimit = postsPerPage; // Reset display limit for community page
                         switchTab('my-posts'); // Navigate back to my posts
                     });
+
                 } else {
                     // Add new post
-                    postData.likes = []; // Initialize likes for new post
-                    postData.comments = []; // Initialize comments for new post
-                    postData.views = 0; // Initialize views for new post
-                    postData.visits = 0; // Initialize visits for new post
-                    postData.createdAt = serverTimestamp(); // Set timestamp for new post
-                    await addDoc(collection(db, `artifacts/${appId}/public/data/posts`), postData); // Removed newDocRef as it's no longer needed for opening modal
-                    showAlert("Post submitted successfully!").then(() => { // Removed async from inner function as no await is needed
+                    let newPostData = {
+                        ...basePostData,
+                        likes: [], // Initialize likes for new post
+                        comments: [], // Initialize comments for new post
+                        views: 0, // Initialize views for new post
+                        visits: 0, // Initialize visits for new post
+                        createdAt: serverTimestamp(), // Set timestamp for new post
+                    };
+
+                    // Add type-specific fields for new posts
+                    if (postType === 'Game Promotion') {
+                        newPostData.pricing = form.querySelector('#pricing').value;
+                        newPostData.genres = genres;
+                        newPostData.platforms = platforms;
+                        if (addGamePromoPoll && pollData) {
+                            newPostData.poll = pollData;
+                        }
+                    } else if (postType === 'Devlog') {
+                        newPostData.linkedGamePromoId = linkedGamePromoId;
+                        newPostData.devlogType = devlogType;
+                        if (devlogType === 'Poll' && pollData) {
+                            newPostData.poll = pollData;
+                        }
+                    }
+
+                    await addDoc(collection(db, `artifacts/${appId}/public/data/posts`), newPostData);
+                    showAlert("Post submitted successfully!").then(() => {
                         form.reset(); // Clear form fields after successful submission
                         // Reset character count and media selection UI to default
                         form.querySelector('#char-count').textContent = `0/1000`; // Use form.querySelector
@@ -1807,14 +2739,15 @@
 
                         // Reset post type fields visibility
                         const postTypeSelect = form.querySelector('#post-type');
-                        postTypeSelect.value = 'Game Promotion'; // Reset to default
+                        postTypeSelect.value = userSettings.defaultPostType; // Reset to default from settings
                         // Re-run togglePostTypeFields to reset UI for Game Promotion
                         postTypeSelect.dispatchEvent(new Event('change'));
                         
                         // Clear selected genres after successful post submission
                         selectedGenres = [];
                         // Re-render genre checkboxes to clear selections visually
-                        renderGenreCheckboxes();
+                        const genreCheckboxesContainer = form.querySelector('#genre-checkboxes');
+                        renderGenreCheckboxes(genreCheckboxesContainer);
                         switchTab('my-posts'); // Navigate directly to my posts after new post
                     });
                 }
@@ -1822,6 +2755,7 @@
                 console.error("Error handling post:", error);
                 showAlert(`Failed to ${editingPostId ? 'update' : 'submit'} post: ${error.message || error}. This often happens due to incorrect Firebase Security Rules or network issues. Please check your browser console for more details.`);
             } finally {
+                // Ensure the button is always re-enabled and text reset
                 submitBtn.disabled = false;
                 submitBtn.textContent = editingPostId ? 'Update Post' : 'Submit Post';
             }
@@ -1885,9 +2819,34 @@
         }
 
         // --- MODAL LOGIC FOR INDIVIDUAL POST VIEW ---
+        // Toggles fullscreen mode for a given modal element.
+        // `forceState` (optional boolean): if true, forces fullscreen; if false, forces normal; if undefined, toggles.
+        function toggleFullscreen(modalElement, forceState) {
+            const isFullscreen = modalElement.classList.contains('fullscreen');
+            const shouldBeFullscreen = (forceState !== undefined) ? forceState : !isFullscreen;
+
+            const backdrop = modalElement.previousElementSibling; // Assuming backdrop is the immediate previous sibling
+
+            if (shouldBeFullscreen) {
+                modalElement.classList.add('fullscreen');
+                if (backdrop) backdrop.classList.add('fullscreen');
+                document.body.classList.add('modal-fullscreen-active'); // Prevent body scrolling
+                // Update button icon for the specific modal
+                const toggleBtn = modalElement.id === 'modal-content' ? document.getElementById('fullscreen-toggle-btn') : document.getElementById('fullscreen-video-toggle-btn');
+                if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            } else {
+                modalElement.classList.remove('fullscreen');
+                if (backdrop) backdrop.classList.remove('fullscreen');
+                document.body.classList.remove('modal-fullscreen-active'); // Restore body scrolling
+                // Update button icon for the specific modal
+                const toggleBtn = modalElement.id === 'modal-content' ? document.getElementById('fullscreen-toggle-btn') : document.getElementById('fullscreen-video-toggle-btn');
+                if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        }
+
         // Opens a modal displaying detailed information about a selected post.
-        async function openPostModal(postId, focusComment = false) { 
-            // Set flag to true immediately to prevent multiple increments
+        async function openPostModal(postId, focusComment = false, incrementView = true) { // Added incrementView parameter
+            // Set flag to true immediately to prevent multiple modal instances
             isPostModalOpen = true; 
 
             const post = allFetchedPosts.find(p => p.id === postId); // Use allFetchedPosts
@@ -1897,15 +2856,27 @@
                 return;
             }
 
-            // Increment view count for ALL post types AFTER the modal is confirmed to open
-            try {
-                const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
-                await updateDoc(postRef, { views: (post.views || 0) + 1 });
-                // Optimistically update the local data
-                post.views = (post.views || 0) + 1;
-            } catch (error) {
-                console.error("Error incrementing view count:", error);
+            if (incrementView) { // Only increment view if explicitly requested (i.e., user clicked card)
+                const currentTime = Date.now();
+                const lastViewTime = lastViewTimestamps.get(postId);
+
+                // Increment view count only if enough time has passed since the last view for this post
+                if (!lastViewTime || (currentTime - lastViewTime > VIEW_COOLDOWN_MS)) {
+                    try {
+                        const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
+                        await updateDoc(postRef, { views: (post.views || 0) + 1 });
+                        // Optimistically update the local data
+                        post.views = (post.views || 0) + 1; // Update the local 'post' object immediately
+                        lastViewTimestamps.set(postId, currentTime); // Record this view timestamp
+                        console.log(`View for post ${postId} incremented. New views: ${post.views}`);
+                    } catch (error) {
+                        console.error("Error incrementing view count:", error);
+                    }
+                } else {
+                    console.log(`View for post ${postId} not incremented due to cooldown. Last view: ${((currentTime - lastViewTime) / 1000).toFixed(1)}s ago.`);
+                }
             }
+
 
             let mediaHtml = '';
             let modalYoutubeLinkHtml = ''; // New variable for combo link in modal
@@ -1914,17 +2885,19 @@
                 const videoId = getYouTubeVideoId(post.trailerLink);
                 if (videoId) {
                     // For YouTube, directly embed the video in the modal
-                    const embedSrc = getYouTubeEmbedSrc(videoId);
-                    mediaHtml = `<div class="aspect-video w-full rounded-md overflow-hidden"><iframe class="w-full h-full" src="${embedSrc}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
+                    const embedSrc = getYouTubeEmbedSrc(videoId, true); // Always autoplay in modal
+                    mediaHtml = `<div class="aspect-video w-full rounded-md overflow-hidden relative">
+                                    <iframe class="w-full h-full rounded-none" src="${embedSrc}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                                </div>`;
                 }
             } else if (post.mediaType === 'image' && post.imageUrl) {
                 mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md">
-                                <img src="${post.imageUrl}" alt="${post.title}" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Image+Not+Found';">
+                                <img src="${post.imageUrl}" alt="${post.title}" class="max-w-full max-h-full object-contain rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Image+Not+Found';">
                             </div>`;
             } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
                 // For combo in modal, display the image and a separate clickable button
                 mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md mb-4">
-                                <img src="${post.imageUrl}" alt="Custom Thumbnail" class="max-w-full max-h-full object-contain rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Custom+Thumbnail+Not+Found';">
+                                <img src="${post.imageUrl}" alt="Custom Thumbnail" class="max-w-full max-h-full object-contain rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Custom+Thumbnail+Not+Found';">
                             </div>`;
                 const videoId = getYouTubeVideoId(post.trailerLink);
                 if (videoId) {
@@ -1945,24 +2918,61 @@
                 mediaHtml = `<div class="h-48 bg-[#101010] flex items-center justify-center text-gray-500 rounded-md"><i class="fas fa-image fa-4x"></i><p class="ml-4">No media available</p></div>`;
             }
 
-            modalContent.innerHTML = `
-                <div class="flex justify-end mb-4">
-                    <button id="close-modal-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button>
-                </div>
-                <h2 class="text-2xl sm:text-3xl font-bold mb-4 text-white">${post.title}</h2>
-                ${mediaHtml}
-                ${modalYoutubeLinkHtml} <!-- Add the combo link button here -->
-                <div class="mt-6 flex flex-wrap gap-2 text-gray-400 text-sm">
-                    <span><strong>Posted:</strong> ${post.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString() : 'N/A'}</span>
-                    ${post.postType === 'Game Promotion' ? `<span><strong>Pricing:</strong> ${post.pricing}</span>` : ''}
-                    <span><strong>Type:</strong> ${post.postType}</span>
-                    ${post.postType === 'Devlog' && post.devlogType ? `<span><strong>Devlog Type:</strong> ${post.devlogType}</span>` : ''}
-                    ${post.madeWith ? `<span><strong>Made With:</strong> ${post.madeWith}</span>` : ''}
-                    <span><strong>AI Content:</strong> ${post.aiContent}</span>
-                    <span><strong>Views:</strong> ${post.views || 0}</span> <!-- View count for all post types -->
-                    ${post.postType === 'Game Promotion' ? `
-                        <span><strong>Visits:</strong> ${post.visits || 0}</span>
-                    ` : ''}
+            // Render poll section if devlogType is 'Poll' or if postType is 'Game Promotion' and it has a poll
+            let pollHtml = '';
+            if ((post.postType === 'Devlog' && post.devlogType === 'Poll' && post.poll) || (post.postType === 'Game Promotion' && post.poll)) {
+                const totalVotes = post.poll.options.reduce((sum, option) => sum + (option.votes || 0), 0);
+                pollHtml = `
+                    <div class="mt-8 border-t border-gray-700 pt-6">
+                        <h3 class="text-xl font-bold mb-4 text-gray-700">Poll: ${post.poll.question}</h3>
+                        <div class="space-y-3">
+                            ${post.poll.options.map((option, index) => {
+                                const percentage = totalVotes > 0 ? ((option.votes || 0) / totalVotes * 100).toFixed(1) : 0;
+                                const hasVoted = post.poll.voters?.includes(currentUser?.uid);
+                                return `
+                                    <div class="bg-[#1a1a1a] p-3 rounded-md shadow-sm">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-gray-300 text-sm sm:text-base">${option.text}</span>
+                                            <span class="text-gray-400 text-xs">${formatNumberForDisplay(option.votes || 0)} votes (${percentage}%)</span>
+                                        </div>
+                                        <div class="w-full bg-gray-700 rounded-full h-2.5">
+                                            <div class="bg-[#00bcd4] h-2.5 rounded-full" style="width: ${percentage}%"></div>
+                                        </div>
+                                        <button class="vote-poll-btn btn-primary text-white font-bold py-1 px-3 rounded-md text-xs mt-2 ${hasVoted ? 'opacity-50 cursor-not-allowed' : ''}" 
+                                            data-post-id="${postId}" data-option-index="${index}" ${hasVoted ? 'disabled' : ''}>
+                                            ${hasVoted ? 'Voted' : 'Vote'}
+                                        </button>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        ${totalVotes > 0 ? `<p class="text-right text-xs text-gray-500 mt-4">Total Votes: ${formatNumberForDisplay(totalVotes)}</p>` : `<p class="text-center text-gray-400 text-sm mt-4">No votes yet. Be the first to vote!</p>`}
+                    </div>
+                `;
+            }
+
+			modalContent.innerHTML = `
+				<div class="flex justify-between items-center mb-4">
+					<button id="close-modal-btn" class="modal-action-btn"><i class="fas fa-arrow-left"></i></button>
+                    <div class="flex gap-2">
+                        <button id="share-post-btn" class="modal-action-btn" data-post-id="${postId}"><i class="fa-solid fa-share"></i></button>
+                        <button id="fullscreen-toggle-btn" class="modal-action-btn"><i class="fas fa-expand"></i></button>
+                    </div>
+				</div>
+				<h2 class="text-2xl sm:text-3xl font-bold mb-4 text-white">${post.title}</h2>
+				${mediaHtml}
+				${modalYoutubeLinkHtml} <!-- Add the combo link button here -->
+				<div class="mt-6 flex flex-wrap gap-2 text-gray-400 text-sm">
+					<span><strong>Posted:</strong> ${post.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString() : 'N/A'}</span>
+					${post.postType === 'Game Promotion' ? `<span><strong>Pricing:</strong> ${post.pricing}</span>` : ''}
+					<span><strong>Type:</strong> ${post.postType}</span>
+					${post.postType === 'Devlog' && post.devlogType ? `<span><strong>Devlog Type:</strong> ${post.devlogType}</span>` : ''}
+					${post.madeWith ? `<span><strong>Made With:</strong> ${post.madeWith}</span>` : ''}
+					<span><strong>AI Content:</strong> ${post.aiContent}</span>
+					<span><strong>Views:</strong> ${formatNumberForDisplay(post.views || 0)}</span>
+					${post.postType === 'Game Promotion' ? `
+						<span><strong>Visits:</strong> ${formatNumberForDisplay(post.visits || 0)}</span>
+					` : ''}
                 </div>
                 <p class="text-gray-300 my-4 text-justify text-sm sm:text-base">${post.description}</p>
                 
@@ -1977,8 +2987,8 @@
                         <i class="fas fa-external-link-alt"></i> Visit Itch.io
                     </a>
                     ${post.postType === 'Devlog' && post.linkedGamePromoId ? `
-                        <button id="view-linked-game-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base">
-                            <i class="fas fa-gamepad"></i> View Linked Linked Game
+                        <button id="view-linked-game-btn" class="btn-primary flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-md text-white font-bold hover:scale-105 transition-transform text-sm sm:text-base" data-linked-post-id="${post.linkedGamePromoId}">
+                            <i class="fas fa-gamepad"></i> View Linked Game
                         </button>
                     ` : ''}
                 </div>
@@ -1986,14 +2996,23 @@
                 ${post.general ? `<div class="mt-4"><h3 class="font-semibold text-lg text-gray-200">General Info:</h3><p class="text-gray-300 text-sm sm:text-base">${post.general}</p></div>` : ''}
                 ${post.reason ? `<div class="mt-4"><h3 class="font-semibold text-lg text-gray-200">Why I'm Posting:</h3><p class="text-gray-300 text-sm sm:text-base">${post.reason}</p></div>` : ''}
 
+                ${pollHtml} <!-- Add poll HTML here -->
+
                 ${post.allowComments !== false ? ` <!-- Conditional rendering for comments section -->
                     <div class="mt-8 border-t border-gray-700 pt-6">
-                        <h3 class="text-xl font-bold mb-4 text-gray-200">Comments (${post.comments?.length || 0})</h3>
+                        <h3 class="text-xl font-bold mb-4 text-gray-300">Comments (${formatNumberForDisplay(post.comments?.length || 0)})</h3>
                         <div id="comments-list" class="space-y-4 mb-6">
-                            ${post.comments && post.comments.length > 0 ? post.comments.map(comment => `
+                            ${post.comments && post.comments.length > 0 ? post.comments.map((comment, index) => `
                                 <div class="bg-[#1a1a1a] p-4 rounded-md shadow-sm">
                                     <p class="text-gray-300 text-sm sm:text-base">${comment.text}</p>
-                                    <p class="text-right text-xs text-gray-500 mt-2">Comment by Anonymous on ${new Date(comment.timestamp.toDate()).toLocaleDateString()}</p>
+                                    <div class="flex justify-end items-center mt-2">
+                                        ${post.authorId === currentUser?.uid ? `
+                                            <button class="delete-comment-btn text-red-500 hover:text-red-400 transition ml-4" data-post-id="${postId}" data-comment-index="${index}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        ` : ''}
+                                        <p class="text-right text-xs text-gray-500 ml-auto">Comment by Anonymous on ${new Date(comment.timestamp.toDate()).toLocaleDateString()}</p>
+                                    </div>
                                 </div>
                             `).join('') : '<p class="text-gray-400 text-sm sm:text-base">No comments yet. Be the first to leave feedback!</p>'}
                         </div>
@@ -2005,12 +3024,18 @@
                 ` : `<div class="mt-8 border-t border-gray-700 pt-6 text-center text-gray-400">Comments are disabled for this post.</div>`}
             `;
             postModal.classList.remove('hidden'); // Show the modal
+            // Apply fullscreen if setting is enabled
+            if (userSettings.modalFullscreen) {
+                toggleFullscreen(modalContent, true); // Pass true to force fullscreen on open
+            }
             document.getElementById('close-modal-btn').addEventListener('click', closePostModal);
+            document.getElementById('fullscreen-toggle-btn').addEventListener('click', () => toggleFullscreen(modalContent)); // Add listener for fullscreen toggle
             
             // Add event listener for "Visit Itch.io" button to increment visits
             const visitItchBtn = document.getElementById('visit-itch-btn');
             if (visitItchBtn) {
                 visitItchBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation(); // Crucial: Prevent click from bubbling to modal backdrop
                     // Only increment if it's a Game Promotion post
                     if (post.postType === 'Game Promotion') {
                         try {
@@ -2028,8 +3053,11 @@
             // Add event listener for "View Linked Game" button
             const viewLinkedGameBtn = document.getElementById('view-linked-game-btn');
             if (viewLinkedGameBtn && post.linkedGamePromoId) {
-                viewLinkedGameBtn.addEventListener('click', async () => {
-                    await openPostModal(post.linkedGamePromoId);
+                viewLinkedGameBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation(); // Crucial: Prevent click from bubbling to modal backdrop
+                    // Close the current modal before opening the new one
+                    closePostModal(); 
+                    await openPostModal(e.currentTarget.dataset.linkedPostId, false, true); // When opening a linked game, it's a new user-initiated view
                 });
             }
 
@@ -2038,6 +3066,7 @@
             if (openVideoPlayerBtn) {
                 openVideoPlayerBtn.addEventListener('click', (e) => {
                     e.preventDefault(); // Prevent default link behavior
+                    e.stopPropagation(); // Prevent click from bubbling to modal backdrop
                     const videoId = e.currentTarget.dataset.videoId;
                     if (videoId) {
                         openVideoModal(videoId);
@@ -2047,12 +3076,41 @@
                 });
             }
 
+            // Add event listener for share button
+            document.getElementById('share-post-btn').addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent modal from closing if share button is clicked
+                const shareLink = `https://postitchindie.github.io/?postId=${postId}`;
+                copyToClipboard(shareLink);
+                showAlert("Link copied to clipboard!");
+            });
+
 
             if (post.allowComments !== false) { // Only add comment form listener if comments are allowed
                 document.getElementById('comment-form').addEventListener('submit', (e) => handleCommentSubmit(e, postId));
+                // Removed event listeners for comment likes
+                // Add event listeners for comment delete buttons
+                document.querySelectorAll('.delete-comment-btn').forEach(btn => {
+                    btn.removeEventListener('click', (e) => { /* remove old listener */ }); // Remove existing listeners to prevent duplicates
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const commentIndex = parseInt(btn.dataset.commentIndex);
+                        deleteComment(postId, commentIndex);
+                    });
+                });
                 if (focusComment) {
                     document.getElementById('comment-input').focus(); // Optionally focus the comment input
                 }
+            }
+
+            // Add event listeners for poll voting
+            if ((post.postType === 'Devlog' && post.devlogType === 'Poll' && post.poll) || (post.postType === 'Game Promotion' && post.poll)) {
+                document.querySelectorAll('.vote-poll-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const optionIndex = parseInt(btn.dataset.optionIndex);
+                        voteOnPoll(postId, optionIndex);
+                    });
+                });
             }
         }
 
@@ -2062,11 +3120,17 @@
             modalContent.innerHTML = ''; // Clear content to prevent old data from flashing on next open
             editingPostId = null; // Reset editing state
             isPostModalOpen = false; // Reset flag when modal is closed
+            // Ensure fullscreen mode is off when closing the modal
+            toggleFullscreen(modalContent, false); // Force fullscreen off on close
             // Re-enable post type selection when closing the edit modal
             const postTypeSelect = document.getElementById('post-type');
             if (postTypeSelect) {
                 postTypeSelect.disabled = false;
             }
+            // Remove postId from URL when modal is closed
+            const url = new URL(window.location.href);
+            url.searchParams.delete('postId');
+            window.history.replaceState({}, document.title, url.toString());
         }
 
         // Handles the submission of a new comment for a post.
@@ -2098,32 +3162,136 @@
             const newComments = [...(post.comments || []), {
                 authorId: currentUser.uid, // Store the anonymous user's UID
                 text: commentText,
-                timestamp: new Date() // Use client-side Date object for timestamp in array
+                timestamp: new Date(), // Use client-side Date object for timestamp in array
+                // Removed likes: [] for new comment
             }];
 
             try {
                 await updateDoc(postRef, { comments: newComments });
                 commentInput.value = ''; // Clear input field
-                // Optimistically update the UI for immediate feedback without waiting for the full snapshot refresh
-                const commentsList = document.getElementById('comments-list');
-                if (commentsList) {
-                    const tempComment = { text: commentText, timestamp: { toDate: () => new Date() } }; // Mock for display
-                    commentsList.innerHTML += `
-                        <div class="bg-[#1a1a1a] p-4 rounded-md shadow-sm">
-                            <p class="text-gray-300 text-sm sm:text-base">${tempComment.text}</p>
-                            <p class="text-right text-xs text-gray-500 mt-2">Comment by Anonymous on ${new Date(tempComment.timestamp.toDate()).toLocaleDateString()}</p>
-                        </div>
-                    `;
-                     // Remove the "No comments yet" message if it was present
-                     const noCommentsMessage = commentsList.querySelector('p.text-gray-400');
-                     if (noCommentsMessage) {
-                        noCommentsMessage.remove();
-                    }
-                }
+                // The onSnapshot listener will re-render the modal with updated comments.
+                // No need for optimistic update here as onSnapshot is fast enough.
             } catch (error) {
                 console.error("Error adding comment: ", error);
                 showAlert(`Failed to post comment: ${error.message || error}.`);
             }
+        }
+
+        // Removed function: toggleCommentLike
+
+        // Deletes a specific comment from a post.
+        async function deleteComment(postId, commentIndex) {
+            if (!currentUser || !isAuthReady) {
+                showAlert("Please wait a moment for authentication to complete.");
+                return;
+            }
+
+            const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
+            const post = allFetchedPosts.find(p => p.id === postId);
+
+            if (!post || !post.comments || commentIndex < 0 || commentIndex >= post.comments.length) {
+                console.error("Comment not found for deletion:", postId, commentIndex);
+                showAlert("Could not delete comment: Comment not found.");
+                return;
+            }
+
+            // Only allow post owner to delete comments
+            if (post.authorId !== currentUser.uid) {
+                showAlert("You can only delete comments on your own posts.");
+                return;
+            }
+
+            const confirmed = await showConfirm("Are you sure you want to delete this comment? This cannot be undone.");
+            if (!confirmed) {
+                return;
+            }
+
+            // Create a new comments array without the comment to be deleted
+            const updatedComments = post.comments.filter((_, idx) => idx !== commentIndex);
+
+            try {
+                await updateDoc(postRef, { comments: updatedComments });
+                showAlert("Comment deleted successfully.");
+                // The onSnapshot listener will re-render the modal with updated comments.
+            } catch (error) {
+                console.error("Error deleting comment:", error);
+                showAlert(`Failed to delete comment: ${error.message || error}.`);
+            }
+        }
+
+        // Handles voting on a poll within a Devlog or Game Promotion.
+        async function voteOnPoll(postId, optionIndex) {
+            if (!currentUser || !isAuthReady) {
+                showAlert("Please wait a moment for authentication to complete before voting.");
+                return;
+            }
+
+            const postRef = doc(db, `artifacts/${appId}/public/data/posts`, postId);
+            const post = allFetchedPosts.find(p => p.id === postId);
+
+            if (!post || !post.poll || optionIndex < 0 || optionIndex >= post.poll.options.length) {
+                console.error("Poll or option not found for voting:", postId, optionIndex);
+                showAlert("Could not cast vote: Poll or option not found.");
+                return;
+            }
+
+            let currentPoll = post.poll;
+            let newVoters = currentPoll.voters || [];
+
+            if (newVoters.includes(currentUser.uid)) {
+                showAlert("You have already voted on this poll.");
+                return;
+            }
+
+            // Deep copy poll options to modify votes
+            const updatedOptions = JSON.parse(JSON.stringify(currentPoll.options));
+            updatedOptions[optionIndex].votes = (updatedOptions[optionIndex].votes || 0) + 1;
+            newVoters.push(currentUser.uid); // Add current user to voters list
+
+            try {
+                await updateDoc(postRef, {
+                    'poll.options': updatedOptions,
+                    'poll.voters': newVoters
+                });
+                // The onSnapshot listener will re-render the modal with updated poll results
+            } catch (error) {
+                console.error("Error voting on poll:", error);
+                showAlert(`Failed to cast vote: ${error.message || error}.`);
+            }
+        }
+
+
+        // Function to copy text to clipboard
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // --- AI CHAT MODAL FUNCTIONS ---
+        function openAiChatModal() {
+            aiChatModal.classList.remove('hidden');
+            // Directly embed the iframe with the new URL
+            aiAgentContainer.innerHTML = `
+                <iframe src="https://agent.jotform.com/01980fae3ef070878c777548077514c2e375?" 
+                    frameborder="0" 
+                    style="width: 100%; height: 100%; border: none;" 
+                    allow="geolocation; microphone; camera; fullscreen">
+                </iframe>
+            `;
+        }
+
+        function closeAiChatModal() {
+            aiChatModal.classList.add('hidden');
+            // Clear the iframe content when closed to stop any active sessions/audio
+            aiAgentContainer.innerHTML = ''; 
         }
 
     </script>
