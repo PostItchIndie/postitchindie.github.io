@@ -40,27 +40,33 @@
             opacity: 0.98; /* Almost opaque */
             box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* Initial shadow */
         }
+        /* Re-introduced subtle hover effect, removed active state animation */
         .card-bg:hover {
-            transform: translateY(-4px); /* Reduced lift effect for subtlety */
+            transform: translateY(-3px); /* Lift effect on hover */
             opacity: 1;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.6); /* Stronger shadow on hover */
-            border-color: #00bcd4; /* Vibrant teal border on hover */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5); /* Stronger shadow on hover */
+            border-color: #00bcd4; /* Teal border on hover */
         }
-        /* Removed active state for a less frequent click animation */
+        /* Removed card-bg:active to allow hover to persist when child elements are clicked */
+        /* .card-bg:active {
+            transform: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border-color: #3a3a3a;
+        } */
 
         /* Specific styles for Game Promotion cards */
         .card-promo {
             border-color: #007bff; /* Blue border for promos */
         }
         .card-promo:hover {
-            border-color: #00bcd4; /* Teal border on hover for promos */
+            border-color: #007bff; /* Keep blue border on hover for promos */
         }
         /* Specific styles for Devlog cards */
         .card-devlog {
             border-color: #ffc107; /* Yellow/Amber border for devlogs */
         }
         .card-devlog:hover {
-            border-color: #00bcd4; /* Teal border on hover for promos */
+            border-color: #ffc107; /* Keep yellow/amber border on hover for devlogs */
         }
 
         /* Input field styling */
@@ -167,10 +173,6 @@
             transition: all 0.3s ease-in-out; /* Smooth transition for fullscreen */
             overflow-y: auto; /* Allow content inside modal to scroll */
         }
-        /* Specific style for AI Chat Modal content to remove its scrollbar */
-        #ai-chat-modal-content {
-            overflow: hidden !important; /* Force no scrollbar on the modal content itself */
-        }
         /* Fullscreen styles for the modal */
         .modal.fullscreen {
             top: 0;
@@ -250,7 +252,7 @@
             align-items: center;
             justify-content: center;
             border-bottom: 1px solid #2a2a2a; /* Separator for media */
-            position: relative; /* For play button overlay and combo button */
+            position: relative; /* For play button overlay */
             border-radius: 0px 0px 0 0; /* Rounded top corners for thumbnail */
         }
 
@@ -296,7 +298,30 @@
             line-height: 1;
         }
 
-        /* Removed @keyframes pulse as it's no longer used */
+        /* New: Combo button on preview card thumbnail */
+        .combo-video-btn {
+            position: absolute;
+            bottom: 8px; /* Changed from top: 8px */
+            left: 8px; /* Adjusted from 5px for better spacing */
+            z-index: 15; /* Higher than play-button-overlay */
+            background: linear-gradient(90deg, #007bff, #00bcd4); /* Same as btn-primary */
+            border-radius: 4px; /* Changed from 8px to 4px for less rounding (rounded-sm) */
+            padding: 6px 10px; /* Smaller padding for preview card */
+            color: white;
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .combo-video-btn:hover {
+            transform: translateY(-2px); /* Subtle lift on hover */
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.6); /* Stronger shadow */
+        }
 
         /* Z-index for dropdown to appear above other elements */
         #more-dropdown {
@@ -333,9 +358,10 @@
             box-shadow: none; /* Ensure no shadow on hover */
         }
 
+        /* Removed transform and box-shadow from :active states to allow hover effects to persist on click */
         .modal-action-btn:active {
-            transform: none; /* Remove any press effect */
-            box-shadow: none; /* Ensure no shadow on active */
+            /* transform: none; */ /* Removed */
+            /* box-shadow: none; */ /* Removed */
         }
 
         /* Theme-specific styles */
@@ -355,8 +381,15 @@
         }
         body.light-mode .card-bg:hover {
             border-color: #00bcd4; /* Teal border on hover */
-            box-shadow: 0 4px 10px rgba(0,0,0,0.04); /* Slightly more visible shadow */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Slightly more pronounced shadow in light mode */
+            transform: translateY(-3px); /* Lift effect on hover */
         }
+        /* Removed card-bg:active for light mode as well */
+        /* body.light-mode .card-bg:active {
+            transform: none;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.01);
+            border-color: #f5f5f5;
+        } */
         body.light-mode .input-bg {
             background-color: #ffffff; /* White input background */
             border: 1px solid #e0e0e0; /* Light gray border */
@@ -401,41 +434,118 @@
             box-shadow: 0 2px 10px rgba(0, 188, 212, 0.5);
         }
 
-		/* Text size classes */
-		body.text-sm { font-size: 0.875rem; } /* 14px */
-		body.text-base { font-size: 1rem; }    /* 16px (default) */
-		body.text-lg { font-size: 1.125rem; }  /* 18px */
+        /* Text size classes */
+        body.text-sm { font-size: 0.875rem; } /* 14px */
+        body.text-base { font-size: 1rem; }    /* 16px (default) */
+        body.text-lg { font-size: 1.125rem; }  /* 18px */
 
-		/* Animations toggle */
-		body.no-animations * {
-			transition: none !important;
-			animation: none !important;
-			transform: none !important; /* disable transform animations */
-		}
+        /* Animations toggle */
+        body.no-animations * {
+            transition: none !important;
+            animation: none !important;
+        }
 
-		/* Removed specific styles for video modal play button overlay */
-		/* as it's no longer needed for the video modal itself */
+        /* Removed specific styles for video modal play button overlay */
+        /* as it's no longer needed for the video modal itself */
 
-		/* Compact Card View Styles - REMOVED */
+        /* New: Remove transform animations on click for specific buttons */
+        /* Removed !important overrides for transform and box-shadow to allow hover effects to persist on click */
+        .like-btn:active,
+        .comment-btn:active,
+        .edit-btn:active,
+        .delete-btn:active,
+        .btn-primary:active {
+            /* transform: none !important; */ /* Removed */
+            /* transition: none !important; */ /* Removed */
+            /* box-shadow: none !important; */ /* Removed */
+            opacity: 1 !important; /* Ensure full opacity */
+        }
+
+        /* Also ensure the play button overlay doesn't have active animations */
+        .play-button-overlay:active {
+            transform: translate(-50%, -50%) scale(1) !important; /* Reset scale on active */
+            /* transition: none !important; */ /* Removed */
+            /* box-shadow: none !important; */ /* Removed */
+        }
+        /* Also ensure the combo video button doesn't have active animations */
+        .combo-video-btn:active {
+            /* transform: none !important; */ /* Removed */
+            /* transition: none !important; */ /* Removed */
+            /* box-shadow: none !important; */ /* Removed */
+        }
+
+
+        /* For the view/visit icons which are buttons but have cursor-default, ensure no active animation */
+        .inline-flex .hover\:text-white:hover:active { /* Target the button within the span */
+            /* transform: none !important; */ /* Removed */
+            /* transition: none !important; */ /* Removed */
+            /* box-shadow: none !important; */ /* Removed */
+        }
+
+        /* Styling for the AI Assistant iframe modal */
+        #ai-assistant-modal-content {
+            display: flex; /* Use flexbox */
+            flex-direction: column; /* Stack children vertically */
+            height: 90vh; /* Set a specific height for the modal content */
+            max-height: 90vh; /* Ensure it doesn't exceed viewport height */
+            overflow: hidden; /* Hide scrollbar on the modal content itself */
+        }
+
+        #ai-assistant-modal-content .modal-header {
+            flex-shrink: 0; /* Prevent header from shrinking */
+        }
+
+        #ai-assistant-modal-content .iframe-container {
+            flex-grow: 1; /* Allow iframe container to take up remaining space */
+            overflow: hidden; /* Hide scrollbar on the iframe container */
+        }
+
+        #ai-assistant-modal-content iframe {
+            width: 100%;
+            height: 100%; /* Make iframe fill its parent container */
+            border: none;
+            border-radius: 0.5rem; /* Tailwind rounded-lg */
+        }
+
+        /* New: No hover animation for disabled vote buttons */
+        .vote-poll-btn[disabled]:hover {
+            transform: none !important;
+            transition: none !important;
+            box-shadow: none !important;
+        }
+
+        /* New: Style for voted poll button */
+        .vote-poll-btn.voted {
+            background: #3a3a3a; /* A neutral dark background */
+            color: #b0b0b0; /* Lighter text color */
+            cursor: not-allowed;
+            box-shadow: none; /* No shadow */
+            opacity: 0.8; /* Slightly less opaque */
+            transform: none; /* No transform on hover/active */
+        }
+        .vote-poll-btn.voted:hover {
+            background: #3a3a3a; /* Keep the same background on hover */
+            color: #b0b0b0; /* Keep the same text color on hover */
+            box-shadow: none; /* No shadow on hover */
+            transform: none; /* No transform on hover */
+        }
     </style>
 </head>
 <body>
 
     <div id="app" class="max-w-7xl mx-auto px-4 py-4 sm:px-6">
         <header class="flex justify-between items-center py-4 px-4 main-bg rounded-lg shadow-lg">
-		<h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wider">
-			Post<span class="text-[#00bcd4]">Itch</span>
-		</h1>
+            <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wider">Post<span class="text-[#00bcd4]">Itch</span></h1>
             <nav class="hidden md:flex items-center space-x-6">
-                <a href="https://postitchindie.github.io/?section=community" class="nav-item text-lg font-semibold hover:text-[#00bcd4] active" data-tab="community">Community</a>
-                <a href="https://postitchindie.github.io/?section=promos" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="promos">Game Promos</a>
-                <a href="https://postitchindie.github.io/?section=devlogs" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="devlogs">Devlogs</a>
-                <a href="https://postitchindie.github.io/?section=post" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="post">Post</a>
-                <a href="https://postitchindie.github.io/?section=search" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="search">Search</a>
-                <a href="https://postitchindie.github.io/?section=my-posts" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="my-posts">My Posts</a>
-                <a href="https://postitchindie.github.io/?section=about" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="about">About</a>
-                <a href="https://postitchindie.github.io/?section=rules" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="rules">Rules</a>
-                <a href="https://postitchindie.github.io/?section=settings" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="settings">Settings</a> <!-- New Settings tab -->
+                <a href="https://postitchindie.github.io/?section=community" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
+                <a href="https://postitchindie.github.io/?section=promos" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
+                <a href="https://postitchindie.github.io/?section=devlogs" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
+                <a href="https://postitchindie.github.io/?section=post" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
+                <a href="https://postitchindie.github.io/?section=search" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
+                <a href="https://postitchindie.github.io/?section=my-posts" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
+                <a href="https://postitchindie.github.io/?section=about" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
+                <a href="https://postitchindie.github.io/?section=rules" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
+                <a href="https://postitchindie.github.io/?section=settings" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="settings">Settings</a> <!-- New Settings tab -->
             </nav>
             <div class="md:hidden">
                 <button id="mobile-menu-btn"><i class="fas fa-bars text-2xl"></i></button>
@@ -500,10 +610,23 @@
 			</div>
 			<div class="aspect-video w-full rounded-md overflow-hidden relative">
 				<iframe id="video-player-iframe" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                <!-- Removed video-overlay-play-button as per request -->
 			</div>
 		</div>
 	</div>
+
+    <!-- New AI Assistant Modal -->
+    <div id="ai-assistant-modal" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div id="ai-assistant-modal-content" class="modal w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl main-bg rounded-lg shadow-lg p-4 sm:p-6">
+            <div class="modal-header flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-white">AI Assistant</h3>
+                <button id="close-ai-assistant-modal-btn" class="modal-action-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="iframe-container w-full h-full">
+                <iframe src="https://agent.jotform.com/01980fae3ef070878c777548077514c2e375" title="AI Assistant"></iframe>
+            </div>
+        </div>
+    </div>
 
     <!-- New Confirmation Input Modal -->
     <div id="confirm-input-modal" class="hidden">
@@ -515,20 +638,6 @@
             <div class="flex justify-center gap-4">
                 <button id="confirm-input-yes-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-md" disabled>Confirm</button>
                 <button id="confirm-input-no-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-md">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- New AI Chat Modal -->
-    <div id="ai-chat-modal" class="hidden">
-        <div class="modal-backdrop"></div>
-        <div id="ai-chat-modal-content" class="modal w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl h-5/6 main-bg rounded-lg shadow-lg p-4 sm:p-6 flex flex-col overflow-hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-white">AI Assistant</h3>
-                <button id="close-ai-chat-modal-btn" class="modal-action-btn"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div id="ai-agent-container" class="flex-grow overflow-hidden rounded-md">
-                <!-- AI Agent will be embedded here -->
             </div>
         </div>
     </div>
@@ -587,7 +696,8 @@
             defaultPostType: 'Game Promotion', // 'Game Promotion', 'Devlog'
             defaultSortOrder: 'newest', // 'newest', 'popular', 'oldest', 'most-viewed', 'most-visited'
             defaultPostCountDisplay: 'abbreviated', // 'exact', 'abbreviated' - Default changed to 'abbreviated'
-            modalFullscreen: false // New setting: automatically open modals in fullscreen
+            modalFullscreen: false, // New setting: automatically open modals in fullscreen
+            alwaysMuteVideos: false // New setting: always mute videos when opened
         };
 
         // Map to store last view timestamp for each post to prevent spamming views
@@ -625,12 +735,10 @@
         const closeVideoModalBtn = document.getElementById('close-video-modal-btn');
         const fullscreenVideoToggleBtn = document.getElementById('fullscreen-video-toggle-btn'); // New fullscreen toggle for video modal
 
-        // New AI Chat Modal elements
-        const aiChatModal = document.getElementById('ai-chat-modal');
-        const aiChatModalContent = document.getElementById('ai-chat-modal-content');
-        const closeAiChatModalBtn = document.getElementById('close-ai-chat-modal-btn');
-        const aiAgentContainer = document.getElementById('ai-agent-container');
-        // Removed isAiScriptLoaded as we're directly embedding the iframe now.
+        // New AI Assistant modal elements
+        const aiAssistantModal = document.getElementById('ai-assistant-modal');
+        const closeAiAssistantModalBtn = document.getElementById('close-ai-assistant-modal-btn');
+
 
         let editingPostId = null; // Stores the ID of the post currently being edited
         let isPostModalOpen = false; // Flag to prevent multiple modal instances
@@ -722,7 +830,8 @@
 
         // Generates the YouTube embed source URL.
         function getYouTubeEmbedSrc(videoId, autoplay = false) {
-            return videoId ? `https://www.youtube.com/embed/${videoId}${autoplay ? '?autoplay=1' : ''}` : '';
+            const muteParam = userSettings.alwaysMuteVideos ? '&mute=1' : '';
+            return videoId ? `https://www.youtube.com/embed/${videoId}?enablejsapi=1${autoplay ? '&autoplay=1' : ''}${muteParam}` : '';
         }
 
         // Generates the HTML for embedding an Itch.io game.
@@ -752,9 +861,7 @@
 
         // Opens the dedicated video modal
         function openVideoModal(videoId) {
-            console.log("openVideoModal called with videoId:", videoId); // Debugging
             const embedSrc = getYouTubeEmbedSrc(videoId, true); // Always autoplay when opened via dedicated button
-            console.log("Generated embedSrc:", embedSrc); // Debugging
             if (embedSrc) {
                 videoPlayerIframe.src = embedSrc; 
                 videoModal.classList.remove('hidden');
@@ -764,7 +871,6 @@
                 }
             } else {
                 showAlert("Could not play video: Invalid YouTube link.");
-                console.error("Invalid YouTube embed source for videoId:", videoId); // Debugging
             }
         }
 
@@ -775,6 +881,21 @@
             // Ensure fullscreen mode is off when closing the video modal
             toggleFullscreen(videoModalContent, false); // Force fullscreen off on close
         }
+
+        // Opens the AI Assistant modal
+        function openAiAssistantModal() {
+            aiAssistantModal.classList.remove('hidden');
+             // Add class to body to prevent scrolling when modal is open
+            document.body.classList.add('modal-fullscreen-active');
+        }
+
+        // Closes the AI Assistant modal
+        function closeAiAssistantModal() {
+            aiAssistantModal.classList.add('hidden');
+            // Remove class from body to re-enable scrolling
+            document.body.classList.remove('modal-fullscreen-active');
+        }
+
 
         // Function to render genre checkboxes based on a filtered list
         // Moved to global scope for accessibility
@@ -880,7 +1001,7 @@
                 }
                 applySettings(); // Apply loaded or default settings immediately
             } catch (error) {
-                console.error("Error loading user settings to local storage:", error);
+                console.error("Error loading user settings from local storage:", error);
             }
         }
 
@@ -894,8 +1015,8 @@
                     // Check if the click target is the media placeholder or a button
                     // The 'combo' type will now have a direct link, so we don't want the card to open the modal
                     // if the link itself is clicked.
-                    if (e.target.closest('.media-placeholder') || e.target.closest('.combo-play-btn') || e.target.closest('button')) {
-                        return; // Do nothing if media placeholder, YouTube link button, or other button was clicked
+                    if (e.target.closest('.media-placeholder') || e.target.closest('.combo-video-btn') || e.target.closest('button')) { // Added .combo-video-btn
+                        return; // Do nothing if media placeholder, combo video button, or other button was clicked
                     }
                     const postId = card.dataset.id;
                     // Only open the post modal if it's not already open
@@ -914,17 +1035,12 @@
                 });
             });
             
-            // Event listener for combo button on card preview
-            document.querySelectorAll('.combo-play-btn').forEach(btn => {
+            // Event listener for combo video button on preview cards
+            document.querySelectorAll('.combo-video-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation(); // Prevent card click event from firing
                     const videoId = btn.dataset.videoId;
-                    console.log("Combo button clicked. Video ID:", videoId); // Debugging
-                    if (videoId) {
-                        openVideoModal(videoId); // Open in the dedicated video modal
-                    } else {
-                        console.error("No video ID found for combo button!"); // Debugging
-                    }
+                    openVideoModal(videoId);
                 });
             });
 
@@ -1019,10 +1135,36 @@
 			closeVideoModalBtn.addEventListener('click', closeVideoModal);
             // Add event listener for the new video modal fullscreen toggle button
             fullscreenVideoToggleBtn.addEventListener('click', () => toggleFullscreen(videoModalContent));
-            // Add event listener for AI Chat modal close button
-            closeAiChatModalBtn.addEventListener('click', closeAiChatModal);
+            // Add event listener for AI Assistant modal close button
+            closeAiAssistantModalBtn.addEventListener('click', closeAiAssistantModal);
+
+            // Auto-pause video when any other modal opens or tab switches
+            document.addEventListener('click', (e) => {
+                if (!videoModal.classList.contains('hidden') && !e.target.closest('#video-modal')) {
+                    // Check if the click is outside the video modal
+                    // This is a broad check, refine if needed for specific interactions
+                    pauseVideo();
+                }
+            });
+            // Also pause video when tab switches
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (!videoModal.classList.contains('hidden')) {
+                        pauseVideo();
+                    }
+                });
+            });
         }
         
+        // Function to pause the video in the video modal
+        function pauseVideo() {
+            const iframeSrc = videoPlayerIframe.src;
+            if (iframeSrc.includes('youtube.com/embed/')) {
+                // Send postMessage to YouTube iframe to pause video
+                videoPlayerIframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            }
+        }
+
         // Sets up event listeners for navigation buttons (desktop and mobile).
         function setupNavListeners() {
             mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
@@ -1075,6 +1217,7 @@
         function renderPostCard(post, isMyPostPage = false) { // Added isMyPostPage parameter
             const isAuthor = post.authorId === currentUser?.uid;
             let mediaHtml = '';
+            let comboVideoBtnHtml = ''; // New variable for the combo video button on preview card
             const cardTypeClass = post.postType === 'Devlog' ? 'card-devlog' : 'card-promo';
 
             // Conditional rendering of media based on `mediaType` field
@@ -1094,15 +1237,17 @@
             } else if (post.mediaType === 'image' && post.imageUrl) {
                  mediaHtml = `<img src="${post.imageUrl}" alt="${post.title}" class="w-full h-full object-cover rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Image+Not+Found';">`;
             } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
+                // For combo, display the image on the preview card
+                mediaHtml = `<img src="${post.imageUrl}" alt="Custom Thumbnail" class="w-full h-full object-cover rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Custom+Thumbnail+Not+Found';">`;
                 const videoId = getYouTubeVideoId(post.trailerLink);
-                mediaHtml = `
-                    <img src="${post.imageUrl}" alt="Custom Thumbnail" class="w-full h-full object-cover rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Custom+Thumbnail+Not+Found';">
-                    ${videoId ? `
-                        <button class="combo-play-btn btn-primary absolute bottom-2 left-2 flex items-center justify-center gap-2 px-3 py-1.5 rounded-md text-white font-bold text-xs sm:text-sm" data-video-id="${videoId}">
+                if (videoId) {
+                    // Add the combo video button to the preview card
+                    comboVideoBtnHtml = `
+                        <button class="combo-video-btn" data-video-id="${videoId}">
                             <i class="fab fa-youtube"></i> ${post.customYoutubeLinkText || 'Watch Trailer'}
                         </button>
-                    ` : ''}
-                `;
+                    `;
+                }
             } else if (post.mediaType === 'itch_embed' && post.itchLink) {
                 // For Itch.io, always show the placeholder due to embedding restrictions
                 mediaHtml = getItchEmbedHtml(post.itchLink);
@@ -1117,6 +1262,7 @@
                 <div class="card-bg rounded-lg overflow-hidden flex flex-col cursor-pointer ${cardTypeClass}" data-id="${post.id}">
                     <div class="thumbnail-container">
                         ${mediaHtml}
+                        ${comboVideoBtnHtml} <!-- Insert the combo video button here -->
                     </div>
                     
                     <div class="p-4 flex-grow flex flex-col">
@@ -1129,23 +1275,23 @@
                         ${userSettings.showPostCounts ? `
                             <div class="flex justify-between items-center mt-auto pt-2 border-t border-gray-700">
                                 <div class="flex space-x-4 text-gray-400">
-                                    <button class="like-btn hover:text-white" data-id="${post.id}">
+                                    <button class="like-btn hover:text-white transition" data-id="${post.id}">
                                         <i class="${post.likes?.includes(currentUser?.uid) ? 'fas text-red-500' : 'far'} fa-heart"></i>
                                         <span class="ml-1">${formatNumberForDisplay(post.likes?.length || 0)}</span>
                                     </button>
-                                    <button class="comment-btn hover:text-white" data-id="${post.id}">
+                                    <button class="comment-btn hover:text-white transition" data-id="${post.id}">
                                         <i class="fas fa-comment"></i> <!-- Changed to solid comment icon -->
                                         <span class="ml-1">${formatNumberForDisplay(post.comments?.length || 0)}</span>
                                     </button>
                                     <span class="inline-flex items-center">
-                                        <button class="hover:text-white cursor-default">
+                                        <button class="hover:text-white transition cursor-default">
                                             <i class="fas fa-eye mr-1"></i> <!-- Changed to solid eye icon -->
                                             <span class="ml-1">${formatNumberForDisplay(post.views || 0)}</span>
                                         </button>
                                     </span>
                                     ${post.postType === 'Game Promotion' ? `
                                         <span class="inline-flex items-center">
-                                            <button class="hover:text-white cursor-default">
+                                            <button class="hover:text-white transition cursor-default">
                                                 <i class="fas fa-external-link-alt mr-1"></i> <!-- New visit icon -->
                                                 <span class="ml-1">${formatNumberForDisplay(post.visits || 0)}</span>
                                             </button>
@@ -1154,8 +1300,8 @@
                                 </div>
                                 ${isMyPostPage && isAuthor ? `
                                     <div class="flex space-x-2">
-                                        <button class="edit-btn text-blue-500 hover:text-blue-400" data-id="${post.id}"><i class="fas fa-edit"></i></button>
-                                        <button class="delete-btn text-red-500 hover:text-red-400" data-id="${post.id}"><i class="fas fa-trash"></i></button>
+                                        <button class="edit-btn text-blue-500 hover:text-blue-400 transition" data-id="${post.id}"><i class="fas fa-edit"></i></button>
+                                        <button class="delete-btn text-red-500 hover:text-red-400 transition" data-id="${post.id}"><i class="fas fa-trash"></i></button>
                                     </div>
                                 ` : ''}
                             </div>
@@ -1163,8 +1309,8 @@
                             ${isMyPostPage && isAuthor ? `
                                 <div class="flex justify-end mt-auto pt-2 border-t border-gray-700">
                                     <div class="flex space-x-2">
-                                        <button class="edit-btn text-blue-500 hover:text-blue-400" data-id="${post.id}"><i class="fas fa-edit"></i></button>
-                                        <button class="delete-btn text-red-500 hover:text-red-400" data-id="${post.id}"><i class="fas fa-trash"></i></button>
+                                        <button class="edit-btn text-blue-500 hover:text-blue-400 transition" data-id="${post.id}"><i class="fas fa-edit"></i></button>
+                                        <button class="delete-btn text-red-500 hover:text-red-400 transition" data-id="${post.id}"><i class="fas fa-trash"></i></button>
                                     </div>
                                 </div>
                             ` : ''}
@@ -1198,7 +1344,7 @@
                 // Use the currentSortBy which is now updated by userSettings.defaultSortOrder
                 if (currentSortBy === 'popular') sortedPosts.sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0));
                 else if (currentSortBy === 'newest') sortedPosts.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate());
-                else if (currentSortBy === 'oldest') sortedPosts.sort((a, b) => a.createdAt.toDate() - b.createdAt.toDate()); // Fixed: was comparing a to a
+                else if (currentSortBy === 'oldest') sortedPosts.sort((a, b) => a.createdAt.toDate() - a.createdAt.toDate()); // Fixed: was comparing a to a
                 else if (currentSortBy === 'most-viewed') sortedPosts.sort((a, b) => (b.views || 0) - (a.views || 0));
                 else if (currentSortBy === 'most-visited') sortedPosts.sort((a, b) => (b.visits || 0) - (a.visits || 0));
             }
@@ -1374,6 +1520,7 @@
                                 <input type="text" id="poll-question" class="w-full p-3 input-bg rounded-md" placeholder="e.g., What feature should we add next?">
                             </div>
                             <div id="poll-options-container" class="mt-4 space-y-2">
+                                <label class="block mb-2 font-semibold text-gray-300">Poll Options (Min 2, Max 5)</label>
                                 <div class="flex gap-2">
                                     <input type="text" class="poll-option-input w-full p-3 input-bg rounded-md" placeholder="Option 1" required>
                                     <button type="button" class="remove-poll-option-btn bg-red-600 hover:bg-red-700 text-white p-3 rounded-md hidden"><i class="fas fa-minus"></i></button>
@@ -1420,7 +1567,6 @@
                                     <input type="radio" name="media-type" value="combo" id="media-combo">
                                     <span>Combo</span>
                                 </label>
-                                <!-- Removed Itch.io Embed option as per user request -->
                                 <label class="custom-checkbox">
                                     <input type="radio" name="media-type" value="none" id="media-none">
                                     <span>None</span>
@@ -1450,9 +1596,10 @@
 
                         <div id="custom-youtube-text-section" class="hidden">
                             <label for="custom-youtube-link-text" class="block mb-2 font-semibold text-gray-300">
-                                Custom YouTube Link Text (e.g., "Watch Gameplay", "View Trailer")
+                                Custom YouTube Link Text (Max 55 chars)
                             </label>
-                            <input type="text" id="custom-youtube-link-text" class="w-full p-3 input-bg rounded-md" placeholder="e.g., Watch Trailer">
+                            <input type="text" id="custom-youtube-link-text" class="w-full p-3 input-bg rounded-md" placeholder="e.g., Watch Trailer" maxlength="55">
+                            <p id="custom-text-char-count" class="text-sm text-gray-400 mt-1 text-right">0/55</p>
                         </div>
                         <!-- End Media Selection Section -->
 
@@ -1561,6 +1708,15 @@
                 const youtubeLinkSection = form.querySelector('#youtube-link-section');
                 const imageLinkSection = form.querySelector('#image-link-section');
                 const customYoutubeLinkSection = form.querySelector('#custom-youtube-text-section'); // Corrected ID
+                const customYoutubeLinkTextInput = form.querySelector('#custom-youtube-link-text');
+                const customTextCharCount = form.querySelector('#custom-text-char-count');
+
+                if (customYoutubeLinkTextInput) {
+                    customYoutubeLinkTextInput.addEventListener('input', e => {
+                        customTextCharCount.textContent = `${e.target.value.length}/55`;
+                    });
+                }
+
                 const youtubeLinkHelp = form.querySelector('.youtube-link-help');
                 const imageLinkHelp = form.querySelector('.image-link-help');
                 const itchLinkInput = form.querySelector('#itch-link');
@@ -1675,7 +1831,6 @@
                         trailerLinkInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'image') {
                         if (imageLinkSection) imageLinkSection.classList.remove('hidden');
-                        if (imageLinkHelp) imageLinkHelp.classList.remove('hidden'); // Show image link help
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         // Only Image URL is required for 'image'
                         imageUrlInput.setAttribute('required', 'true');
@@ -1770,6 +1925,7 @@
                     selectedGenres = []; // Clear genres for new post
                     renderGenreCheckboxes(genreCheckboxesContainer); // Re-render to clear checkboxes
                 }
+
                 // Genre search functionality
                 genreSearchInput.addEventListener('input', (e) => {
                     renderGenreCheckboxes(genreCheckboxesContainer, e.target.value); // Pass container
@@ -1889,6 +2045,11 @@
                 form.querySelector('#trailer-link').value = post.trailerLink || '';
                 form.querySelector('#image-url').value = post.imageUrl || '';
                 form.querySelector('#custom-youtube-link-text').value = post.customYoutubeLinkText || ''; // Populate custom text field
+                const customYoutubeLinkTextInput = form.querySelector('#custom-youtube-link-text');
+                const customTextCharCount = form.querySelector('#custom-text-char-count');
+                if (customYoutubeLinkTextInput && customTextCharCount) {
+                    customTextCharCount.textContent = `${customYoutubeLinkTextInput.value.length}/55`;
+                }
 
                 // Set Pricing (only if Game Promotion)
                 if (post.postType === 'Game Promotion' && post.pricing) {
@@ -2097,11 +2258,14 @@
         // Renders the search page.
         function renderSearchPage() {
             contentSearch.innerHTML = `
-                <div class="max-w-3xl mx-auto">
-                    <h2 class="text-3xl font-bold mb-6 text-center text-white">Search for Games</h2>
+                <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6"> <!-- Adjusted max-width and padding for consistency -->
+                    <h2 class="text-3xl font-bold mb-6 text-center text-white">Search for Games & Devlogs</h2>
                     <div class="flex flex-col sm:flex-row gap-4 mb-6">
                         <input type="text" id="search-input" class="w-full p-3 input-bg rounded-md" placeholder="Search by title, genre, platform, tags...">
                         <button id="search-btn" class="btn-primary text-white font-bold py-3 px-6 rounded-md">Search</button>
+                        <button id="random-game-btn" class="btn-primary text-white font-bold py-3 px-6 rounded-md flex items-center justify-center gap-2">
+                            <i class="fas fa-dice"></i> Random
+                        </button>
                     </div>
                     <div id="search-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <p class="col-span-full text-center text-gray-400">Please enter a search term.</p>
@@ -2112,6 +2276,26 @@
             document.getElementById('search-input').addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') handleSearch();
             });
+            // New: Add event listener for the Random Game button
+            document.getElementById('random-game-btn').addEventListener('click', handleRandomGame);
+        }
+
+        // Handles opening a random game's detailed modal.
+        async function handleRandomGame() {
+            const gamePromotions = allFetchedPosts.filter(p => p.postType === 'Game Promotion');
+            if (gamePromotions.length === 0) {
+                showAlert("No game promotions available to pick a random game from.");
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * gamePromotions.length);
+            const randomGame = gamePromotions[randomIndex];
+
+            if (randomGame) {
+                await openPostModal(randomGame.id, false, true); // Open random game modal, increment view
+            } else {
+                showAlert("Could not find a random game. Please try again.");
+            }
         }
 
         // Renders the user's own posts page.
@@ -2148,17 +2332,11 @@
                             <i class="fas fa-cog mr-2"></i> Open Settings
                         </button>
                     </div>
-                    <!-- New AI Chat Button -->
-                    <div class="mt-8 pt-6 border-t border-gray-700">
-                        <h3 class="text-xl font-bold mb-4 text-gray-500">Need help?</h3>
-                        <button id="open-ai-chat-btn" class="btn-primary w-full text-white font-bold py-3 px-6 rounded-md flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-brain mr-2"></i> Chat with AI Assistant
+                    <!-- AI Assistant Button -->
+                    <div class="mt-4 flex justify-center">
+                        <button id="open-ai-assistant-btn" class="btn-primary flex-1 text-white font-bold py-3 px-6 rounded-md flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-brain mr-2"></i> AI Assistant for Help
                         </button>
-                    </div>
-                    <!-- QR Code Section -->
-                    <div class="mt-8 pt-6 border-t border-gray-700 flex flex-col items-center">
-                        <h3 class="text-xl font-bold mb-4 text-gray-500">Share this QR code for better accessibility to PostItch</h3>
-                        <img src="https://i.postimg.cc/Ghf3NBzg/u-DURLf-1.png" alt="QR Code" class="w-24 h-24 sm:w-32 sm:h-32 rounded-lg object-contain">
                     </div>
 				</div>
 			`;
@@ -2171,8 +2349,8 @@
                 copyToClipboard(websiteLink);
                 showAlert("Website link copied to clipboard!");
             });
-            // Event listener for "Chat with AI Assistant" button
-            document.getElementById('open-ai-chat-btn').addEventListener('click', openAiChatModal);
+            // Event listener for "AI Assistant" button
+            document.getElementById('open-ai-assistant-btn').addEventListener('click', openAiAssistantModal);
 		}
         
         // Renders the Community Rules page content.
@@ -2311,6 +2489,20 @@
                             </div>
                         </div>
 
+                        <div>
+                            <label class="block mb-2 font-semibold text-gray-300">Always Mute Videos When Opened</label>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="always-mute-videos" value="true" ${userSettings.alwaysMuteVideos ? 'checked' : ''}>
+                                    <span>Yes</span>
+                                </label>
+                                <label class="custom-checkbox">
+                                    <input type="radio" name="always-mute-videos" value="false" ${!userSettings.alwaysMuteVideos ? 'checked' : ''}>
+                                    <span>No</span>
+                                </label>
+                            </div>
+                        </div>
+
                         <div class="mt-8 pt-6 border-t border-gray-700 space-y-4">
                             <h3 class="text-xl font-bold text-red-600">Danger Zone</h3>
                             <button id="delete-all-posts-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-md w-full flex items-center justify-center gap-2 transition-all duration-300">
@@ -2373,6 +2565,14 @@
             contentSettings.querySelectorAll('input[name="modal-fullscreen-setting"]').forEach(radio => {
                 radio.addEventListener('change', (e) => {
                     userSettings.modalFullscreen = e.target.value === 'true';
+                    saveUserSettings();
+                });
+            });
+
+            // New: Event listener for always mute videos setting
+            contentSettings.querySelectorAll('input[name="always-mute-videos"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    userSettings.alwaysMuteVideos = e.target.value === 'true';
                     saveUserSettings();
                 });
             });
@@ -2608,7 +2808,6 @@
                 if (trailerLink && !getYouTubeVideoId(trailerLink)) { // Use getYouTubeVideoId for validation
                     showAlert("Please enter a valid YouTube link (e.g., youtube.com/watch?v=... or youtu.be/...).");
                     submitBtn.disabled = false;
-            
                     submitBtn.textContent = editingPostId ? 'Update Post' : 'Submit Post';
                     return;
                 }
@@ -2626,7 +2825,6 @@
                 if (imageUrl && !imageUrl.match(/^https?:\/\/[^\s$.?#].[^\s]*$/i)) {
                     showAlert("Please enter a valid URL for the image link.");
                     submitBtn.disabled = false;
-            
                     submitBtn.textContent = editingPostId ? 'Update Post' : 'Submit Post';
                     return;
                 }
@@ -2637,6 +2835,12 @@
                 // Combo requires custom text
                 if (!customYoutubeLinkText) {
                     showAlert("For Combo media type, Custom YouTube Link Text is required.");
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = editingPostId ? 'Update Post' : 'Submit Post';
+                    return;
+                }
+                if (customYoutubeLinkText.length > 55) {
+                    showAlert("Custom YouTube Link Text cannot exceed 55 characters.");
                     submitBtn.disabled = false;
                     submitBtn.textContent = editingPostId ? 'Update Post' : 'Submit Post';
                     return;
@@ -2756,6 +2960,9 @@
                         form.reset(); // Clear form fields after successful submission
                         // Reset character count and media selection UI to default
                         form.querySelector('#char-count').textContent = `0/1000`; // Use form.querySelector
+                        if (form.querySelector('#custom-text-char-count')) {
+                            form.querySelector('#custom-text-char-count').textContent = `0/55`;
+                        }
                         
                         // Set media-youtube radio and dispatch change event
                         const mediaYoutubeRadio = form.querySelector('#media-youtube');
@@ -2942,7 +3149,7 @@
 
             // Fallback if no valid media is available for the post (or mediaType is 'none')
             if (!mediaHtml || post.mediaType === 'none') {
-                mediaHtml = `<div class="h-48 bg-[#101010] flex items-center justify-center text-gray-500 rounded-md"><i class="fas fa-image fa-4x"></i><p class="ml-4">No media available</p></div>`;
+                mediaHtml = `<div class="h-48 bg-[#101010] flex items-center justify-center text-gray-500 rounded-md"><i class="fas fa-image fa-4x"></i><p class="ml-4"></p></div>`;
             }
 
             // Render poll section if devlogType is 'Poll' or if postType is 'Game Promotion' and it has a poll
@@ -2965,7 +3172,7 @@
                                         <div class="w-full bg-gray-700 rounded-full h-2.5">
                                             <div class="bg-[#00bcd4] h-2.5 rounded-full" style="width: ${percentage}%"></div>
                                         </div>
-                                        <button class="vote-poll-btn btn-primary text-white font-bold py-1 px-3 rounded-md text-xs mt-2 ${hasVoted ? 'opacity-50 cursor-not-allowed' : ''}" 
+                                        <button class="vote-poll-btn ${hasVoted ? 'voted' : 'btn-primary'} text-white font-bold py-2.5 px-3 rounded-md text-xs mt-2 ${hasVoted ? 'opacity-50 cursor-not-allowed' : ''}" 
                                             data-post-id="${postId}" data-option-index="${index}" ${hasVoted ? 'disabled' : ''}>
                                             ${hasVoted ? 'Voted' : 'Vote'}
                                         </button>
@@ -2987,10 +3194,8 @@
                     </div>
 				</div>
 				<h2 class="text-2xl sm:text-3xl font-bold mb-4 text-white">${post.title}</h2>
-				<div class="relative"> <!-- Added relative positioning for the media container -->
-                    ${mediaHtml}
-                    ${modalYoutubeLinkHtml} <!-- Add the combo link button here -->
-                </div>
+				${mediaHtml}
+				${modalYoutubeLinkHtml} <!-- Add the combo link button here -->
 				<div class="mt-6 flex flex-wrap gap-2 text-gray-400 text-sm">
 					<span><strong>Posted:</strong> ${post.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString() : 'N/A'}</span>
 					${post.postType === 'Game Promotion' ? `<span><strong>Pricing:</strong> ${post.pricing}</span>` : ''}
@@ -3036,7 +3241,7 @@
                                     <p class="text-gray-300 text-sm sm:text-base">${comment.text}</p>
                                     <div class="flex justify-end items-center mt-2">
                                         ${post.authorId === currentUser?.uid ? `
-                                            <button class="delete-comment-btn text-red-500 hover:text-red-400 ml-4" data-post-id="${postId}" data-comment-index="${index}">
+                                            <button class="delete-comment-btn text-red-500 hover:text-red-400 transition ml-0" data-post-id="${postId}" data-comment-index="${index}">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         ` : ''}
@@ -3136,7 +3341,7 @@
                 document.querySelectorAll('.vote-poll-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        const optionIndex = parseInt(btn.dataset.optionIndex);
+                        const optionIndex = parseInt(btn.dataset.optionIndex); // Corrected property name
                         voteOnPoll(postId, optionIndex);
                     });
                 });
@@ -3302,25 +3507,6 @@
                 console.error('Failed to copy text: ', err);
             }
             document.body.removeChild(textarea);
-        }
-
-        // --- AI CHAT MODAL FUNCTIONS ---
-        function openAiChatModal() {
-            aiChatModal.classList.remove('hidden');
-            // Directly embed the iframe with the new URL
-            aiAgentContainer.innerHTML = `
-                <iframe src="https://agent.jotform.com/01980fae3ef070878c777548077514c2e375?" 
-                    frameborder="0" 
-                    style="width: 100%; height: 100%; border: none;" 
-                    allow="geolocation; microphone; camera; fullscreen">
-                </iframe>
-            `;
-        }
-
-        function closeAiChatModal() {
-            aiChatModal.classList.add('hidden');
-            // Clear the iframe content when closed to stop any active sessions/audio
-            aiAgentContainer.innerHTML = ''; 
         }
 
     </script>
