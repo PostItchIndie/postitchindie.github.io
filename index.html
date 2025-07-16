@@ -60,7 +60,7 @@
             border-color: #ffc107; /* Yellow/Amber border for devlogs */
         }
         .card-devlog:hover {
-            border-color: #00bcd4; /* Teal border on hover for devlogs */
+            border-color: #00bcd4; /* Teal border on hover for promos */
         }
 
         /* Input field styling */
@@ -167,6 +167,10 @@
             transition: all 0.3s ease-in-out; /* Smooth transition for fullscreen */
             overflow-y: auto; /* Allow content inside modal to scroll */
         }
+        /* Specific style for AI Chat Modal content to remove its scrollbar */
+        #ai-chat-modal-content {
+            overflow: hidden !important; /* Force no scrollbar on the modal content itself */
+        }
         /* Fullscreen styles for the modal */
         .modal.fullscreen {
             top: 0;
@@ -246,7 +250,7 @@
             align-items: center;
             justify-content: center;
             border-bottom: 1px solid #2a2a2a; /* Separator for media */
-            position: relative; /* For play button overlay */
+            position: relative; /* For play button overlay and combo button */
             border-radius: 0px 0px 0 0; /* Rounded top corners for thumbnail */
         }
 
@@ -397,38 +401,41 @@
             box-shadow: 0 2px 10px rgba(0, 188, 212, 0.5);
         }
 
-        /* Text size classes */
-        body.text-sm { font-size: 0.875rem; } /* 14px */
-        body.text-base { font-size: 1rem; }    /* 16px (default) */
-        body.text-lg { font-size: 1.125rem; }  /* 18px */
+		/* Text size classes */
+		body.text-sm { font-size: 0.875rem; } /* 14px */
+		body.text-base { font-size: 1rem; }    /* 16px (default) */
+		body.text-lg { font-size: 1.125rem; }  /* 18px */
 
-        /* Animations toggle */
-        body.no-animations * {
-            transition: none !important;
-            animation: none !important;
-        }
+		/* Animations toggle */
+		body.no-animations * {
+			transition: none !important;
+			animation: none !important;
+			transform: none !important; /* disable transform animations */
+		}
 
-        /* Removed specific styles for video modal play button overlay */
-        /* as it's no longer needed for the video modal itself */
+		/* Removed specific styles for video modal play button overlay */
+		/* as it's no longer needed for the video modal itself */
 
-        /* Compact Card View Styles - REMOVED */
+		/* Compact Card View Styles - REMOVED */
     </style>
 </head>
 <body>
 
     <div id="app" class="max-w-7xl mx-auto px-4 py-4 sm:px-6">
         <header class="flex justify-between items-center py-4 px-4 main-bg rounded-lg shadow-lg">
-            <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wider">Post<span class="text-[#00bcd4]">Itch</span></h1>
+		<h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wider">
+			Post<span class="text-[#00bcd4]">Itch</span>
+		</h1>
             <nav class="hidden md:flex items-center space-x-6">
-                <a href="https://postitchindie.github.io/?section=community" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
-                <a href="https://postitchindie.github.io/?section=promos" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
-                <a href="https://postitchindie.github.io/?section=devlogs" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
-                <a href="https://postitchindie.github.io/?section=post" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
-                <a href="https://postitchindie.github.io/?section=search" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
-                <a href="https://postitchindie.github.io/?section=my-posts" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
-                <a href="https://postitchindie.github.io/?section=about" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
-                <a href="https://postitchindie.github.io/?section=rules" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
-                <a href="https://postitchindie.github.io/?section=settings" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="settings">Settings</a> <!-- New Settings tab -->
+                <a href="https://postitchindie.github.io/?section=community" class="nav-item text-lg font-semibold hover:text-[#00bcd4] active" data-tab="community">Community</a>
+                <a href="https://postitchindie.github.io/?section=promos" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="promos">Game Promos</a>
+                <a href="https://postitchindie.github.io/?section=devlogs" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="devlogs">Devlogs</a>
+                <a href="https://postitchindie.github.io/?section=post" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="post">Post</a>
+                <a href="https://postitchindie.github.io/?section=search" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="search">Search</a>
+                <a href="https://postitchindie.github.io/?section=my-posts" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="my-posts">My Posts</a>
+                <a href="https://postitchindie.github.io/?section=about" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="about">About</a>
+                <a href="https://postitchindie.github.io/?section=rules" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="rules">Rules</a>
+                <a href="https://postitchindie.github.io/?section=settings" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="settings">Settings</a> <!-- New Settings tab -->
             </nav>
             <div class="md:hidden">
                 <button id="mobile-menu-btn"><i class="fas fa-bars text-2xl"></i></button>
@@ -508,6 +515,20 @@
             <div class="flex justify-center gap-4">
                 <button id="confirm-input-yes-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-md" disabled>Confirm</button>
                 <button id="confirm-input-no-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-md">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New AI Chat Modal -->
+    <div id="ai-chat-modal" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div id="ai-chat-modal-content" class="modal w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl h-5/6 main-bg rounded-lg shadow-lg p-4 sm:p-6 flex flex-col overflow-hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-white">AI Assistant</h3>
+                <button id="close-ai-chat-modal-btn" class="modal-action-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="ai-agent-container" class="flex-grow overflow-hidden rounded-md">
+                <!-- AI Agent will be embedded here -->
             </div>
         </div>
     </div>
@@ -604,6 +625,12 @@
         const closeVideoModalBtn = document.getElementById('close-video-modal-btn');
         const fullscreenVideoToggleBtn = document.getElementById('fullscreen-video-toggle-btn'); // New fullscreen toggle for video modal
 
+        // New AI Chat Modal elements
+        const aiChatModal = document.getElementById('ai-chat-modal');
+        const aiChatModalContent = document.getElementById('ai-chat-modal-content');
+        const closeAiChatModalBtn = document.getElementById('close-ai-chat-modal-btn');
+        const aiAgentContainer = document.getElementById('ai-agent-container');
+        // Removed isAiScriptLoaded as we're directly embedding the iframe now.
 
         let editingPostId = null; // Stores the ID of the post currently being edited
         let isPostModalOpen = false; // Flag to prevent multiple modal instances
@@ -725,7 +752,9 @@
 
         // Opens the dedicated video modal
         function openVideoModal(videoId) {
+            console.log("openVideoModal called with videoId:", videoId); // Debugging
             const embedSrc = getYouTubeEmbedSrc(videoId, true); // Always autoplay when opened via dedicated button
+            console.log("Generated embedSrc:", embedSrc); // Debugging
             if (embedSrc) {
                 videoPlayerIframe.src = embedSrc; 
                 videoModal.classList.remove('hidden');
@@ -735,6 +764,7 @@
                 }
             } else {
                 showAlert("Could not play video: Invalid YouTube link.");
+                console.error("Invalid YouTube embed source for videoId:", videoId); // Debugging
             }
         }
 
@@ -850,7 +880,7 @@
                 }
                 applySettings(); // Apply loaded or default settings immediately
             } catch (error) {
-                console.error("Error loading user settings from local storage:", error);
+                console.error("Error loading user settings to local storage:", error);
             }
         }
 
@@ -864,7 +894,7 @@
                     // Check if the click target is the media placeholder or a button
                     // The 'combo' type will now have a direct link, so we don't want the card to open the modal
                     // if the link itself is clicked.
-                    if (e.target.closest('.media-placeholder') || e.target.closest('.youtube-link-btn') || e.target.closest('button')) {
+                    if (e.target.closest('.media-placeholder') || e.target.closest('.combo-play-btn') || e.target.closest('button')) {
                         return; // Do nothing if media placeholder, YouTube link button, or other button was clicked
                     }
                     const postId = card.dataset.id;
@@ -884,6 +914,20 @@
                 });
             });
             
+            // Event listener for combo button on card preview
+            document.querySelectorAll('.combo-play-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent card click event from firing
+                    const videoId = btn.dataset.videoId;
+                    console.log("Combo button clicked. Video ID:", videoId); // Debugging
+                    if (videoId) {
+                        openVideoModal(videoId); // Open in the dedicated video modal
+                    } else {
+                        console.error("No video ID found for combo button!"); // Debugging
+                    }
+                });
+            });
+
             document.querySelectorAll('.like-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => { e.stopPropagation(); toggleLike(btn.dataset.id); });
             });
@@ -975,6 +1019,8 @@
 			closeVideoModalBtn.addEventListener('click', closeVideoModal);
             // Add event listener for the new video modal fullscreen toggle button
             fullscreenVideoToggleBtn.addEventListener('click', () => toggleFullscreen(videoModalContent));
+            // Add event listener for AI Chat modal close button
+            closeAiChatModalBtn.addEventListener('click', closeAiChatModal);
         }
         
         // Sets up event listeners for navigation buttons (desktop and mobile).
@@ -1029,7 +1075,6 @@
         function renderPostCard(post, isMyPostPage = false) { // Added isMyPostPage parameter
             const isAuthor = post.authorId === currentUser?.uid;
             let mediaHtml = '';
-            // Removed comboLinkHtml from renderPostCard to prevent it from displaying on preview cards
             const cardTypeClass = post.postType === 'Devlog' ? 'card-devlog' : 'card-promo';
 
             // Conditional rendering of media based on `mediaType` field
@@ -1049,9 +1094,15 @@
             } else if (post.mediaType === 'image' && post.imageUrl) {
                  mediaHtml = `<img src="${post.imageUrl}" alt="${post.title}" class="w-full h-full object-cover rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Image+Not+Found';">`;
             } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
-                // For combo, display only the image on the preview card
-                mediaHtml = `<img src="${post.imageUrl}" alt="Custom Thumbnail" class="w-full h-full object-cover rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Custom+Thumbnail+Not+Found';">`;
-                // The comboLinkHtml is intentionally NOT added here for preview cards
+                const videoId = getYouTubeVideoId(post.trailerLink);
+                mediaHtml = `
+                    <img src="${post.imageUrl}" alt="Custom Thumbnail" class="w-full h-full object-cover rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Custom+Thumbnail+Not+Found';">
+                    ${videoId ? `
+                        <button class="combo-play-btn btn-primary absolute bottom-2 left-2 flex items-center justify-center gap-2 px-3 py-1.5 rounded-md text-white font-bold text-xs sm:text-sm" data-video-id="${videoId}">
+                            <i class="fab fa-youtube"></i> ${post.customYoutubeLinkText || 'Watch Trailer'}
+                        </button>
+                    ` : ''}
+                `;
             } else if (post.mediaType === 'itch_embed' && post.itchLink) {
                 // For Itch.io, always show the placeholder due to embedding restrictions
                 mediaHtml = getItchEmbedHtml(post.itchLink);
@@ -1078,23 +1129,23 @@
                         ${userSettings.showPostCounts ? `
                             <div class="flex justify-between items-center mt-auto pt-2 border-t border-gray-700">
                                 <div class="flex space-x-4 text-gray-400">
-                                    <button class="like-btn hover:text-white transition" data-id="${post.id}">
+                                    <button class="like-btn hover:text-white" data-id="${post.id}">
                                         <i class="${post.likes?.includes(currentUser?.uid) ? 'fas text-red-500' : 'far'} fa-heart"></i>
                                         <span class="ml-1">${formatNumberForDisplay(post.likes?.length || 0)}</span>
                                     </button>
-                                    <button class="comment-btn hover:text-white transition" data-id="${post.id}">
+                                    <button class="comment-btn hover:text-white" data-id="${post.id}">
                                         <i class="fas fa-comment"></i> <!-- Changed to solid comment icon -->
                                         <span class="ml-1">${formatNumberForDisplay(post.comments?.length || 0)}</span>
                                     </button>
                                     <span class="inline-flex items-center">
-                                        <button class="hover:text-white transition cursor-default">
+                                        <button class="hover:text-white cursor-default">
                                             <i class="fas fa-eye mr-1"></i> <!-- Changed to solid eye icon -->
                                             <span class="ml-1">${formatNumberForDisplay(post.views || 0)}</span>
                                         </button>
                                     </span>
                                     ${post.postType === 'Game Promotion' ? `
                                         <span class="inline-flex items-center">
-                                            <button class="hover:text-white transition cursor-default">
+                                            <button class="hover:text-white cursor-default">
                                                 <i class="fas fa-external-link-alt mr-1"></i> <!-- New visit icon -->
                                                 <span class="ml-1">${formatNumberForDisplay(post.visits || 0)}</span>
                                             </button>
@@ -1103,8 +1154,8 @@
                                 </div>
                                 ${isMyPostPage && isAuthor ? `
                                     <div class="flex space-x-2">
-                                        <button class="edit-btn text-blue-500 hover:text-blue-400 transition" data-id="${post.id}"><i class="fas fa-edit"></i></button>
-                                        <button class="delete-btn text-red-500 hover:text-red-400 transition" data-id="${post.id}"><i class="fas fa-trash"></i></button>
+                                        <button class="edit-btn text-blue-500 hover:text-blue-400" data-id="${post.id}"><i class="fas fa-edit"></i></button>
+                                        <button class="delete-btn text-red-500 hover:text-red-400" data-id="${post.id}"><i class="fas fa-trash"></i></button>
                                     </div>
                                 ` : ''}
                             </div>
@@ -1112,8 +1163,8 @@
                             ${isMyPostPage && isAuthor ? `
                                 <div class="flex justify-end mt-auto pt-2 border-t border-gray-700">
                                     <div class="flex space-x-2">
-                                        <button class="edit-btn text-blue-500 hover:text-blue-400 transition" data-id="${post.id}"><i class="fas fa-edit"></i></button>
-                                        <button class="delete-btn text-red-500 hover:text-red-400 transition" data-id="${post.id}"><i class="fas fa-trash"></i></button>
+                                        <button class="edit-btn text-blue-500 hover:text-blue-400" data-id="${post.id}"><i class="fas fa-edit"></i></button>
+                                        <button class="delete-btn text-red-500 hover:text-red-400" data-id="${post.id}"><i class="fas fa-trash"></i></button>
                                     </div>
                                 </div>
                             ` : ''}
@@ -1147,7 +1198,7 @@
                 // Use the currentSortBy which is now updated by userSettings.defaultSortOrder
                 if (currentSortBy === 'popular') sortedPosts.sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0));
                 else if (currentSortBy === 'newest') sortedPosts.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate());
-                else if (currentSortBy === 'oldest') sortedPosts.sort((a, b) => a.createdAt.toDate() - a.createdAt.toDate()); // Fixed: was comparing a to a
+                else if (currentSortBy === 'oldest') sortedPosts.sort((a, b) => a.createdAt.toDate() - b.createdAt.toDate()); // Fixed: was comparing a to a
                 else if (currentSortBy === 'most-viewed') sortedPosts.sort((a, b) => (b.views || 0) - (a.views || 0));
                 else if (currentSortBy === 'most-visited') sortedPosts.sort((a, b) => (b.visits || 0) - (a.visits || 0));
             }
@@ -1323,7 +1374,6 @@
                                 <input type="text" id="poll-question" class="w-full p-3 input-bg rounded-md" placeholder="e.g., What feature should we add next?">
                             </div>
                             <div id="poll-options-container" class="mt-4 space-y-2">
-                                <label class="block mb-2 font-semibold text-gray-300">Poll Options (Min 2, Max 5)</label>
                                 <div class="flex gap-2">
                                     <input type="text" class="poll-option-input w-full p-3 input-bg rounded-md" placeholder="Option 1" required>
                                     <button type="button" class="remove-poll-option-btn bg-red-600 hover:bg-red-700 text-white p-3 rounded-md hidden"><i class="fas fa-minus"></i></button>
@@ -1625,6 +1675,7 @@
                         trailerLinkInput.setAttribute('required', 'true');
                     } else if (selectedMedia === 'image') {
                         if (imageLinkSection) imageLinkSection.classList.remove('hidden');
+                        if (imageLinkHelp) imageLinkHelp.classList.remove('hidden'); // Show image link help
                         if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                         // Only Image URL is required for 'image'
                         imageUrlInput.setAttribute('required', 'true');
@@ -1719,7 +1770,6 @@
                     selectedGenres = []; // Clear genres for new post
                     renderGenreCheckboxes(genreCheckboxesContainer); // Re-render to clear checkboxes
                 }
-
                 // Genre search functionality
                 genreSearchInput.addEventListener('input', (e) => {
                     renderGenreCheckboxes(genreCheckboxesContainer, e.target.value); // Pass container
@@ -1976,7 +2026,7 @@
                             if (pollSection) pollSection.classList.remove('hidden');
                             form.querySelector('#poll-question')?.setAttribute('required', 'true');
                             form.querySelectorAll('.poll-option-input').forEach(input => input.setAttribute('required', 'true'));
-                            // Poll fields are disabled if a poll already exists on the post
+                            // Poll fields are disabled if a poll already exists
                             if (post.poll) {
                                 pollSection.querySelectorAll('input, button').forEach(element => {
                                     element.disabled = true;
@@ -2000,7 +2050,7 @@
                              if (pollSection) pollSection.classList.remove('hidden');
                              form.querySelector('#poll-question')?.setAttribute('required', 'true');
                              form.querySelectorAll('.poll-option-input').forEach(input => input.setAttribute('required', 'true'));
-                            // Poll fields are disabled if a poll already exists on the post
+                            // Poll fields are disabled if a poll already exists
                             if (post.poll) {
                                 pollSection.querySelectorAll('input, button').forEach(element => {
                                     element.disabled = true;
@@ -2098,6 +2148,13 @@
                             <i class="fas fa-cog mr-2"></i> Open Settings
                         </button>
                     </div>
+                    <!-- New AI Chat Button -->
+                    <div class="mt-8 pt-6 border-t border-gray-700">
+                        <h3 class="text-xl font-bold mb-4 text-gray-500">Need help?</h3>
+                        <button id="open-ai-chat-btn" class="btn-primary w-full text-white font-bold py-3 px-6 rounded-md flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-brain mr-2"></i> Chat with AI Assistant
+                        </button>
+                    </div>
                     <!-- QR Code Section -->
                     <div class="mt-8 pt-6 border-t border-gray-700 flex flex-col items-center">
                         <h3 class="text-xl font-bold mb-4 text-gray-500">Share this QR code for better accessibility to PostItch</h3>
@@ -2114,6 +2171,8 @@
                 copyToClipboard(websiteLink);
                 showAlert("Website link copied to clipboard!");
             });
+            // Event listener for "Chat with AI Assistant" button
+            document.getElementById('open-ai-chat-btn').addEventListener('click', openAiChatModal);
 		}
         
         // Renders the Community Rules page content.
@@ -2549,6 +2608,7 @@
                 if (trailerLink && !getYouTubeVideoId(trailerLink)) { // Use getYouTubeVideoId for validation
                     showAlert("Please enter a valid YouTube link (e.g., youtube.com/watch?v=... or youtu.be/...).");
                     submitBtn.disabled = false;
+            
                     submitBtn.textContent = editingPostId ? 'Update Post' : 'Submit Post';
                     return;
                 }
@@ -2566,6 +2626,7 @@
                 if (imageUrl && !imageUrl.match(/^https?:\/\/[^\s$.?#].[^\s]*$/i)) {
                     showAlert("Please enter a valid URL for the image link.");
                     submitBtn.disabled = false;
+            
                     submitBtn.textContent = editingPostId ? 'Update Post' : 'Submit Post';
                     return;
                 }
@@ -2926,8 +2987,10 @@
                     </div>
 				</div>
 				<h2 class="text-2xl sm:text-3xl font-bold mb-4 text-white">${post.title}</h2>
-				${mediaHtml}
-				${modalYoutubeLinkHtml} <!-- Add the combo link button here -->
+				<div class="relative"> <!-- Added relative positioning for the media container -->
+                    ${mediaHtml}
+                    ${modalYoutubeLinkHtml} <!-- Add the combo link button here -->
+                </div>
 				<div class="mt-6 flex flex-wrap gap-2 text-gray-400 text-sm">
 					<span><strong>Posted:</strong> ${post.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString() : 'N/A'}</span>
 					${post.postType === 'Game Promotion' ? `<span><strong>Pricing:</strong> ${post.pricing}</span>` : ''}
@@ -2973,7 +3036,7 @@
                                     <p class="text-gray-300 text-sm sm:text-base">${comment.text}</p>
                                     <div class="flex justify-end items-center mt-2">
                                         ${post.authorId === currentUser?.uid ? `
-                                            <button class="delete-comment-btn text-red-500 hover:text-red-400 transition ml-4" data-post-id="${postId}" data-comment-index="${index}">
+                                            <button class="delete-comment-btn text-red-500 hover:text-red-400 ml-4" data-post-id="${postId}" data-comment-index="${index}">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         ` : ''}
@@ -3239,6 +3302,25 @@
                 console.error('Failed to copy text: ', err);
             }
             document.body.removeChild(textarea);
+        }
+
+        // --- AI CHAT MODAL FUNCTIONS ---
+        function openAiChatModal() {
+            aiChatModal.classList.remove('hidden');
+            // Directly embed the iframe with the new URL
+            aiAgentContainer.innerHTML = `
+                <iframe src="https://agent.jotform.com/01980fae3ef070878c777548077514c2e375?" 
+                    frameborder="0" 
+                    style="width: 100%; height: 100%; border: none;" 
+                    allow="geolocation; microphone; camera; fullscreen">
+                </iframe>
+            `;
+        }
+
+        function closeAiChatModal() {
+            aiChatModal.classList.add('hidden');
+            // Clear the iframe content when closed to stop any active sessions/audio
+            aiAgentContainer.innerHTML = ''; 
         }
 
     </script>
