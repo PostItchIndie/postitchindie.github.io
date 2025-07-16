@@ -171,7 +171,9 @@
             transform: translate(-50%, -50%);
             z-index: 50;
             transition: all 0.3s ease-in-out; /* Smooth transition for fullscreen */
+            max-height: 95vh; /* Limit modal height to prevent it from overflowing viewport */
             overflow-y: auto; /* Allow content inside modal to scroll */
+            -webkit-overflow-scrolling: touch; /* Improve scrolling on iOS */
         }
         /* Fullscreen styles for the modal */
         .modal.fullscreen {
@@ -184,6 +186,7 @@
             padding: 1rem; /* Adjust padding for fullscreen */
             max-width: none !important; /* Remove max-width in fullscreen */
             max-height: none !important; /* Remove max-height in fullscreen */
+            overflow-y: auto; /* Ensure scrolling is still enabled in fullscreen */
         }
         .modal-backdrop.fullscreen {
             background-color: #0a0a0a; /* Solid background for fullscreen */
@@ -364,6 +367,75 @@
             /* box-shadow: none; */ /* Removed */
         }
 
+        /* Also ensure the play button overlay doesn't have active animations */
+        .play-button-overlay:active {
+            transform: translate(-50%, -50%) scale(1) !important; /* Reset scale on active */
+            /* transition: none !important; */ /* Removed */
+            /* box-shadow: none !important; */ /* Removed */
+        }
+        /* Also ensure the combo video button doesn't have active animations */
+        .combo-video-btn:active {
+            /* transform: none !important; */ /* Removed */
+            /* transition: none !important; */ /* Removed */
+            /* box-shadow: none !important; */ /* Removed */
+        }
+
+
+        /* For the view/visit icons which are buttons but have cursor-default, ensure no active animation */
+        .inline-flex .hover\:text-white:hover:active { /* Target the button within the span */
+            /* transform: none !important; */ /* Removed */
+            /* transition: none !important; */ /* Removed */
+            /* box-shadow: none !important; */ /* Removed */
+        }
+
+        /* Styling for the AI Assistant iframe modal */
+        #ai-assistant-modal-content {
+            display: flex; /* Use flexbox */
+            flex-direction: column; /* Stack children vertically */
+            height: 90vh; /* Set a specific height for the modal content */
+            max-height: 90vh; /* Ensure it doesn't exceed viewport height */
+            overflow: hidden; /* Hide scrollbar on the modal content itself */
+        }
+
+        #ai-assistant-modal-content .modal-header {
+            flex-shrink: 0; /* Prevent header from shrinking */
+        }
+
+        #ai-assistant-modal-content .iframe-container {
+            flex-grow: 1; /* Allow iframe container to take up remaining space */
+            overflow: hidden; /* Hide scrollbar on the iframe container */
+        }
+
+        #ai-assistant-modal-content iframe {
+            width: 100%;
+            height: 100%; /* Make iframe fill its parent container */
+            border: none;
+            border-radius: 0.5rem; /* Tailwind rounded-lg */
+        }
+
+        /* New: No hover animation for disabled vote buttons */
+        .vote-poll-btn[disabled]:hover {
+            transform: none !important;
+            transition: none !important;
+            box-shadow: none !important;
+        }
+
+        /* New: Style for voted poll button */
+        .vote-poll-btn.voted {
+            background: #3a3a3a; /* A neutral dark background */
+            color: #b0b0b0; /* Lighter text color */
+            cursor: not-allowed;
+            box-shadow: none; /* No shadow */
+            opacity: 0.8; /* Slightly less opaque */
+            transform: none; /* No transform on hover/active */
+        }
+        .vote-poll-btn.voted:hover {
+            background: #3a3a3a; /* Keep the same background on hover */
+            color: #b0b0b0; /* Keep the same text color on hover */
+            box-shadow: none; /* No shadow on hover */
+            transform: none; /* No transform on hover */
+        }
+
         /* Theme-specific styles */
         body.light-mode {
             background-color: #fcfcfc; /* Very light, almost white */
@@ -481,54 +553,6 @@
             /* transition: none !important; */ /* Removed */
             /* box-shadow: none !important; */ /* Removed */
         }
-
-        /* Styling for the AI Assistant iframe modal */
-        #ai-assistant-modal-content {
-            display: flex; /* Use flexbox */
-            flex-direction: column; /* Stack children vertically */
-            height: 90vh; /* Set a specific height for the modal content */
-            max-height: 90vh; /* Ensure it doesn't exceed viewport height */
-            overflow: hidden; /* Hide scrollbar on the modal content itself */
-        }
-
-        #ai-assistant-modal-content .modal-header {
-            flex-shrink: 0; /* Prevent header from shrinking */
-        }
-
-        #ai-assistant-modal-content .iframe-container {
-            flex-grow: 1; /* Allow iframe container to take up remaining space */
-            overflow: hidden; /* Hide scrollbar on the iframe container */
-        }
-
-        #ai-assistant-modal-content iframe {
-            width: 100%;
-            height: 100%; /* Make iframe fill its parent container */
-            border: none;
-            border-radius: 0.5rem; /* Tailwind rounded-lg */
-        }
-
-        /* New: No hover animation for disabled vote buttons */
-        .vote-poll-btn[disabled]:hover {
-            transform: none !important;
-            transition: none !important;
-            box-shadow: none !important;
-        }
-
-        /* New: Style for voted poll button */
-        .vote-poll-btn.voted {
-            background: #3a3a3a; /* A neutral dark background */
-            color: #b0b0b0; /* Lighter text color */
-            cursor: not-allowed;
-            box-shadow: none; /* No shadow */
-            opacity: 0.8; /* Slightly less opaque */
-            transform: none; /* No transform on hover/active */
-        }
-        .vote-poll-btn.voted:hover {
-            background: #3a3a3a; /* Keep the same background on hover */
-            color: #b0b0b0; /* Keep the same text color on hover */
-            box-shadow: none; /* No shadow on hover */
-            transform: none; /* No transform on hover */
-        }
     </style>
 </head>
 <body>
@@ -580,7 +604,7 @@
     
     <div id="post-modal" class="hidden">
         <div class="modal-backdrop"></div>
-        <div id="modal-content" class="modal w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl h-5/6 main-bg rounded-lg shadow-lg p-4 sm:p-6 overflow-y-auto"></div>
+        <div id="modal-content" class="modal w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl h-5/6 main-bg rounded-lg shadow-lg p-4 sm:p-6"></div>
     </div>
     <div id="alert-modal" class="hidden">
         <div class="modal-backdrop"></div>
@@ -658,7 +682,7 @@
             storageBucket: "postitch-9294d.firebaseapp.com",
             messagingSenderId: "712159052688",
             appId: "1:712159052688:web:dc6e6e299db3cf011ee915",
-            measurementId: "G-55JDFQ5RPG"
+            measurementId: "G-55JMQ5RPG"
         };
 
         // Initialize Firebase
@@ -685,7 +709,8 @@
         let selectedGenres = []; 
         
         // Define genres globally so renderGenreCheckboxes can access it
-        const genres = ["Action", "Adventure", "RPG", "Strategy", "Simulation", "Puzzle", "Platformer", "Shooter", "Fighting", "Stealth", "Survival", "Horror", "Visual Novel", "Rhythm", "Sports", "Racing", "MMO", "Indie", "Casual", "Arcade", "Language", "Card & Board", "Roguelike", "Roguelite", "Metroidvania", "Souls-like", "CRPG", "JRPG", "ARPG", "Tactical RPG", "4X", "RTS", "Tower Defense", "Farming Sim", "Life Sim", "Point & Click", "Bullet Hell", "Hack and Slash", "Sandbox", "Open World", "Deck-builder", "City-builder", "Immersive Sim", "Walking Simulator", "Party Game", "Trivia", "Co-op", "Multiplayer", "Singleplayer", "Early Access", "Full Release", "Demo", "Free to Play", "Pay What You Want", "Puzzle-Platformer", "Survival Horror", "Metroidvania-lite", "Story-Rich", "Procedural Generation", "Pixel Art", "Voxel Art", "3D", "2D", "Top-Down", "Side-Scroller", "First-Person", "Third-Person", "Abstract", "Minimalist", "Retro", "Futuristic", "Fantasy", "Sci-Fi", "Historical", "Modern", "Comedy", "Drama", "Mystery", "Thriller", "Educational", "Relaxing", "Challenging", "Fast-Paced", "Slow-Paced", "Exploration", "Crafting", "Building", "Management", "Deckbuilding Roguelike", "Visual Novel RPG", "Action-Adventure", "Strategy RPG", "Turn-Based Strategy", "Real-Time Strategy", "Tactical Shooter", "Arena Shooter", "Battle Royale", "Dungeon Crawler", "Endless Runner", "Idle Game", "Incremental Game", "Interactive Fiction", "Music", "Narrative", "Party", "Pinball", "Platform Fighter", "Precision Platformer", "Programming", "Quick-Time Event", "Quiz", "Rogue-lite", "Role-Playing", "Sandbox RPG", "Sci-Fi RPG", "Shoot 'em Up", "Simulation RPG", "Social Deduction", "Space", "Steampunk", "Story", "Superhero", "Surreal", "Tabletop", "Team-Based", "Text Adventure", "Time Management", "Top-Down Shooter", "Trading", "Train", "Transhumanism", "Travel", "Trigonometry", "Typing", "Uplifting", "Vampire", "Vehicular Combat", "Vertical Shooter", "Visual Novel Horror", "Visual Novel Mystery", "Visual Novel Sci-Fi", "Visual Novel Slice of Life", "Visual Novel Thriller", "Visual Novel Comedy", "Visual Novel Drama", "Visual Novel Fantasy", "Visual Novel Romance", "War", "Western", "Word Game", "Wrestling", "Cooking", "Zombies", "Zoo", "Zork-like"];
+        const genres = ["2D", "3D", "4X", "Abstract", "Action", "Action-Adventure", "Adventure", "Arcade", "Arena Shooter", "ARPG", "Battle Royale", "Building", "Bullet Hell", "Casual", "Challenging", "City-builder", "Comedy", "Cooking", "Co-op", "Crafting", "CRPG", "Cultivation", "Cyberpunk", "Dating Sim", "Deck-builder", "Deckbuilding Roguelike", "Demo", "Detective", "Dex-builder", "Dinosaur", "Documentary", "Drama", "Driving", "Dungeon Crawler", "Early Access", "Educational", "Endless Runner", "Exploration", "Fantasy", "Farming Sim", "Fashion", "Fast-Paced", "Fighting", "First-Person", "Fishing", "Fitness", "Free to Play", "Full Release", "Futuristic", "Gacha", "Gambling", "God Game", "Golf", "Grand Strategy", "Hack and Slash", "Hero Collector", "Historical", "Horror", "Hunting", "Idle Game", "Immersive Sim", "Incremental Game", "Indie", "Interactive Fiction", "JRPG", "Kaiju", "Kids", "Language", "Life Sim", "Logic", "Low-Poly", "Management", "Martial Arts", "Medical", "Medieval", "Mecha", "Metroidvania", "Metroidvania-lite", "Military", "Minimalist", "MMO", "Modern", "Monster Tamer", "Multiplayer", "Music", "Mystery", "Mythology", "Narrative", "Naval", "Ninja", "Non-linear", "Noir", "Open World", "Parkour", "Party", "Party Game", "Pay What You Want", "Philosophical", "Physics", "Pinball", "Pirate", "Pixel Art", "Platform Fighter", "Platformer", "Point & Click", "Post-Apocalyptic", "Precision Platformer", "Procedural Generation", "Programming", "Psychological Horror", "Puzzle", "Puzzle-Platformer", "Quick-Time Event", "Quiz", "Racing", "Real-Time Strategy", "Relaxing", "Remake", "Remaster", "Retro", "Rhythm", "Roguelike", "Rogue-lite", "Roguelite", "Role-Playing", "RPG", "RTS", "Run and Gun", "Sandbox", "Sandbox RPG", "Sci-Fi", "Sci-Fi RPG", "Shoot 'em Up", "Shooter", "Side-Scroller", "Simulation", "Simulation RPG", "Singleplayer", "Skateboarding", "Slice of Life", "Slow-Paced", "Social Deduction", "Solitaire", "Souls-like", "Space", "Sports", "Stealth", "Steampunk", "Story", "Story-Rich", "Strategy", "Strategy RPG", "Superhero", "Supernatural", "Surreal", "Survival", "Survival Horror", "Tabletop", "Tactical RPG", "Tactical Shooter", "Team-Based", "Tech Demo", "Text Adventure", "Third-Person", "Thriller", "Time Management", "Time Travel", "Top-Down", "Top-Down Shooter", "Tower Defense", "Trading", "Train", "Transhumanism", "Travel", "Trigonometry", "Trivia", "Turn-Based Strategy", "Typing", "Uplifting", "Urban Fantasy", "Vampire", "Vehicular Combat", "Vertical Shooter", "Visual Novel", "Visual Novel Comedy", "Visual Novel Drama", "Visual Novel Fantasy", "Visual Novel Horror", "Visual Novel Mystery", "Visual Novel RPG", "Visual Novel Romance", "Visual Novel Sci-Fi", "Visual Novel Slice of Life", "Visual Novel Thriller", "Voxel Art", "Walking Simulator", "War", "Western", "Werewolf", "Word Game", "Wrestling", "Zombies", "Zoo", "Zork-like"];
+
 
         // User settings state - now initialized from local storage or defaults
         let userSettings = {
@@ -739,19 +764,41 @@
         const aiAssistantModal = document.getElementById('ai-assistant-modal');
         const closeAiAssistantModalBtn = document.getElementById('close-ai-assistant-modal-btn');
 
+        // Array of all modal elements for easy iteration
+        const allModalElements = [
+            postModal,
+            alertModal,
+            confirmModal,
+            confirmInputModal,
+            videoModal,
+            aiAssistantModal
+        ];
+
 
         let editingPostId = null; // Stores the ID of the post currently being edited
         let isPostModalOpen = false; // Flag to prevent multiple modal instances
 
 
         // --- HELPER FUNCTIONS ---
+        // Updates the body's overflow property based on modal visibility.
+        function updateBodyScrollLock() {
+            const isAnyModalOpen = allModalElements.some(modal => !modal.classList.contains('hidden'));
+            if (isAnyModalOpen) {
+                document.body.classList.add('modal-fullscreen-active');
+            } else {
+                document.body.classList.remove('modal-fullscreen-active');
+            }
+        }
+
         // Displays a custom alert message to the user.
         function showAlert(message) {
             document.getElementById('alert-message').textContent = message;
             alertModal.classList.remove('hidden');
+            updateBodyScrollLock(); // Ensure body scroll is locked
             return new Promise(resolve => {
                 document.getElementById('alert-ok-btn').onclick = () => {
                     alertModal.classList.add('hidden');
+                    updateBodyScrollLock(); // Update body scroll lock after closing
                     resolve();
                 };
             });
@@ -761,13 +808,16 @@
         function showConfirm(message) {
             document.getElementById('confirm-message').textContent = message;
             confirmModal.classList.remove('hidden');
+            updateBodyScrollLock(); // Ensure body scroll is locked
             return new Promise(resolve => {
                 document.getElementById('confirm-yes-btn').onclick = () => {
                     confirmModal.classList.add('hidden');
+                    updateBodyScrollLock(); // Update body scroll lock after closing
                     resolve(true);
                 };
                 document.getElementById('confirm-no-btn').onclick = () => {
                     confirmModal.classList.add('hidden');
+                    updateBodyScrollLock(); // Update body scroll lock after closing
                     resolve(false);
                 };
             });
@@ -786,6 +836,7 @@
             inputField.value = ''; // Clear previous input
             confirmBtn.disabled = true; // Disable confirm button initially
             confirmInputModal.classList.remove('hidden');
+            updateBodyScrollLock(); // Ensure body scroll is locked
 
             return new Promise(resolve => {
                 const inputListener = () => {
@@ -797,12 +848,14 @@
                 confirmBtn.onclick = () => {
                     inputField.removeEventListener('input', inputListener);
                     confirmInputModal.classList.add('hidden');
+                    updateBodyScrollLock(); // Update body scroll lock after closing
                     resolve(true);
                 };
 
                 cancelBtn.onclick = () => {
                     inputField.removeEventListener('input', inputListener);
                     confirmInputModal.classList.add('hidden');
+                    updateBodyScrollLock(); // Update body scroll lock after closing
                     resolve(false);
                 };
             });
@@ -865,6 +918,7 @@
             if (embedSrc) {
                 videoPlayerIframe.src = embedSrc; 
                 videoModal.classList.remove('hidden');
+                updateBodyScrollLock(); // Ensure body scroll is locked
                 // Apply fullscreen if setting is enabled
                 if (userSettings.modalFullscreen) {
                     toggleFullscreen(videoModalContent, true); // Pass true to force fullscreen on open
@@ -880,20 +934,19 @@
             videoPlayerIframe.src = ''; // Stop video playback by clearing src
             // Ensure fullscreen mode is off when closing the video modal
             toggleFullscreen(videoModalContent, false); // Force fullscreen off on close
+            updateBodyScrollLock(); // Update body scroll lock after closing
         }
 
         // Opens the AI Assistant modal
         function openAiAssistantModal() {
             aiAssistantModal.classList.remove('hidden');
-             // Add class to body to prevent scrolling when modal is open
-            document.body.classList.add('modal-fullscreen-active');
+            updateBodyScrollLock(); // Ensure body scroll is locked
         }
 
         // Closes the AI Assistant modal
         function closeAiAssistantModal() {
             aiAssistantModal.classList.add('hidden');
-            // Remove class from body to re-enable scrolling
-            document.body.classList.remove('modal-fullscreen-active');
+            updateBodyScrollLock(); // Update body scroll lock after closing
         }
 
 
@@ -1871,7 +1924,7 @@
                         if (devlogTypeSection) devlogTypeSection.classList.remove('hidden');
                         if (genreSection) genreSection.classList.add('hidden');
                         if (platformSection) platformSection.classList.add('hidden');
-                        if (pricingSection) pricingSection.classList.add('hidden');
+                        if (pricingSection) pricing_section.classList.add('hidden');
                         if (commentsStatusSection) commentsStatusSection.classList.add('hidden');
                         if (linkedGamePromoSection) linkedGamePromoSection.classList.remove('hidden');
 
@@ -1955,6 +2008,7 @@
                 <div id="edit-form-container"></div>
             `;
             postModal.classList.remove('hidden'); // Show the modal
+            updateBodyScrollLock(); // Ensure body scroll is locked
             document.getElementById('close-modal-btn').addEventListener('click', closePostModal);
             document.getElementById('fullscreen-toggle-btn').addEventListener('click', () => toggleFullscreen(modalContent)); // Add listener for fullscreen toggle
             
@@ -3064,18 +3118,21 @@
             if (shouldBeFullscreen) {
                 modalElement.classList.add('fullscreen');
                 if (backdrop) backdrop.classList.add('fullscreen');
-                document.body.classList.add('modal-fullscreen-active'); // Prevent body scrolling
+                // The body scroll lock is now handled by updateBodyScrollLock(), no need to add here
+                // document.body.classList.add('modal-fullscreen-active'); // Prevent body scrolling
                 // Update button icon for the specific modal
                 const toggleBtn = modalElement.id === 'modal-content' ? document.getElementById('fullscreen-toggle-btn') : document.getElementById('fullscreen-video-toggle-btn');
                 if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-compress"></i>';
             } else {
                 modalElement.classList.remove('fullscreen');
                 if (backdrop) backdrop.classList.remove('fullscreen');
-                document.body.classList.remove('modal-fullscreen-active'); // Restore body scrolling
+                // The body scroll lock is now handled by updateBodyScrollLock(), no need to remove here
+                // document.body.classList.remove('modal-fullscreen-active'); // Restore body scrolling
                 // Update button icon for the specific modal
                 const toggleBtn = modalElement.id === 'modal-content' ? document.getElementById('fullscreen-toggle-btn') : document.getElementById('fullscreen-video-toggle-btn');
                 if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-expand"></i>';
             }
+            updateBodyScrollLock(); // Ensure body scroll lock is updated after fullscreen toggle
         }
 
         // Opens a modal displaying detailed information about a selected post.
@@ -3258,6 +3315,7 @@
                 ` : `<div class="mt-8 border-t border-gray-700 pt-6 text-center text-gray-400">Comments are disabled for this post.</div>`}
             `;
             postModal.classList.remove('hidden'); // Show the modal
+            updateBodyScrollLock(); // Ensure body scroll is locked
             // Apply fullscreen if setting is enabled
             if (userSettings.modalFullscreen) {
                 toggleFullscreen(modalContent, true); // Pass true to force fullscreen on open
@@ -3356,6 +3414,7 @@
             isPostModalOpen = false; // Reset flag when modal is closed
             // Ensure fullscreen mode is off when closing the modal
             toggleFullscreen(modalContent, false); // Force fullscreen off on close
+            updateBodyScrollLock(); // Update body scroll lock after closing
             // Re-enable post type selection when closing the edit modal
             const postTypeSelect = document.getElementById('post-type');
             if (postTypeSelect) {
