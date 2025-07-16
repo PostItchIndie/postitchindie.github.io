@@ -60,7 +60,7 @@
             border-color: #ffc107; /* Yellow/Amber border for devlogs */
         }
         .card-devlog:hover {
-            border-color: #00bcd4; /* Teal border on hover for devlogs */
+            border-color: #00bcd4; /* Teal border on hover for promos */
         }
 
         /* Input field styling */
@@ -167,6 +167,10 @@
             transition: all 0.3s ease-in-out; /* Smooth transition for fullscreen */
             overflow-y: auto; /* Allow content inside modal to scroll */
         }
+        /* Specific style for AI Chat Modal content to remove its scrollbar */
+        #ai-chat-modal-content {
+            overflow: hidden !important; /* Force no scrollbar on the modal content itself */
+        }
         /* Fullscreen styles for the modal */
         .modal.fullscreen {
             top: 0;
@@ -246,7 +250,7 @@
             align-items: center;
             justify-content: center;
             border-bottom: 1px solid #2a2a2a; /* Separator for media */
-            position: relative; /* For play button overlay */
+            position: relative; /* For play button overlay and combo button */
             border-radius: 0px 0px 0 0; /* Rounded top corners for thumbnail */
         }
 
@@ -397,21 +401,22 @@
             box-shadow: 0 2px 10px rgba(0, 188, 212, 0.5);
         }
 
-        /* Text size classes */
-        body.text-sm { font-size: 0.875rem; } /* 14px */
-        body.text-base { font-size: 1rem; }    /* 16px (default) */
-        body.text-lg { font-size: 1.125rem; }  /* 18px */
+		/* Text size classes */
+		body.text-sm { font-size: 0.875rem; } /* 14px */
+		body.text-base { font-size: 1rem; }    /* 16px (default) */
+		body.text-lg { font-size: 1.125rem; }  /* 18px */
 
-        /* Animations toggle */
-        body.no-animations * {
-            transition: none !important;
-            animation: none !important;
-        }
+		/* Animations toggle */
+		body.no-animations * {
+			transition: none !important;
+			animation: none !important;
+			transform: none !important; /* disable transform animations */
+		}
 
-        /* Removed specific styles for video modal play button overlay */
-        /* as it's no longer needed for the video modal itself */
+		/* Removed specific styles for video modal play button overlay */
+		/* as it's no longer needed for the video modal itself */
 
-        /* Compact Card View Styles - REMOVED */
+		/* Compact Card View Styles - REMOVED */
     </style>
 </head>
 <body>
@@ -422,15 +427,15 @@
 			Post<span class="text-[#00bcd4]">Itch</span>
 		</h1>
             <nav class="hidden md:flex items-center space-x-6">
-                <a href="https://postitchindie.github.io/?section=community" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
-                <a href="https://postitchindie.github.io/?section=promos" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
-                <a href="https://postitchindie.github.io/?section=devlogs" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
-                <a href="https://postitchindie.github.io/?section=post" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
-                <a href="https://postitchindie.github.io/?section=search" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
-                <a href="https://postitchindie.github.io/?section=my-posts" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
-                <a href="https://postitchindie.github.io/?section=about" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
-                <a href="https://postitchindie.github.io/?section=rules" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
-                <a href="https://postitchindie.github.io/?section=settings" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="settings">Settings</a> <!-- New Settings tab -->
+                <a href="https://postitchindie.github.io/?section=community" class="nav-item text-lg font-semibold hover:text-[#00bcd4] active" data-tab="community">Community</a>
+                <a href="https://postitchindie.github.io/?section=promos" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="promos">Game Promos</a>
+                <a href="https://postitchindie.github.io/?section=devlogs" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="devlogs">Devlogs</a>
+                <a href="https://postitchindie.github.io/?section=post" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="post">Post</a>
+                <a href="https://postitchindie.github.io/?section=search" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="search">Search</a>
+                <a href="https://postitchindie.github.io/?section=my-posts" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="my-posts">My Posts</a>
+                <a href="https://postitchindie.github.io/?section=about" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="about">About</a>
+                <a href="https://postitchindie.github.io/?section=rules" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="rules">Rules</a>
+                <a href="https://postitchindie.github.io/?section=settings" class="nav-item text-lg font-semibold hover:text-[#00bcd4]" data-tab="settings">Settings</a> <!-- New Settings tab -->
             </nav>
             <div class="md:hidden">
                 <button id="mobile-menu-btn"><i class="fas fa-bars text-2xl"></i></button>
@@ -747,7 +752,9 @@
 
         // Opens the dedicated video modal
         function openVideoModal(videoId) {
+            console.log("openVideoModal called with videoId:", videoId); // Debugging
             const embedSrc = getYouTubeEmbedSrc(videoId, true); // Always autoplay when opened via dedicated button
+            console.log("Generated embedSrc:", embedSrc); // Debugging
             if (embedSrc) {
                 videoPlayerIframe.src = embedSrc; 
                 videoModal.classList.remove('hidden');
@@ -757,6 +764,7 @@
                 }
             } else {
                 showAlert("Could not play video: Invalid YouTube link.");
+                console.error("Invalid YouTube embed source for videoId:", videoId); // Debugging
             }
         }
 
@@ -872,7 +880,7 @@
                 }
                 applySettings(); // Apply loaded or default settings immediately
             } catch (error) {
-                console.error("Error loading user settings from local storage:", error);
+                console.error("Error loading user settings to local storage:", error);
             }
         }
 
@@ -886,7 +894,7 @@
                     // Check if the click target is the media placeholder or a button
                     // The 'combo' type will now have a direct link, so we don't want the card to open the modal
                     // if the link itself is clicked.
-                    if (e.target.closest('.media-placeholder') || e.target.closest('.youtube-link-btn') || e.target.closest('button')) {
+                    if (e.target.closest('.media-placeholder') || e.target.closest('.combo-play-btn') || e.target.closest('button')) {
                         return; // Do nothing if media placeholder, YouTube link button, or other button was clicked
                     }
                     const postId = card.dataset.id;
@@ -906,6 +914,20 @@
                 });
             });
             
+            // Event listener for combo button on card preview
+            document.querySelectorAll('.combo-play-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent card click event from firing
+                    const videoId = btn.dataset.videoId;
+                    console.log("Combo button clicked. Video ID:", videoId); // Debugging
+                    if (videoId) {
+                        openVideoModal(videoId); // Open in the dedicated video modal
+                    } else {
+                        console.error("No video ID found for combo button!"); // Debugging
+                    }
+                });
+            });
+
             document.querySelectorAll('.like-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => { e.stopPropagation(); toggleLike(btn.dataset.id); });
             });
@@ -1053,7 +1075,6 @@
         function renderPostCard(post, isMyPostPage = false) { // Added isMyPostPage parameter
             const isAuthor = post.authorId === currentUser?.uid;
             let mediaHtml = '';
-            // Removed comboLinkHtml from renderPostCard to prevent it from displaying on preview cards
             const cardTypeClass = post.postType === 'Devlog' ? 'card-devlog' : 'card-promo';
 
             // Conditional rendering of media based on `mediaType` field
@@ -1073,9 +1094,15 @@
             } else if (post.mediaType === 'image' && post.imageUrl) {
                  mediaHtml = `<img src="${post.imageUrl}" alt="${post.title}" class="w-full h-full object-cover rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Image+Not+Found';">`;
             } else if (post.mediaType === 'combo' && post.trailerLink && post.imageUrl) {
-                // For combo, display only the image on the preview card
-                mediaHtml = `<img src="${post.imageUrl}" alt="Custom Thumbnail" class="w-full h-full object-cover rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Custom+Thumbnail+Not+Found';">`;
-                // The comboLinkHtml is intentionally NOT added here for preview cards
+                const videoId = getYouTubeVideoId(post.trailerLink);
+                mediaHtml = `
+                    <img src="${post.imageUrl}" alt="Custom Thumbnail" class="w-full h-full object-cover rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/600x400/101010/808080?text=Custom+Thumbnail+Not+Found';">
+                    ${videoId ? `
+                        <button class="combo-play-btn btn-primary absolute bottom-2 left-2 flex items-center justify-center gap-2 px-3 py-1.5 rounded-md text-white font-bold text-xs sm:text-sm" data-video-id="${videoId}">
+                            <i class="fab fa-youtube"></i> ${post.customYoutubeLinkText || 'Watch Trailer'}
+                        </button>
+                    ` : ''}
+                `;
             } else if (post.mediaType === 'itch_embed' && post.itchLink) {
                 // For Itch.io, always show the placeholder due to embedding restrictions
                 mediaHtml = getItchEmbedHtml(post.itchLink);
@@ -1102,23 +1129,23 @@
                         ${userSettings.showPostCounts ? `
                             <div class="flex justify-between items-center mt-auto pt-2 border-t border-gray-700">
                                 <div class="flex space-x-4 text-gray-400">
-                                    <button class="like-btn hover:text-white transition" data-id="${post.id}">
+                                    <button class="like-btn hover:text-white" data-id="${post.id}">
                                         <i class="${post.likes?.includes(currentUser?.uid) ? 'fas text-red-500' : 'far'} fa-heart"></i>
                                         <span class="ml-1">${formatNumberForDisplay(post.likes?.length || 0)}</span>
                                     </button>
-                                    <button class="comment-btn hover:text-white transition" data-id="${post.id}">
+                                    <button class="comment-btn hover:text-white" data-id="${post.id}">
                                         <i class="fas fa-comment"></i> <!-- Changed to solid comment icon -->
                                         <span class="ml-1">${formatNumberForDisplay(post.comments?.length || 0)}</span>
                                     </button>
                                     <span class="inline-flex items-center">
-                                        <button class="hover:text-white transition cursor-default">
+                                        <button class="hover:text-white cursor-default">
                                             <i class="fas fa-eye mr-1"></i> <!-- Changed to solid eye icon -->
                                             <span class="ml-1">${formatNumberForDisplay(post.views || 0)}</span>
                                         </button>
                                     </span>
                                     ${post.postType === 'Game Promotion' ? `
                                         <span class="inline-flex items-center">
-                                            <button class="hover:text-white transition cursor-default">
+                                            <button class="hover:text-white cursor-default">
                                                 <i class="fas fa-external-link-alt mr-1"></i> <!-- New visit icon -->
                                                 <span class="ml-1">${formatNumberForDisplay(post.visits || 0)}</span>
                                             </button>
@@ -1127,8 +1154,8 @@
                                 </div>
                                 ${isMyPostPage && isAuthor ? `
                                     <div class="flex space-x-2">
-                                        <button class="edit-btn text-blue-500 hover:text-blue-400 transition" data-id="${post.id}"><i class="fas fa-edit"></i></button>
-                                        <button class="delete-btn text-red-500 hover:text-red-400 transition" data-id="${post.id}"><i class="fas fa-trash"></i></button>
+                                        <button class="edit-btn text-blue-500 hover:text-blue-400" data-id="${post.id}"><i class="fas fa-edit"></i></button>
+                                        <button class="delete-btn text-red-500 hover:text-red-400" data-id="${post.id}"><i class="fas fa-trash"></i></button>
                                     </div>
                                 ` : ''}
                             </div>
@@ -1136,8 +1163,8 @@
                             ${isMyPostPage && isAuthor ? `
                                 <div class="flex justify-end mt-auto pt-2 border-t border-gray-700">
                                     <div class="flex space-x-2">
-                                        <button class="edit-btn text-blue-500 hover:text-blue-400 transition" data-id="${post.id}"><i class="fas fa-edit"></i></button>
-                                        <button class="delete-btn text-red-500 hover:text-red-400 transition" data-id="${post.id}"><i class="fas fa-trash"></i></button>
+                                        <button class="edit-btn text-blue-500 hover:text-blue-400" data-id="${post.id}"><i class="fas fa-edit"></i></button>
+                                        <button class="delete-btn text-red-500 hover:text-red-400" data-id="${post.id}"><i class="fas fa-trash"></i></button>
                                     </div>
                                 </div>
                             ` : ''}
@@ -1171,7 +1198,7 @@
                 // Use the currentSortBy which is now updated by userSettings.defaultSortOrder
                 if (currentSortBy === 'popular') sortedPosts.sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0));
                 else if (currentSortBy === 'newest') sortedPosts.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate());
-                else if (currentSortBy === 'oldest') sortedPosts.sort((a, b) => a.createdAt.toDate() - a.createdAt.toDate()); // Fixed: was comparing a to a
+                else if (currentSortBy === 'oldest') sortedPosts.sort((a, b) => a.createdAt.toDate() - b.createdAt.toDate()); // Fixed: was comparing a to a
                 else if (currentSortBy === 'most-viewed') sortedPosts.sort((a, b) => (b.views || 0) - (a.views || 0));
                 else if (currentSortBy === 'most-visited') sortedPosts.sort((a, b) => (b.visits || 0) - (a.visits || 0));
             }
@@ -1743,7 +1770,6 @@
                     selectedGenres = []; // Clear genres for new post
                     renderGenreCheckboxes(genreCheckboxesContainer); // Re-render to clear checkboxes
                 }
-
                 // Genre search functionality
                 genreSearchInput.addEventListener('input', (e) => {
                     renderGenreCheckboxes(genreCheckboxesContainer, e.target.value); // Pass container
@@ -2582,6 +2608,7 @@
                 if (trailerLink && !getYouTubeVideoId(trailerLink)) { // Use getYouTubeVideoId for validation
                     showAlert("Please enter a valid YouTube link (e.g., youtube.com/watch?v=... or youtu.be/...).");
                     submitBtn.disabled = false;
+            
                     submitBtn.textContent = editingPostId ? 'Update Post' : 'Submit Post';
                     return;
                 }
@@ -2960,8 +2987,10 @@
                     </div>
 				</div>
 				<h2 class="text-2xl sm:text-3xl font-bold mb-4 text-white">${post.title}</h2>
-				${mediaHtml}
-				${modalYoutubeLinkHtml} <!-- Add the combo link button here -->
+				<div class="relative"> <!-- Added relative positioning for the media container -->
+                    ${mediaHtml}
+                    ${modalYoutubeLinkHtml} <!-- Add the combo link button here -->
+                </div>
 				<div class="mt-6 flex flex-wrap gap-2 text-gray-400 text-sm">
 					<span><strong>Posted:</strong> ${post.createdAt ? new Date(post.createdAt.toDate()).toLocaleDateString() : 'N/A'}</span>
 					${post.postType === 'Game Promotion' ? `<span><strong>Pricing:</strong> ${post.pricing}</span>` : ''}
@@ -3007,7 +3036,7 @@
                                     <p class="text-gray-300 text-sm sm:text-base">${comment.text}</p>
                                     <div class="flex justify-end items-center mt-2">
                                         ${post.authorId === currentUser?.uid ? `
-                                            <button class="delete-comment-btn text-red-500 hover:text-red-400 transition ml-4" data-post-id="${postId}" data-comment-index="${index}">
+                                            <button class="delete-comment-btn text-red-500 hover:text-red-400 ml-4" data-post-id="${postId}" data-comment-index="${index}">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         ` : ''}
