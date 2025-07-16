@@ -1344,7 +1344,7 @@
                 // Use the currentSortBy which is now updated by userSettings.defaultSortOrder
                 if (currentSortBy === 'popular') sortedPosts.sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0));
                 else if (currentSortBy === 'newest') sortedPosts.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate());
-                else if (currentSortBy === 'oldest') sortedPosts.sort((a, b) => a.createdAt.toDate() - a.createdAt.toDate()); // Fixed: was comparing a to a
+                else if (currentSortBy === 'oldest') sortedPosts.sort((a, b) => a.createdAt.toDate() - b.createdAt.toDate()); // Fixed: was comparing a to a
                 else if (currentSortBy === 'most-viewed') sortedPosts.sort((a, b) => (b.views || 0) - (a.views || 0));
                 else if (currentSortBy === 'most-visited') sortedPosts.sort((a, b) => (b.visits || 0) - (a.visits || 0));
             }
