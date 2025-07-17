@@ -1335,10 +1335,10 @@ document.querySelectorAll('.card-bg').forEach(card => {
                                         <i class="${post.likes?.includes(currentUser?.uid) ? 'fas text-red-500' : 'far'} fa-heart"></i>
                                         <span class="ml-1">${formatNumberForDisplay(post.likes?.length || 0)}</span>
                                     </button>
-                                    <button class="comment-btn hover:text-white transition" data-id="${post.id}">
-                                        <i class="fas fa-comment"></i> <!-- Changed to solid comment icon -->
-                                        <span class="ml-1">${formatNumberForDisplay(post.comments?.length || 0)}</span>
-                                    </button>
+									<button class="comment-btn hover:text-white transition" data-id="${post.id}">
+										<i class="${post.allowComments ? 'fas fa-comment' : 'fa-solid fa-comment-slash'}"></i>
+										<span class="ml-1">${formatNumberForDisplay(post.comments?.length || 0)}</span>
+									</button>
                                     <span class="inline-flex items-center">
                                         <button class="hover:text-white transition cursor-default">
                                             <i class="fas fa-eye mr-1"></i> <!-- Changed to solid eye icon -->
