@@ -452,9 +452,9 @@
             box-shadow: 0 1px 4px rgba(0,0,0,0.01); /* Very subtle shadow */
         }
         body.light-mode .card-bg:hover {
+            transform: translateY(-3px); /* Lift effect on hover */
             border-color: #00bcd4; /* Teal border on hover */
             box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Slightly more pronounced shadow in light mode */
-            transform: translateY(-3px); /* Lift effect on hover */
         }
         /* Removed card-bg:active for light mode as well */
         /* body.light-mode .card-bg:active {
@@ -489,7 +489,7 @@
         /* New: Darker hover effect for like/comment/view/visit buttons in light mode */
         body.light-mode .like-btn:hover, 
         body.light-mode .comment-btn:hover,
-        body.light-mode .inline-flex .hover\:text-white:hover { /* Target the parent span's hover */
+        body.light-mode .inline-flex .hover\:text-white:hover { /* Target the button within the span */
             color: #007bff; /* A distinct blue for hover */
         }
 
@@ -647,7 +647,8 @@
                 <button id="close-ai-assistant-modal-btn" class="modal-action-btn"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="iframe-container w-full h-full">
-                <iframe class="w-full h-full rounded-none" src="https://postitchguide.github.io/PostyAI/" title="AI Assistant"></iframe>
+                <!-- The iframe is already set to w-full h-full and rounded-lg via the style block -->
+                <iframe class="w-full h-full rounded-lg" src="https://postitchguide.github.io/PostyAI/" title="AI Assistant"></iframe>
             </div>
         </div>
     </div>
