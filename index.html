@@ -1062,22 +1062,25 @@
         // --- EVENT LISTENERS SETUP ---
         // Attaches event listeners to dynamically created post cards.
         function addCardEventListeners(isMyPostPage = false) {
-            document.querySelectorAll('.card-bg[data-id]').forEach(card => {
-                // Event listener for opening the modal (excluding clicks on media or buttons)
-                card.addEventListener('click', async (e) => {
-                    // Check if the click target is the media placeholder or a button
-                    // The 'combo' type will now have a direct link, so we don't want the card to open the modal
-                    // if the link itself is clicked.
-                    if (e.target.closest('.media-placeholder') || e.target.closest('.combo-video-btn') || e.target.closest('button')) { // Added .combo-video-btn
-                        return; // Do nothing if media placeholder, combo video button, or other button was clicked
-                    }
-                    const postId = card.dataset.id;
-                    // Only open the post modal if it's not already open
-                    if (!isPostModalOpen) {
-                        await openPostModal(postId, false, true); // Explicitly increment view for user-initiated open
-                    }
-                });
-            });
+document.querySelectorAll('.card-bg').forEach(card => {
+    card.addEventListener('click', async (e) => {
+        // Check if a child button (like, comment, edit, delete, play, combo) was clicked
+        const isButtonClick = e.target.closest('button, a.btn');
+        if (isButtonClick && !isButtonClick.classList.contains('play-button-overlay') && !isButtonClick.classList.contains('combo-video-btn')) {
+            // If it's a button click, prevent opening the modal immediately.
+            // Let the button's own event handler (e.g., for like/comment) handle it.
+            // This ensures the card doesn't open when liking, commenting, etc.
+            console.log("Button clicked, preventing card modal open.");
+            return; // Stop further processing for the card click
+        }
+
+        const postId = card.dataset.id;
+        // Only open the post modal if it's not already open
+        if (!isPostModalOpen) {
+            await openPostModal(postId, false, true); // Explicitly increment view for user-initiated open
+        }
+    });
+});
 
             // Event listener for playing YouTube videos from thumbnail (for 'youtube' media type)
             document.querySelectorAll('.media-placeholder[data-video-id]').forEach(placeholder => {
@@ -1441,12 +1444,22 @@
                         ` : ''}
                     </div>
                 </div>
-                <div id="posts-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    ${postsToDisplay.length > 0 ? postsToDisplay.map(post => renderPostCard(post, isMyPostPage)).join('') : '<p class="col-span-full text-center text-gray-400">No posts yet. Be the first to share your game!</p>'}
-                </div>
-                <div id="load-more-container" class="flex justify-center mt-8">
-                    ${displayLimit < filteredPosts.length ? `<button id="load-more-btn" class="btn-primary text-white font-bold py-3 px-6 rounded-md flex items-center justify-center gap-2">Load More <i class="fas fa-arrow-down"></i></button>` : `<p class="text-gray-400">All posts loaded!</p>`}
-                </div>
+			 <div id="posts-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				${postsToDisplay.length > 0 
+					? postsToDisplay.map(post => renderPostCard(post, isMyPostPage)).join('') 
+					: `<p class="col-span-full text-center text-gray-400">
+						${isMyPostPage 
+							? 'You haven’t posted anything yet. Start by sharing your first game!' 
+							: 'No posts yet. Be the first to share your game!'}
+					   </p>`}
+			</div>
+			<div id="load-more-container" class="flex justify-center mt-8">
+				${displayLimit < filteredPosts.length 
+					? `<button id="load-more-btn" class="btn-primary text-white font-bold py-3 px-6 rounded-md flex items-center justify-center gap-2">
+						Load More <i class="fas fa-arrow-down"></i>
+					   </button>` 
+					: `<p class="text-gray-400"></p>`}
+			</div>
             `;
 
             if (includeSortBy) {
