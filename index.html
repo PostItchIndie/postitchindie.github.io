@@ -388,31 +388,6 @@
             /* box-shadow: none !important; */ /* Removed */
         }
 
-        /* Styling for the AI Assistant iframe modal */
-        #ai-assistant-modal-content {
-            display: flex; /* Use flexbox */
-            flex-direction: column; /* Stack children vertically */
-            height: 78vh; /* Set a specific height for the modal content */
-            max-height: 78vh; /* Ensure it doesn't exceed viewport height */
-            overflow: hidden; /* Hide scrollbar on the modal content itself */
-        }
-
-        #ai-assistant-modal-content .modal-header {
-            flex-shrink: 0; /* Prevent header from shrinking */
-        }
-
-        #ai-assistant-modal-content .iframe-container {
-            flex-grow: 1; /* Allow iframe container to take up remaining space */
-            overflow: hidden; /* Hide scrollbar on the iframe container */
-        }
-
-        #ai-assistant-modal-content iframe {
-            width: 100%;
-            height: 100%; /* Make iframe fill its parent container */
-            border: none;
-            border-radius: 0.4rem; /* Tailwind rounded-lg */
-        }
-
         /* New: No hover animation for disabled vote buttons */
         .vote-poll-btn[disabled]:hover {
             transform: none !important;
@@ -553,6 +528,98 @@
             /* transition: none !important; */ /* Removed */
             /* box-shadow: none !important; */ /* Removed */
         }
+
+        /* Styles for the formatting toolbar buttons */
+        .formatting-toolbar-btn {
+            background-color: #2a2a2a; /* Darker background for toolbar buttons */
+            color: #e6edf3; /* Light text */
+            padding: 0.5rem 0.75rem; /* Smaller padding */
+            border-radius: 0.375rem; /* rounded-md */
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            border: 1px solid #3a3a3a; /* Subtle border */
+        }
+        .formatting-toolbar-btn:hover {
+            background-color: #3a3a3a; /* Slightly lighter on hover */
+            color: #00bcd4; /* Teal icon on hover */
+            transform: translateY(-1px); /* Slight lift */
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        .formatting-toolbar-btn:active {
+            background-color: #1a1a1a; /* Even darker on active */
+            transform: none;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); /* Inset shadow for pressed effect */
+        }
+        
+        /* Style for the description preview area */
+        #description-preview {
+            background-color: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+            padding: 12px;
+            min-height: 100px; /* Ensure it has some height */
+            max-height: 300px; /* Limit height */
+            overflow-y: auto; /* Scroll if content overflows */
+            color: #e6edf3;
+            line-height: 1.6;
+        }
+
+        /* Markdown specific styling for preview and modal content */
+        .markdown-content strong {
+            font-weight: 700;
+            color: inherit; /* Inherit text color */
+        }
+        .markdown-content em {
+            font-style: italic;
+            color: inherit; /* Inherit text color */
+        }
+        .markdown-content ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            padding-left: 0;
+            margin-top: 8px; /* Add some margin above the list */
+            margin-bottom: 8px; /* Add some margin below the list */
+        }
+        .markdown-content ul li {
+            margin-bottom: 0; /* Remove margin between list items */
+            line-height: 1.5; /* Standard line height for readability */
+        }
+        .markdown-content code {
+            background-color: #333;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            color: inherit; /* Inherit text color */
+        }
+        .markdown-content blockquote {
+            border-left: 4px solid #007bff; /* Blue for blockquote */
+            padding-left: 10px;
+            margin-left: 0;
+            color: inherit; /* Inherit text color */
+            font-style: italic;
+            margin-top: 8px; /* Add some margin above the blockquote */
+            margin-bottom: 8px; /* Add some margin below the blockquote */
+        }
+        .markdown-content hr {
+            border: none;
+            border-top: 1px solid #555;
+            margin: 1rem 0;
+        }
+        .markdown-content a {
+            text-decoration: none; /* Remove underline by default */
+            background: linear-gradient(90deg, #007bff, #00bcd4); /* Gradient background */
+            -webkit-background-clip: text; /* Clip background to text */
+            background-clip: text; /* Clip background to text */
+            color: transparent; /* Make text transparent to show background */
+            transition: all 0.2s ease-in-out; /* Smooth transition for hover */
+        }
+        .markdown-content a:hover {
+            background: linear-gradient(90deg, #00bcd4, #007bff); /* Reverse gradient on hover */
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-decoration: underline; /* Add underline on hover */
+        }
     </style>
 </head>
 <body>
@@ -667,6 +734,20 @@
         </div>
     </div>
 
+    <!-- New Link Insertion Modal -->
+    <div id="link-modal" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal w-11/12 max-w-sm main-bg rounded-lg shadow-lg p-6">
+            <h3 class="text-xl font-bold mb-4 text-white">Insert Link</h3>
+            <input type="url" id="link-url-input" class="w-full p-3 input-bg rounded-md mb-4" placeholder="Enter URL (e.g., https://example.com)" required>
+            <input type="text" id="link-text-input" class="w-full p-3 input-bg rounded-md mb-6" placeholder="Enter display text (optional)">
+            <div class="flex justify-end gap-4">
+                <button id="cancel-link-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-md">Cancel</button>
+                <button id="insert-link-btn" class="btn-primary text-white font-bold py-2 px-6 rounded-md">Insert</button>
+            </div>
+        </div>
+    </div>
+
 
     <script type="module">
         // Import the functions you need from the SDKs you need
@@ -753,6 +834,7 @@
         const alertModal = document.getElementById('alert-modal');
         const confirmModal = document.getElementById('confirm-modal');
         const confirmInputModal = document.getElementById('confirm-input-modal'); // New confirmation input modal
+        const linkModal = document.getElementById('link-modal'); // New link modal
 
         // New video modal elements
         const videoModal = document.getElementById('video-modal');
@@ -761,7 +843,7 @@
         const closeVideoModalBtn = document.getElementById('close-video-modal-btn');
         const fullscreenVideoToggleBtn = document.getElementById('fullscreen-video-toggle-btn'); // New fullscreen toggle for video modal
 
-        // New AI Assistant modal elements
+        // New AI Assistant elements
         const aiAssistantModal = document.getElementById('ai-assistant-modal');
         const closeAiAssistantModalBtn = document.getElementById('close-ai-assistant-modal-btn');
 
@@ -772,7 +854,8 @@
             confirmModal,
             confirmInputModal,
             videoModal,
-            aiAssistantModal
+            aiAssistantModal,
+            linkModal // Add link modal to the list
         ];
 
 
@@ -888,18 +971,6 @@
             return videoId ? `https://www.youtube.com/embed/${videoId}?enablejsapi=1${autoplay ? '&autoplay=1' : ''}${muteParam}` : '';
         }
 
-        // Generates the HTML for embedding an Itch.io game.
-        function getItchEmbedHtml(itchLink) {
-            if (!itchLink) return '';
-            // Itch.io often prevents embedding on external sites due to security policies (e.g., X-Frame-Options).
-            // We will display a message and a direct link instead of trying to embed directly.
-            return `<div class="w-full h-full bg-[#101010] flex flex-col items-center justify-center text-gray-500 p-4 text-center rounded-t-lg">
-                        <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
-                        <p class="mb-2">Direct Itch.io embedding is often restricted.</p>
-                        <a href="${itchLink}" target="_blank" class="text-[#00bcd4] hover:underline">Visit Itch.io Page</a>
-                    </div>`;
-        }
-
         // Loads the YouTube video by replacing the thumbnail with the iframe.
         function loadYouTubeVideo(containerElement, videoId) {
             console.log("loadYouTubeVideo called for videoId:", videoId, "on container:", containerElement);
@@ -911,6 +982,18 @@
             } else {
                 console.warn("No valid YouTube embed source generated for videoId:", videoId);
             }
+        }
+
+        // Generates the HTML for embedding an Itch.io game.
+        function getItchEmbedHtml(itchLink) {
+            if (!itchLink) return '';
+            // Itch.io often prevents embedding on external sites due to security policies (e.g., X-Frame-Options).
+            // We will display a message and a direct link instead of trying to embed directly.
+            return `<div class="w-full h-full bg-[#101010] flex flex-col items-center justify-center text-gray-500 p-4 text-center rounded-t-lg">
+                        <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                        <p class="mb-2">Direct Itch.io embedding is often restricted.</p>
+                        <a href="${itchLink}" target="_blank" class="text-[#00bcd4] hover:underline">Visit Itch.io Page</a>
+                    </div>`;
         }
 
         // Opens the dedicated video modal
@@ -987,6 +1070,107 @@
             return num.toString();
         }
 
+        /**
+         * Strips Markdown formatting from a given text string.
+         * This includes bold, italic, links (keeps display text), inline code, blockquotes, and list items.
+         * @param {string} markdownText The text containing Markdown.
+         * @returns {string} The text with Markdown stripped.
+         */
+        function stripMarkdown(markdownText) {
+            if (!markdownText) return '';
+            let cleanedText = markdownText;
+
+            // Remove bold (**text**)
+            cleanedText = cleanedText.replace(/\*\*(.*?)\*\*/g, '$1');
+            // Remove italic (*text*)
+            cleanedText = cleanedText.replace(/\*(.*?)\*/g, '$1');
+            // Remove links ([text](url)) - keep only the display text
+            cleanedText = cleanedText.replace(/\[(.*?)\]\(.*?\)/g, '$1');
+            // Remove inline code (`code`)
+            cleanedText = cleanedText.replace(/`(.*?)`/g, '$1');
+            // Remove blockquote prefix (> )
+            cleanedText = cleanedText.replace(/^>\s*/gm, '');
+            // Remove list item prefix (- )
+            cleanedText = cleanedText.replace(/^- \s*/gm, '');
+            // Remove horizontal rule (---)
+            cleanedText = cleanedText.replace(/^---\s*$/gm, '');
+            // Replace multiple newlines with single newlines to prevent excessive spacing
+            cleanedText = cleanedText.replace(/\n\s*\n/g, '\n\n');
+            // Trim leading/trailing whitespace
+            cleanedText = cleanedText.trim();
+
+            return cleanedText;
+        }
+
+        /**
+         * Converts Markdown text to HTML.
+         * @param {string} markdownText The text containing Markdown.
+         * @returns {string} The HTML representation of the Markdown.
+         */
+        function convertMarkdownToHtml(markdownText) {
+            if (!markdownText) return '';
+            let html = markdownText;
+
+            // Process Horizontal Rule first
+            html = html.replace(/^---\s*$/gm, '<hr>');
+
+            // Process Blockquotes
+            html = html.replace(/^>\s*(.*)$/gm, '<blockquote>$1</blockquote>');
+
+            // Process Lists
+            let lines = html.split('\n');
+            let processedLines = [];
+            let inList = false;
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                if (line.startsWith('- ')) {
+                    if (!inList) {
+                        processedLines.push('<ul>');
+                        inList = true;
+                    }
+                    processedLines.push(`<li>${line.substring(2)}</li>`);
+                } else {
+                    if (inList) {
+                        processedLines.push('</ul>');
+                        inList = false;
+                    }
+                    processedLines.push(line); // Keep non-list lines as is for now
+                }
+            }
+            if (inList) { // Close list if it was open at the end
+                processedLines.push('</ul>');
+            }
+            html = processedLines.join('\n'); // Rejoin lines, now lists are properly structured
+
+            // Process Inline elements (Bold, Italic, Code, Links)
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            html = html.replace(/`(.*?)`/g, '<code>$1</code>');
+            html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+            // Handle Paragraphs: Replace double newlines with </p><p>, single newlines with <br> within paragraphs
+            // This should happen AFTER all block-level processing.
+            let paragraphs = html.split(/\n\s*\n/); // Split by one or more blank lines
+            html = paragraphs.map(p => {
+                // If a paragraph contains a block element (like ul, blockquote, hr), don't wrap it in <p>
+                if (p.includes('<ul') || p.includes('<blockquote') || p.includes('<hr>')) {
+                    return p; // Return as is, it's already structured or will be handled by CSS
+                }
+                // Otherwise, wrap in <p> and convert single newlines to <br>
+                return `<p>${p.replace(/\n/g, '<br>')}</p>`;
+            }).join('');
+
+            // Clean up any empty paragraph tags that might have been created
+            html = html.replace(/<p>\s*<\/p>/g, '');
+            
+            // Remove <p> tags directly before/after block elements if they somehow slipped through
+            html = html.replace(/<p>(<ul|<blockquote|<hr>)/g, '$1');
+            html = html.replace(/(<\/ul>|<\/blockquote>|<hr>)<\/p>/g, '$1');
+
+            return html;
+        }
+
         // --- SETTINGS FUNCTIONS ---
         // Applies the current theme, text size, and animation settings to the body.
         function applySettings() {
@@ -1057,6 +1241,72 @@
             } catch (error) {
                 console.error("Error loading user settings from local storage:", error);
             }
+        }
+
+        // Global variables for link modal handlers
+        let linkModalUrlInput;
+        let linkModalTextInput;
+        let linkModalInsertBtn;
+        let linkModalCancelBtn;
+        let descriptionInputForLink; // To hold the reference to the main description input
+        let linkSelectionStart;
+        let linkSelectionEnd;
+
+        // Opens the link insertion modal
+        function openLinkModal(start, end) {
+            linkModal.classList.remove('hidden');
+            updateBodyScrollLock();
+            linkSelectionStart = start;
+            linkSelectionEnd = end;
+            // Pre-fill text input if something was selected
+            linkModalTextInput.value = descriptionInputForLink.value.substring(start, end);
+            linkModalUrlInput.focus(); // Focus URL input
+            // Validate initially in case there's pre-filled text
+            linkModalInsertBtn.disabled = !linkModalUrlInput.value.trim().match(/^https?:\/\/[^\s$.?#].[^\s]*$/i);
+        }
+
+        // Initialize link modal handlers ONCE
+        function initializeLinkModalHandlers() {
+            linkModalUrlInput = document.getElementById('link-url-input');
+            linkModalTextInput = document.getElementById('link-text-input');
+            linkModalInsertBtn = document.getElementById('insert-link-btn');
+            linkModalCancelBtn = document.getElementById('cancel-link-btn');
+            // linkModal is already a global const
+
+            const validateLinkInput = () => {
+                linkModalInsertBtn.disabled = !linkModalUrlInput.value.trim().match(/^https?:\/\/[^\s$.?#].[^\s]*$/i);
+            };
+
+            const handleInsertLink = () => {
+                const url = linkModalUrlInput.value.trim();
+                const text = linkModalTextInput.value.trim() || url; // Use URL if text is empty
+                const linkMarkdown = `[${text}](${url})`;
+
+                if (descriptionInputForLink) { // Ensure we have a reference to the textarea
+                    const currentValue = descriptionInputForLink.value;
+                    descriptionInputForLink.value = currentValue.substring(0, linkSelectionStart) + linkMarkdown + currentValue.substring(linkSelectionEnd);
+                    descriptionInputForLink.selectionStart = linkSelectionStart + linkMarkdown.length;
+                    descriptionInputForLink.selectionEnd = linkSelectionStart + linkMarkdown.length;
+                    descriptionInputForLink.focus();
+                    // Manually trigger input event to update char count and preview
+                    descriptionInputForLink.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                closeLinkModal();
+            };
+
+            const closeLinkModal = () => {
+                linkModal.classList.add('hidden');
+                updateBodyScrollLock();
+                // Clear inputs and reset button state when closing
+                linkModalUrlInput.value = '';
+                linkModalTextInput.value = '';
+                linkModalInsertBtn.disabled = true; 
+            };
+
+            // Attach listeners ONCE
+            linkModalInsertBtn.addEventListener('click', handleInsertLink);
+            linkModalCancelBtn.addEventListener('click', closeLinkModal);
+            linkModalUrlInput.addEventListener('input', validateLinkInput);
         }
 
 
@@ -1169,6 +1419,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
 			loader.style.display = 'none'; // Hide the loading spinner
 			listenForPostsRealtime(); // Start real-time listening for ALL posts
 			setupNavListeners(); // Set up navigation event handlers
+            initializeLinkModalHandlers(); // Initialize link modal handlers once
 
 			// Check for postId in URL and open modal if present
 			const urlParams = new URLSearchParams(window.location.search);
@@ -1193,7 +1444,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
             // Add event listener for the new video modal fullscreen toggle button
             fullscreenVideoToggleBtn.addEventListener('click', () => toggleFullscreen(videoModalContent));
             // Add event listener for AI Assistant modal close button
-            closeAiAssistantModalBtn.addEventListener('click', closeAiAssistantModal);
+            closeAiAssistantModalBtn.addEventListener('click', openAiAssistantModal);
 
             // Auto-pause video when any other modal opens or tab switches
             document.addEventListener('click', (e) => {
@@ -1324,7 +1575,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
                     
                     <div class="p-4 flex-grow flex flex-col">
                         <h3 class="text-xl font-bold mb-2 truncate text-white">${post.title}</h3>
-                        <p class="text-gray-400 text-sm mb-4 flex-grow">${post.description.substring(0, 100)}${post.description.length > 100 ? '...' : ''}</p>
+                        <p class="text-gray-400 text-sm mb-4 flex-grow">${stripMarkdown(post.description).substring(0, 100)}${post.description.length > 100 ? '...' : ''}</p>
                         <div class="flex flex-wrap gap-2 mb-4">
                             ${post.genres && post.genres.slice(0, 3).map(g => `<span class="bg-gray-700 text-xs font-semibold px-2 py-1 rounded-full text-gray-200">${g}</span>`).join('')}
                             ${post.tags && post.tags.slice(0, 3).map(t => `<span class="bg-purple-700 text-xs font-semibold px-2 py-1 rounded-full text-gray-200">${t}</span>`).join('')}
@@ -1529,6 +1780,11 @@ document.querySelectorAll('.card-bg').forEach(card => {
             const devlogPosts = allFetchedPosts.filter(p => p.postType === 'Devlog');
             renderPostsGrid(contentDevlogs, devlogPosts, "Devlogs", false, true, true, false); // Pass false for isMyPostPage
         }
+
+        // New function to calculate visible character count by stripping markdown
+        function getVisibleCharCount(markdownText) {
+            return stripMarkdown(markdownText).length;
+        }
         
         // Renders the form for creating a new post.
         function renderPostPage(targetElement) { // Now accepts a targetElement
@@ -1607,8 +1863,21 @@ document.querySelectorAll('.card-bg').forEach(card => {
                         </div>
                         <div>
                             <label for="description" class="block mb-2 font-semibold text-gray-300">Description (100-1000 chars)</label>
+                            <div class="flex flex-wrap gap-2 mb-2">
+                                <button type="button" class="formatting-toolbar-btn" data-format="bold"><i class="fas fa-bold"></i></button>
+                                <button type="button" class="formatting-toolbar-btn" data-format="italic"><i class="fas fa-italic"></i></button>
+                                <button type="button" class="formatting-toolbar-btn" data-format="link"><i class="fas fa-link"></i></button>
+                                <button type="button" class="formatting-toolbar-btn" data-format="bullet"><i class="fas fa-list-ul"></i></button>
+                                <button type="button" class="formatting-toolbar-btn" data-format="inline-code"><i class="fas fa-code"></i></button>
+                                <button type="button" class="formatting-toolbar-btn" data-format="blockquote"><i class="fas fa-quote-right"></i></button>
+                                <button type="button" class="formatting-toolbar-btn" data-format="hr"><i class="fas fa-minus"></i></button>
+                            </div>
                             <textarea id="description" rows="5" class="w-full p-3 input-bg rounded-md" minlength="100" maxlength="1000" required></textarea>
                             <p id="char-count" class="text-sm text-gray-400 mt-1 text-right">0/1000</p>
+                            <div class="mt-4">
+                                <label class="block mb-2 font-semibold text-gray-300">Live Preview:</label>
+                                <div id="description-preview" class="input-bg p-3 rounded-md markdown-content"></div>
+                            </div>
                         </div>
                         <div>
                             <label for="itch-link" class="block mb-2 font-semibold text-gray-300" id="itch-link-label">Itch.io Link</label>
@@ -1766,10 +2035,96 @@ document.querySelectorAll('.card-bg').forEach(card => {
             // Event listeners are attached to the form and its elements within the targetElement
             const form = targetElement.querySelector('#post-form');
             if (form) {
+                const descriptionInput = form.querySelector('#description');
+                const descriptionPreview = form.querySelector('#description-preview');
+                const charCount = form.querySelector('#char-count');
+
+                // Function to update the live preview
+                function updatePreview() {
+                    const markdownText = descriptionInput.value;
+                    descriptionPreview.innerHTML = convertMarkdownToHtml(markdownText);
+                }
+
+                // Function to apply formatting
+                function applyFormat(formatType) {
+                    const start = descriptionInput.selectionStart;
+                    const end = descriptionInput.selectionEnd;
+                    const currentValue = descriptionInput.value;
+                    const selectedText = currentValue.substring(start, end);
+                    let newText = '';
+                    let newCursorPos = start; // Default cursor position
+
+                    switch (formatType) {
+                        case 'bold':
+                            newText = `**${selectedText}**`;
+                            newCursorPos = start + 2 + selectedText.length; // Cursor after selected text and closing **
+                            break;
+                        case 'italic':
+                            newText = `*${selectedText}*`;
+                            newCursorPos = start + 1 + selectedText.length; // Cursor after selected text and closing *
+                            break;
+                        case 'link':
+                            // Store references to the current description input and selection
+                            descriptionInputForLink = descriptionInput; 
+                            linkSelectionStart = start;
+                            linkSelectionEnd = end;
+                            openLinkModal(start, end); // Open link modal
+                            return; // Don't update description yet, it's handled by link modal
+                        case 'bullet':
+                            if (selectedText) {
+                                newText = selectedText.split('\n').map(line => `- ${line}`).join('\n');
+                                newCursorPos = start + (selectedText.split('\n')[0].length > 0 ? 2 : 0); // Cursor after '- ' for the first line
+                            } else {
+                                newText = '- ';
+                                newCursorPos = start + 2; // Cursor after '- '
+                            }
+                            break;
+                        case 'inline-code':
+                            newText = `\`${selectedText}\``;
+                            newCursorPos = start + 1 + selectedText.length; // Cursor after selected text and closing `
+                            break;
+                        case 'blockquote':
+                            if (selectedText) {
+                                newText = selectedText.split('\n').map(line => `> ${line}`).join('\n');
+                                newCursorPos = start + (selectedText.split('\n')[0].length > 0 ? 2 : 0); // Cursor after '> ' for the first line
+                            } else {
+                                newText = '> ';
+                                newCursorPos = start + 2; // Cursor after '> '
+                            }
+                            break;
+                        case 'hr':
+                            newText = '\n---\n';
+                            newCursorPos = start + newText.length; // Cursor after the HR
+                            break;
+                        default:
+                            return;
+                    }
+
+                    descriptionInput.value = currentValue.substring(0, start) + newText + currentValue.substring(end);
+                    descriptionInput.selectionStart = descriptionInput.selectionEnd = newCursorPos; // Set cursor
+                    descriptionInput.focus();
+                    updatePreview();
+                    const visibleLength = getVisibleCharCount(descriptionInput.value);
+                    charCount.textContent = `${visibleLength}/1000`;
+                }
+
+
                 form.addEventListener('submit', handlePostSubmit);
-                form.querySelector('#description').addEventListener('input', e => {
-                    form.querySelector('#char-count').textContent = `${e.target.value.length}/1000`;
+                descriptionInput.addEventListener('input', e => {
+                    const visibleLength = getVisibleCharCount(e.target.value);
+                    charCount.textContent = `${visibleLength}/1000`;
+                    updatePreview(); // Live update preview
                 });
+
+                // Attach event listeners to formatting buttons
+                form.querySelectorAll('.formatting-toolbar-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.preventDefault(); // Prevent form submission
+                        const formatType = e.currentTarget.dataset.format;
+                        applyFormat(formatType);
+                    });
+                });
+
 
                 const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
                 const youtubeLinkSection = form.querySelector('#youtube-link-section');
@@ -1938,7 +2293,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
                         if (devlogTypeSection) devlogTypeSection.classList.remove('hidden');
                         if (genreSection) genreSection.classList.add('hidden');
                         if (platformSection) platformSection.classList.add('hidden');
-                        if (pricingSection) pricing_section.classList.add('hidden');
+                        if (pricingSection) pricingSection.classList.add('hidden');
                         if (commentsStatusSection) commentsStatusSection.classList.add('hidden');
                         if (linkedGamePromoSection) linkedGamePromoSection.classList.remove('hidden');
 
@@ -1991,6 +2346,9 @@ document.querySelectorAll('.card-bg').forEach(card => {
                     togglePostTypeFieldsInternal();
                     selectedGenres = []; // Clear genres for new post
                     renderGenreCheckboxes(genreCheckboxesContainer); // Re-render to clear checkboxes
+                } else {
+                    // If in editing mode, ensure preview is updated with existing description
+                    updatePreview();
                 }
 
                 // Genre search functionality
@@ -2040,7 +2398,9 @@ document.querySelectorAll('.card-bg').forEach(card => {
             if (form) { // Ensure form is found before attempting to populate
                 form.querySelector('#game-title').value = post.title || '';
                 form.querySelector('#description').value = post.description || '';
-                form.querySelector('#char-count').textContent = `${post.description?.length || 0}/1000`; // Use form.querySelector
+                // Update this line to use getVisibleCharCount
+                const initialVisibleLength = getVisibleCharCount(post.description || '');
+                form.querySelector('#char-count').textContent = `${initialVisibleLength}/1000`; // Use form.querySelector
                 form.querySelector('#itch-link').value = post.itchLink || '';
                 form.querySelector('#made-with').value = post.madeWith || '';
                 form.querySelector('#general').value = post.general || '';
@@ -2298,10 +2658,10 @@ document.querySelectorAll('.card-bg').forEach(card => {
                     }
                     console.log("pollSection hidden after toggle:", pollSection.classList.contains('hidden'));
                 }
-                postTypeSelect.addEventListener('change', togglePostTypeFieldsEdit);
-                devlogTypeSelect?.addEventListener('change', togglePostTypeFieldsEdit); // Listen for devlog type change
-                addGamePromoPollRadios.forEach(radio => radio.addEventListener('change', togglePostTypeFieldsEdit)); // New listener for game promo poll toggle
-                togglePostTypeFieldsEdit(); // Initialize visibility
+                postTypeSelect.addEventListener('change', togglePostTypeFieldsInternal);
+                devlogTypeSelect?.addEventListener('change', togglePostTypeFieldsInternal); // Listen for devlog type change
+                addGamePromoPollRadios.forEach(radio => radio.addEventListener('change', togglePostTypeFieldsInternal)); // New listener for game promo poll toggle
+                togglePostTypeFieldsInternal(); // Initialize visibility
 
                 // Update submit button text
                 form.querySelector('#submit-post-btn').textContent = 'Update Post'; // Use form.querySelector
@@ -2771,9 +3131,14 @@ document.querySelectorAll('.card-bg').forEach(card => {
 
             // Poll data if devlogType is 'Poll' or if postType is 'Game Promotion' and addGamePromoPoll is true
             let pollData = null;
-            if ((postType === 'Devlog' && devlogType === 'Poll') || (postType === 'Game Promotion' && addGamePromoPoll)) {
-                const pollQuestion = form.querySelector('#poll-question').value.trim();
-                const pollOptions = [...form.querySelectorAll('.poll-option-input')].map(input => ({
+            const pollSection = form.querySelector('#poll-section');
+            const pollQuestionInput = form.querySelector('#poll-question');
+            const pollOptionInputs = form.querySelectorAll('.poll-option-input');
+
+            // Check if poll section is visible and not disabled (meaning a new poll is being created)
+            if (!pollSection.classList.contains('hidden') && !pollQuestionInput.disabled) {
+                const pollQuestion = pollQuestionInput.value.trim();
+                const pollOptions = [...pollOptionInputs].map(input => ({
                     text: input.value.trim(),
                     votes: 0 // Initialize votes to 0 for new polls
                 }));
@@ -3103,7 +3468,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
             // Filter posts based on title, description, genres, platforms, or tags
             const results = allFetchedPosts.filter(post => // Use allFetchedPosts
                 post.title.toLowerCase().includes(queryTerm) ||
-                post.description.toLowerCase().includes(queryTerm) ||
+                stripMarkdown(post.description).toLowerCase().includes(queryTerm) || // Search stripped description
                 (post.genres && post.genres.some(g => g.toLowerCase().includes(queryTerm))) || // Check if genres exist
                 (post.platforms && post.platforms.some(p => p.toLowerCase().includes(queryTerm))) || // Check if platforms exist
                 (post.madeWith && post.madeWith.toLowerCase().includes(queryTerm)) || // Search 'madeWith' field
@@ -3279,7 +3644,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
 						<span><strong>Visits:</strong> ${formatNumberForDisplay(post.visits || 0)}</span>
 					` : ''}
                 </div>
-                <p class="text-gray-300 my-4 text-justify text-sm sm:text-base">${post.description}</p>
+                <div class="markdown-content text-gray-300 my-4 text-justify text-sm sm:text-base">${convertMarkdownToHtml(post.description)}</div>
                 
                 <div class="flex flex-wrap gap-2 mb-4">
                     ${post.postType === 'Game Promotion' && post.genres && post.genres.length > 0 ? post.genres.map(g => `<span class="bg-blue-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${g}</span>`).join('') : ''}
