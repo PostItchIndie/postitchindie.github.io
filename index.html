@@ -1812,7 +1812,159 @@ document.querySelectorAll('.card-bg').forEach(card => {
         function getVisibleCharCount(markdownText) {
             return stripMarkdown(markdownText).length;
         }
-        
+
+        // Moved to global scope
+        function toggleMediaSections(form) {
+            const selectedMedia = form.querySelector('input[name="media-type"]:checked')?.value;
+            console.log("toggleMediaSections called. Selected Media:", selectedMedia);
+
+            const youtubeLinkSection = form.querySelector('#youtube-link-section');
+            const imageLinkSection = form.querySelector('#image-link-section');
+            const customYoutubeLinkSection = form.querySelector('#custom-youtube-text-section');
+            const trailerLinkInput = form.querySelector('#trailer-link');
+            const imageUrlInput = form.querySelector('#image-url');
+            const customYoutubeLinkTextInput = form.querySelector('#custom-youtube-link-text');
+            const youtubeLinkHelp = form.querySelector('.youtube-link-help');
+            const imageLinkHelp = form.querySelector('.image-link-help');
+
+            // Reset visibility and required attributes for all media sections first
+            [youtubeLinkSection, imageLinkSection, customYoutubeLinkSection].forEach(el => el?.classList.add('hidden'));
+            [trailerLinkInput, imageUrlInput, customYoutubeLinkTextInput].forEach(input => input?.removeAttribute('required'));
+
+            if (selectedMedia === 'combo') {
+                youtubeLinkSection?.classList.remove('hidden');
+                imageLinkSection?.classList.remove('hidden');
+                customYoutubeLinkSection?.classList.remove('hidden');
+                
+                if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Required for Combo. Example: https://youtu.be/dQw4w9WgXcQ)';
+                if (imageLinkHelp) imageLinkHelp.textContent = '(Required for Combo. Example: https://example.com/your-game-screenshot.png)';
+                trailerLinkInput?.setAttribute('required', 'true');
+                imageUrlInput?.setAttribute('required', 'true');
+                customYoutubeLinkTextInput?.setAttribute('required', 'true');
+            } else if (selectedMedia === 'youtube') {
+                youtubeLinkSection?.classList.remove('hidden');
+                if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
+                trailerLinkInput?.setAttribute('required', 'true');
+            } else if (selectedMedia === 'image') {
+                imageLinkSection?.classList.remove('hidden');
+                if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
+                imageUrlInput?.setAttribute('required', 'true');
+            } else { // 'none'
+                if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
+                if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
+            }
+        }
+
+        // Moved to global scope
+        function togglePostTypeFields(form, post) { // Added 'post' parameter for edit mode
+            const postTypeSelect = form.querySelector('#post-type');
+            const devlogTypeSelect = form.querySelector('#devlog-type');
+            const devlogTypeSection = form.querySelector('#devlog-type-section');
+            const gamePromoPollToggle = form.querySelector('#game-promo-poll-toggle');
+            const addGamePromoPollRadios = form.querySelectorAll('input[name="add-game-promo-poll"]');
+            const pollSection = form.querySelector('#poll-section');
+            const pollQuestionInput = form.querySelector('#poll-question');
+            const pollOptionInputs = form.querySelectorAll('.poll-option-input');
+
+            const genreSection = form.querySelector('#genre-section');
+            const platformSection = form.querySelector('#platform-section');
+            const pricingSection = form.querySelector('#pricing-section');
+            const commentsStatusSection = form.querySelector('#comments-status-section');
+            const linkedGamePromoSection = form.querySelector('#linked-game-promo-section');
+            const itchLinkInput = form.querySelector('#itch-link');
+            const itchLinkHelp = form.querySelector('#itch-link-help');
+
+            const selectedPostType = postTypeSelect.value;
+            const selectedDevlogType = devlogTypeSelect?.value;
+            const addGamePromoPoll = form.querySelector('input[name="add-game-promo-poll"]:checked')?.value === 'true';
+
+            // Reset all devlog specific fields to hidden and optional
+            devlogTypeSection?.classList.add('hidden');
+            gamePromoPollToggle?.classList.add('hidden');
+            pollSection?.classList.add('hidden');
+
+            // Crucially, remove required from poll inputs by default
+            pollQuestionInput?.removeAttribute('required');
+            pollOptionInputs.forEach(input => input.removeAttribute('required'));
+
+
+            if (selectedPostType === 'Devlog') {
+                devlogTypeSection?.classList.remove('hidden');
+                genreSection?.classList.add('hidden');
+                platformSection?.classList.add('hidden');
+                pricingSection?.classList.add('hidden');
+                commentsStatusSection?.classList.add('hidden');
+                linkedGamePromoSection?.classList.remove('hidden');
+
+                if (itchLinkInput) {
+                    itchLinkInput.removeAttribute('required');
+                    itchLinkInput.removeAttribute('pattern');
+                }
+                if (itchLinkHelp) itchLinkHelp.textContent = '(Optional for Devlog. Example: https://yourusername.itch.io/your-devlog-page)';
+                document.querySelectorAll('#genre-section input[type="checkbox"]').forEach(checkbox => checkbox.required = false);
+                document.querySelectorAll('#platform-section input[type="checkbox"]').forEach(checkbox => checkbox.required = false);
+
+                if (selectedDevlogType === 'Poll') {
+                    pollSection?.classList.remove('hidden');
+                    pollQuestionInput?.setAttribute('required', 'true');
+                    pollOptionInputs.forEach(input => input.setAttribute('required', 'true'));
+                    updateRemovePollOptionButtons(form); // Pass form reference
+                }
+            } else { // Game Promotion
+                devlogTypeSection?.classList.add('hidden');
+                genreSection?.classList.remove('hidden');
+                platformSection?.classList.remove('hidden');
+                pricingSection?.classList.remove('hidden');
+                commentsStatusSection?.classList.remove('hidden');
+                linkedGamePromoSection?.classList.add('hidden');
+                gamePromoPollToggle?.classList.remove('hidden');
+
+                if (itchLinkInput) {
+                    itchLinkInput.setAttribute('required', 'true');
+                    itchLinkInput.setAttribute('pattern', 'https://.*\\.itch\\.io/.*');
+                }
+                if (itchLinkHelp) itchLinkHelp.textContent = '(Required for Game Promotion. Optional for Devlog. Example: https://yourusername.itch.io/your-game)';
+                
+                if (addGamePromoPoll) {
+                    pollSection?.classList.remove('hidden');
+                    pollQuestionInput?.setAttribute('required', 'true');
+                    pollOptionInputs.forEach(input => input.setAttribute('required', 'true'));
+                    updateRemovePollOptionButtons(form); // Pass form reference
+                }
+            }
+
+            // If in edit mode and a poll already exists, disable poll fields
+            if (post && post.poll) {
+                if (pollSection) {
+                    pollSection.classList.remove('hidden'); // Ensure poll section is visible
+                    pollSection.querySelectorAll('input, button').forEach(element => {
+                        element.disabled = true;
+                        element.classList.add('opacity-50', 'cursor-not-allowed');
+                    });
+                    // Add a message indicating poll cannot be edited if not already there
+                    if (!pollSection.querySelector('.poll-edit-message')) {
+                        const pollMessage = document.createElement('p');
+                        pollMessage.className = 'text-sm text-red-600 mb-4 poll-edit-message';
+                        pollMessage.textContent = 'This post already has a poll. Polls cannot be modified or deleted after creation.';
+                        pollSection.prepend(pollMessage);
+                    }
+                }
+                // Also disable the 'Add Poll?' radio buttons if a poll exists
+                addGamePromoPollRadios.forEach(radio => {
+                    radio.disabled = true;
+                    radio.closest('label').classList.add('opacity-50', 'cursor-not-allowed');
+                });
+            } else {
+                 // Ensure poll edit message is removed if no poll exists or it's a new post
+                 pollSection?.querySelector('.poll-edit-message')?.remove();
+                 addGamePromoPollRadios.forEach(radio => {
+                    radio.disabled = false;
+                    radio.closest('label').classList.remove('opacity-50', 'cursor-not-allowed');
+                });
+            }
+        }
+
+
         // Renders the form for creating a new post.
         function renderPostPage(targetElement) { // Now accepts a targetElement
             const platforms = ["Windows", "macOS", "Linux", "Android", "iOS", "Web / Browser", "Xbox", "PlayStation", "Nintendo Switch", "VR (Vive, Rift, Quest)", "AR"];
@@ -2154,9 +2306,6 @@ document.querySelectorAll('.card-bg').forEach(card => {
 
 
                 const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
-                const youtubeLinkSection = form.querySelector('#youtube-link-section');
-                const imageLinkSection = form.querySelector('#image-link-section');
-                const customYoutubeLinkSection = form.querySelector('#custom-youtube-text-section'); // Corrected ID
                 const customYoutubeLinkTextInput = form.querySelector('#custom-youtube-link-text');
                 const customTextCharCount = form.querySelector('#custom-text-char-count');
 
@@ -2166,21 +2315,8 @@ document.querySelectorAll('.card-bg').forEach(card => {
                     });
                 }
 
-                const youtubeLinkHelp = form.querySelector('.youtube-link-help');
-                const imageLinkHelp = form.querySelector('.image-link-help');
-                const itchLinkInput = form.querySelector('#itch-link');
-                const itchLinkHelp = form.querySelector('#itch-link-help');
                 const postTypeSelect = form.querySelector('#post-type');
                 const devlogTypeSelect = form.querySelector('#devlog-type');
-                const devlogTypeSection = form.querySelector('#devlog-type-section');
-                const gamePromoPollToggle = form.querySelector('#game-promo-poll-toggle'); // New
-                const addGamePromoPollRadios = form.querySelectorAll('input[name="add-game-promo-poll"]'); // New
-                const pollSection = form.querySelector('#poll-section'); // New poll section
-                const genreSection = form.querySelector('#genre-section');
-                const platformSection = form.querySelector('#platform-section');
-                const pricingSection = form.querySelector('#pricing-section');
-                const commentsStatusSection = form.querySelector('#comments-status-section');
-                const linkedGamePromoSection = form.querySelector('#linked-game-promo-section');
                 const genreSearchInput = form.querySelector('#genre-search');
                 const genreCheckboxesContainer = form.querySelector('#genre-checkboxes');
                 // const genreSearchStatus = form.querySelector('#genre-search-status'); // Removed local declaration as it's now accessed globally
@@ -2205,8 +2341,8 @@ document.querySelectorAll('.card-bg').forEach(card => {
                 const pollOptionsContainer = form.querySelector('#poll-options-container');
                 const addPollOptionBtn = form.querySelector('#add-poll-option-btn');
 
-                function updateRemovePollOptionButtons() {
-                    const removeButtons = pollOptionsContainer.querySelectorAll('.remove-poll-option-btn');
+                function updateRemovePollOptionButtons(currentForm) {
+                    const removeButtons = currentForm.querySelectorAll('.remove-poll-option-btn');
                     if (removeButtons.length <= 2) {
                         removeButtons.forEach(btn => btn.classList.add('hidden'));
                     } else {
@@ -2231,7 +2367,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
                             <button type="button" class="remove-poll-option-btn bg-red-600 hover:bg-red-700 text-white p-3 rounded-md"><i class="fas fa-minus"></i></button>
                         `;
                         pollOptionsContainer.appendChild(newOptionDiv);
-                        updateRemovePollOptionButtons();
+                        updateRemovePollOptionButtons(form); // Pass form reference
                     }
                 });
 
@@ -2239,138 +2375,19 @@ document.querySelectorAll('.card-bg').forEach(card => {
                     if (e.target.classList.contains('remove-poll-option-btn') || e.target.closest('.remove-poll-option-btn')) {
                         const btn = e.target.closest('.remove-poll-option-btn');
                         btn.parentElement.remove();
-                        updateRemovePollOptionButtons();
+                        updateRemovePollOptionButtons(form); // Pass form reference
                     }
                 });
 
-                function toggleMediaSectionsInternal() { // Renamed to avoid conflict
-                    const selectedMedia = form.querySelector('input[name="media-type"]:checked')?.value; // Added optional chaining
-                    console.log("toggleMediaSectionsInternal called. Selected Media:", selectedMedia); // Debugging line
-
-                    // Get references to inputs
-                    const trailerLinkInput = form.querySelector('#trailer-link');
-                    const imageUrlInput = form.querySelector('#image-url');
-                    const customYoutubeLinkTextInput = form.querySelector('#custom-youtube-link-text');
-
-                    // Reset visibility for all media sections first
-                    if (youtubeLinkSection) youtubeLinkSection.classList.add('hidden');
-                    if (imageLinkSection) imageLinkSection.classList.add('hidden');
-                    if (customYoutubeLinkSection) customYoutubeLinkSection.classList.add('hidden');
-
-                    // Reset required attributes for all media inputs first
-                    trailerLinkInput.removeAttribute('required');
-                    imageUrlInput.removeAttribute('required');
-                    customYoutubeLinkTextInput.removeAttribute('required');
-
-                    if (selectedMedia === 'combo') {
-                        if (youtubeLinkSection) youtubeLinkSection.classList.remove('hidden');
-                        if (imageLinkSection) imageLinkSection.classList.remove('hidden');
-                        if (customYoutubeLinkSection) customYoutubeLinkSection.classList.remove('hidden'); // Ensure this is visible
-                        
-                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Required for Combo. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Required for Combo. Example: https://example.com/your-game-screenshot.png)';
-                        // Make inputs required for combo
-                        trailerLinkInput.setAttribute('required', 'true');
-                        imageUrlInput.setAttribute('required', 'true');
-                        customYoutubeLinkTextInput.setAttribute('required', 'true');
-                    } else if (selectedMedia === 'youtube') {
-                        if (youtubeLinkSection) youtubeLinkSection.classList.remove('hidden');
-                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        // Only YouTube link is required for 'youtube'
-                        trailerLinkInput.setAttribute('required', 'true');
-                    } else if (selectedMedia === 'image') {
-                        if (imageLinkSection) imageLinkSection.classList.remove('hidden');
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
-                        // Only Image URL is required for 'image'
-                        imageUrlInput.setAttribute('required', 'true');
-                    } else { // 'none'
-                        // All sections remain hidden, and required attributes are already removed.
-                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
-                    }
-
-                    // Debugging visibility
-                    console.log("youtubeLinkSection hidden:", youtubeLinkSection.classList.contains('hidden'));
-                    console.log("imageLinkSection hidden:", imageLinkSection.classList.contains('hidden'));
-                    console.log("customYoutubeLinkSection hidden:", customYoutubeLinkSection.classList.contains('hidden'));
-
-                    // Debugging required attributes
-                    console.log("trailerLinkInput required:", trailerLinkInput.hasAttribute('required'));
-                    console.log("imageUrlInput required:", imageUrlInput.hasAttribute('required'));
-                    console.log("customYoutubeLinkTextInput required:", customYoutubeLinkTextInput.hasAttribute('required'));
-                }
-                mediaTypeRadios.forEach(radio => radio.addEventListener('change', toggleMediaSectionsInternal));
-                // Removed unconditional call to toggleMediaSections() here
-
-                function togglePostTypeFieldsInternal() { // Renamed to avoid conflict
-                    const selectedPostType = postTypeSelect.value;
-                    const selectedDevlogType = devlogTypeSelect?.value;
-                    const addGamePromoPoll = form.querySelector('input[name="add-game-promo-poll"]:checked')?.value === 'true';
-
-                    // Reset all devlog specific fields to hidden and optional
-                    if (devlogTypeSection) devlogTypeSection.classList.add('hidden');
-                    if (gamePromoPollToggle) gamePromoPollToggle.classList.add('hidden'); // Hide game promo poll toggle by default
-                    if (pollSection) pollSection.classList.add('hidden'); // <--- THIS IS KEY. It hides it by default.
-                    form.querySelector('#poll-question')?.removeAttribute('required');
-                    form.querySelectorAll('.poll-option-input').forEach(input => input.removeAttribute('required'));
-
-                    console.log("togglePostTypeFieldsInternal: selectedPostType =", selectedPostType, "selectedDevlogType =", selectedDevlogType, "addGamePromoPoll =", addGamePromoPoll);
-
-                    if (selectedPostType === 'Devlog') {
-                        if (devlogTypeSection) devlogTypeSection.classList.remove('hidden');
-                        if (genreSection) genreSection.classList.add('hidden');
-                        if (platformSection) platformSection.classList.add('hidden');
-                        if (pricingSection) pricingSection.classList.add('hidden');
-                        if (commentsStatusSection) commentsStatusSection.classList.add('hidden');
-                        if (linkedGamePromoSection) linkedGamePromoSection.classList.remove('hidden');
-
-                        if (itchLinkInput) {
-                            itchLinkInput.removeAttribute('required');
-                            itchLinkInput.removeAttribute('pattern');
-                        }
-                        if (itchLinkHelp) itchLinkHelp.textContent = '(Optional for Devlog. Example: https://yourusername.itch.io/your-devlog-page)';
-                        document.querySelectorAll('#genre-section input[type="checkbox"]').forEach(checkbox => checkbox.required = false);
-                        document.querySelectorAll('#platform-section input[type="checkbox"]').forEach(checkbox => checkbox.required = false);
-
-                        if (selectedDevlogType === 'Poll') {
-                            if (pollSection) pollSection.classList.remove('hidden');
-                            form.querySelector('#poll-question')?.setAttribute('required', 'true');
-                            form.querySelectorAll('.poll-option-input').forEach(input => input.setAttribute('required', 'true'));
-                            updateRemovePollOptionButtons(); // Ensure buttons are correct for poll
-                        }
-                    } else { // Game Promotion
-                        if (devlogTypeSection) devlogTypeSection.classList.add('hidden');
-                        if (genreSection) genreSection.classList.remove('hidden');
-                        if (platformSection) platformSection.classList.remove('hidden');
-                        if (pricingSection) pricingSection.classList.remove('hidden');
-                        if (commentsStatusSection) commentsStatusSection.classList.remove('hidden');
-                        if (linkedGamePromoSection) linkedGamePromoSection.classList.add('hidden');
-                        if (gamePromoPollToggle) gamePromoPollToggle.classList.remove('hidden'); // Show game promo poll toggle
-
-                        if (itchLinkInput) {
-                            itchLinkInput.setAttribute('required', 'true');
-                            itchLinkInput.setAttribute('pattern', 'https://.*\\.itch\\.io/.*');
-                        }
-                        if (itchLinkHelp) itchLinkHelp.textContent = '(Required for Game Promotion. Optional for Devlog. Example: https://yourusername.itch.io/your-game)';
-                        
-                        // Poll option for Game Promotion
-                        if (addGamePromoPoll) { // If 'Yes' is selected for add poll
-                             if (pollSection) pollSection.classList.remove('hidden');
-                             form.querySelector('#poll-question')?.setAttribute('required', 'true');
-                             form.querySelectorAll('.poll-option-input').forEach(input => input.setAttribute('required', 'true'));
-                             updateRemovePollOptionButtons();
-                        }
-                    }
-                    console.log("pollSection hidden after toggle:", pollSection.classList.contains('hidden'));
-                }
-                postTypeSelect.addEventListener('change', togglePostTypeFieldsInternal);
-                devlogTypeSelect?.addEventListener('change', togglePostTypeFieldsInternal); // Listen for devlog type change
-                addGamePromoPollRadios.forEach(radio => radio.addEventListener('change', togglePostTypeFieldsInternal)); // New listener for game promo poll toggle
+                mediaTypeRadios.forEach(radio => radio.addEventListener('change', () => toggleMediaSections(form)));
+                postTypeSelect.addEventListener('change', () => togglePostTypeFields(form));
+                devlogTypeSelect?.addEventListener('change', () => togglePostTypeFields(form));
+                form.querySelectorAll('input[name="add-game-promo-poll"]').forEach(radio => radio.addEventListener('change', () => togglePostTypeFields(form)));
 
                 // Only initialize visibility if not in editing mode (i.e., for new posts)
                 if (!editingPostId) {
-                    toggleMediaSectionsInternal();
-                    togglePostTypeFieldsInternal();
+                    toggleMediaSections(form);
+                    togglePostTypeFields(form);
                     selectedGenres = []; // Clear genres for new post
                     renderGenreCheckboxes(genreCheckboxesContainer); // Re-render to clear checkboxes
                 } else {
@@ -2386,7 +2403,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
         }
 
         // Opens the post modal and pre-fills it for editing.
-        function openEditModal(postId) {
+        async function openEditModal(postId) {
             const post = allFetchedPosts.find(p => p.id === postId);
             if (!post) {
                 showAlert("Post not found for editing!");
@@ -2461,7 +2478,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
                         });
                         // Add a message indicating poll cannot be edited
                         const pollMessage = document.createElement('p');
-                        pollMessage.className = 'text-sm text-red-600 mb-4';
+                        pollMessage.className = 'text-sm text-red-600 mb-4 poll-edit-message'; // Added class for easier removal
                         pollMessage.textContent = 'This post already has a poll. Polls cannot be modified or deleted after creation.';
                         pollSection.prepend(pollMessage);
                     }
@@ -2536,159 +2553,9 @@ document.querySelectorAll('.card-bg').forEach(card => {
                 }
 
                 // Re-run toggle functions to ensure correct visibility based on pre-filled data
-                // These elements are now within the 'form' context
-                const mediaTypeRadios = form.querySelectorAll('input[name="media-type"]');
-                const youtubeLinkSection = form.querySelector('#youtube-link-section');
-                const imageLinkSection = form.querySelector('#image-link-section');
-                const customYoutubeLinkSection = form.querySelector('#custom-youtube-text-section'); 
-                const youtubeLinkHelp = form.querySelector('.youtube-link-help');
-                const imageLinkHelp = form.querySelector('.image-link-help');
-                const itchLinkInput = form.querySelector('#itch-link');
-                const itchLinkHelp = form.querySelector('#itch-link-help');
-                const devlogTypeSection = form.querySelector('#devlog-type-section');
-                const gamePromoPollToggle = form.querySelector('#game-promo-poll-toggle'); // New
-                const genreSection = form.querySelector('#genre-section');
-                const platformSection = form.querySelector('#platform-section');
-                const pricingSection = form.querySelector('#pricing-section');
-                const commentsStatusSection = form.querySelector('#comments-status-section');
-                const linkedGamePromoSection = form.querySelector('#linked-game-promo-section');
-
-                function toggleMediaSectionsEdit() {
-                    const selectedMedia = form.querySelector('input[name="media-type"]:checked')?.value;
-                    console.log("toggleMediaSectionsEdit called. Selected Media:", selectedMedia); // Debugging line
-
-                    // Get references to inputs
-                    const trailerLinkInput = form.querySelector('#trailer-link');
-                    const imageUrlInput = form.querySelector('#image-url');
-                    const customYoutubeLinkTextInput = form.querySelector('#custom-youtube-link-text');
-
-                    // Reset visibility for all media sections first
-                    if (youtubeLinkSection) youtubeLinkSection.classList.add('hidden');
-                    if (imageLinkSection) imageLinkSection.classList.add('hidden');
-                    if (customYoutubeLinkSection) customYoutubeLinkSection.classList.add('hidden');
-
-                    // Reset required attributes for all media inputs first
-                    trailerLinkInput.removeAttribute('required');
-                    imageUrlInput.removeAttribute('required');
-                    customYoutubeLinkTextInput.removeAttribute('required');
-
-                    if (selectedMedia === 'combo') {
-                        if (youtubeLinkSection) youtubeLinkSection.classList.remove('hidden');
-                        if (imageLinkSection) imageLinkSection.classList.remove('hidden');
-                        if (customYoutubeLinkSection) customYoutubeLinkSection.classList.remove('hidden'); // Ensure this is visible
-                        
-                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Required for Combo. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Required for Combo. Example: https://example.com/your-game-screenshot.png)';
-                        trailerLinkInput.setAttribute('required', 'true');
-                        imageUrlInput.setAttribute('required', 'true');
-                        customYoutubeLinkTextInput.setAttribute('required', 'true');
-                    } else if (selectedMedia === 'youtube') {
-                        if (youtubeLinkSection) youtubeLinkSection.classList.remove('hidden');
-                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)'; 
-                        trailerLinkInput.setAttribute('required', 'true');
-                    } else if (selectedMedia === 'image') {
-                        if (imageLinkSection) imageLinkSection.classList.remove('hidden');
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
-                        imageUrlInput.setAttribute('required', 'true');
-                    } else { 
-                        // All sections remain hidden, and required attributes are already removed.
-                        if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
-                        if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
-                    }
-
-                    // Debugging visibility
-                    console.log("youtubeLinkSection hidden:", youtubeLinkSection.classList.contains('hidden'));
-                    console.log("imageLinkSection hidden:", imageLinkSection.classList.contains('hidden'));
-                    console.log("customYoutubeLinkSection hidden:", customYoutubeLinkSection.classList.contains('hidden'));
-
-                    // Debugging required attributes
-                    console.log("trailerLinkInput required:", trailerLinkInput.hasAttribute('required'));
-                    console.log("imageUrlInput required:", imageUrlInput.hasAttribute('required'));
-                    console.log("customYoutubeLinkTextInput required:", customYoutubeLinkTextInput.hasAttribute('required'));
-                }
-                mediaTypeRadios.forEach(radio => radio.addEventListener('change', toggleMediaSectionsEdit));
-                toggleMediaSectionsEdit(); // Initialize visibility
-
-                function togglePostTypeFieldsEdit() {
-                    const selectedPostType = postTypeSelect.value;
-                    const selectedDevlogType = devlogTypeSelect?.value;
-                    const addGamePromoPoll = form.querySelector('input[name="add-game-promo-poll"]:checked')?.value === 'true';
-
-                    // Reset all devlog specific fields to hidden and optional
-                    if (devlogTypeSection) devlogTypeSection.classList.add('hidden');
-                    if (gamePromoPollToggle) gamePromoPollToggle.classList.add('hidden');
-                    if (pollSection) pollSection.classList.add('hidden');
-                    form.querySelector('#poll-question')?.removeAttribute('required');
-                    form.querySelectorAll('.poll-option-input').forEach(input => input.removeAttribute('required'));
-
-                    console.log("togglePostTypeFieldsEdit: selectedPostType =", selectedPostType, "selectedDevlogType =", selectedDevlogType, "addGamePromoPoll =", addGamePromoPoll);
-
-
-                    if (selectedPostType === 'Devlog') {
-                        if (devlogTypeSection) devlogTypeSection.classList.remove('hidden');
-                        if (genreSection) genreSection.classList.add('hidden');
-                        if (platformSection) platformSection.classList.add('hidden');
-                        if (pricingSection) pricingSection.classList.add('hidden');
-                        if (commentsStatusSection) commentsStatusSection.classList.add('hidden');
-                        if (linkedGamePromoSection) linkedGamePromoSection.classList.remove('hidden');
-
-                        if (itchLinkInput) {
-                            itchLinkInput.removeAttribute('required'); 
-                            itchLinkInput.removeAttribute('pattern'); 
-                        }
-                        if (itchLinkHelp) itchLinkHelp.textContent = '(Optional for Devlog. Example: https://yourusername.itch.io/your-devlog-page)';
-
-                        if (selectedDevlogType === 'Poll') {
-                            if (pollSection) pollSection.classList.remove('hidden');
-                            form.querySelector('#poll-question')?.setAttribute('required', 'true');
-                            form.querySelectorAll('.poll-option-input').forEach(input => input.setAttribute('required', 'true'));
-                            // Poll fields are disabled if a poll already exists
-                            if (post.poll) {
-                                pollSection.querySelectorAll('input, button').forEach(element => {
-                                    element.disabled = true;
-                                    element.classList.add('opacity-50', 'cursor-not-allowed');
-                                });
-                            } else {
-                                updateRemovePollOptionButtons();
-                            }
-                        }
-                    } else { // Game Promotion
-                        if (devlogTypeSection) devlogTypeSection.classList.add('hidden');
-                        if (genreSection) genreSection.classList.remove('hidden');
-                        if (platformSection) platformSection.classList.remove('hidden');
-                        if (pricingSection) pricingSection.classList.remove('hidden');
-                        if (commentsStatusSection) commentsStatusSection.classList.remove('hidden');
-                        if (linkedGamePromoSection) linkedGamePromoSection.classList.add('hidden');
-                        if (gamePromoPollToggle) gamePromoPollToggle.classList.remove('hidden'); // Show game promo poll toggle
-
-                        // Poll option for Game Promotion
-                        if (addGamePromoPoll) { // If 'Yes' is selected for add poll
-                             if (pollSection) pollSection.classList.remove('hidden');
-                             form.querySelector('#poll-question')?.setAttribute('required', 'true');
-                             form.querySelectorAll('.poll-option-input').forEach(input => input.setAttribute('required', 'true'));
-                            // Poll fields are disabled if a poll already exists
-                            if (post.poll) {
-                                pollSection.querySelectorAll('input, button').forEach(element => {
-                                    element.disabled = true;
-                                    element.classList.add('opacity-50', 'cursor-not-allowed');
-                                });
-                            } else {
-                                updateRemovePollOptionButtons();
-                            }
-                        }
-
-                        if (itchLinkInput) {
-                            itchLinkInput.setAttribute('required', 'true'); 
-                            itchLinkInput.setAttribute('pattern', 'https://.*\\.itch\\.io/.*'); 
-                        }
-                        if (itchLinkHelp) itchLinkHelp.textContent = '(Required for Game Promotion. Optional for Devlog. Example: https://yourusername.itch.io/your-game)';
-                    }
-                    console.log("pollSection hidden after toggle:", pollSection.classList.contains('hidden'));
-                }
-                postTypeSelect.addEventListener('change', togglePostTypeFieldsInternal);
-                devlogTypeSelect?.addEventListener('change', togglePostTypeFieldsInternal); // Listen for devlog type change
-                addGamePromoPollRadios.forEach(radio => radio.addEventListener('change', togglePostTypeFieldsInternal)); // New listener for game promo poll toggle
-                togglePostTypeFieldsInternal(); // Initialize visibility
+                // Pass the form and the post object to the global functions
+                toggleMediaSections(form);
+                togglePostTypeFields(form, post); // Pass the post object
 
                 // Update submit button text
                 form.querySelector('#submit-post-btn').textContent = 'Update Post'; // Use form.querySelector
@@ -2968,11 +2835,10 @@ document.querySelectorAll('.card-bg').forEach(card => {
                 </div>
             `;
 
-            // Add event listeners for settings changes
-            contentSettings.querySelectorAll('input[name="theme-preference"]').forEach(radio => {
+            contentSettings.querySelectorAll('input[name="show-post-counts"]').forEach(radio => {
                 radio.addEventListener('change', (e) => {
-                    userSettings.theme = e.target.value;
-                    applySettings();
+                    userSettings.showPostCounts = e.target.value === 'true';
+                    applySettings(); // Re-apply to update card rendering
                     saveUserSettings();
                 });
             });
@@ -3381,6 +3247,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
                         updatePayload.platforms = deleteField();
                     }
                     
+                    console.log("Constructed updatePayload:", updatePayload); // Added for debugging
                     await updateDoc(postRef, updatePayload, { merge: true }); // Use merge: true for deleteField
                     showAlert("Post updated successfully!").then(() => {
                         closePostModal(); // Close modal after update
