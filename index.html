@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- YouTube IFrame Player API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
     <style>
         /* Base styles for a deep dark theme */
         body {
@@ -662,30 +664,30 @@
         <header class="flex justify-between items-center py-4 px-4 main-bg rounded-lg shadow-lg">
             <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wider">Post<span class="text-[#00bcd4]">Itch</span></h1>
             <nav class="hidden md:flex items-center space-x-6">
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
-                <a href="#" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="settings">Settings</a> <!-- New Settings tab -->
+                <a href="https://postitchindie.github.io/?section=community" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition active" data-tab="community">Community</a>
+                <a href="https://postitchindie.github.io/?section=promos" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="promos">Game Promos</a>
+                <a href="https://postitchindie.github.io/?section=devlogs" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="devlogs">Devlogs</a>
+                <a href="https://postitchindie.github.io/?section=post" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="post">Post</a>
+                <a href="https://postitchindie.github.io/?section=search" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="search">Search</a>
+                <a href="https://postitchindie.github.io/?section=my-posts" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="my-posts">My Posts</a>
+                <a href="https://postitchindie.github.io/?section=about" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="about">About</a>
+                <a href="https://postitchindie.github.io/?section=rules" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="rules">Rules</a>
+                <a href="https://postitchindie.github.io/?section=settings" class="nav-item text-lg font-semibold hover:text-[#00bcd4] transition" data-tab="settings">Settings</a> <!-- New Settings tab -->
             </nav>
             <div class="md:hidden">
                 <button id="mobile-menu-btn"><i class="fas fa-bars text-2xl"></i></button>
             </div>
         </header>
         <div id="mobile-menu" class="hidden md:hidden main-bg rounded-lg mt-2 p-4">
-             <a href="#" class="block py-2 text-center nav-item" data-tab="community">Community</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="promos">Game Promos</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="devlogs">Devlogs</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="post">Post</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="search">Search</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="my-posts">My Posts</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="about">About</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="rules">Rules</a>
-             <a href="#" class="block py-2 text-center nav-item" data-tab="settings">Settings</a> <!-- New Settings tab -->
+             <a href="https://postitchindie.github.io/?section=community" class="block py-2 text-center nav-item" data-tab="community">Community</a>
+             <a href="https://postitchindie.github.io/?section=promos" class="block py-2 text-center nav-item" data-tab="promos">Game Promos</a>
+             <a href="https://postitchindie.github.io/?section=devlogs" class="block py-2 text-center nav-item" data-tab="devlogs">Devlogs</a>
+             <a href="https://postitchindie.github.io/?section=post" class="block py-2 text-center nav-item" data-tab="post">Post</a>
+             <a href="https://postitchindie.github.io/?section=search" class="block py-2 text-center nav-item" data-tab="search">Search</a>
+             <a href="https://postitchindie.github.io/?section=my-posts" class="block py-2 text-center nav-item" data-tab="my-posts">My Posts</a>
+             <a href="https://postitchindie.github.io/?section=about" class="block py-2 text-center nav-item" data-tab="about">About</a>
+             <a href="https://postitchindie.github.io/?section=rules" class="block py-2 text-center nav-item" data-tab="rules">Rules</a>
+             <a href="https://postitchindie.github.io/?section=settings" class="block py-2 text-center nav-item" data-tab="settings">Settings</a> <!-- New Settings tab -->
         </div>
 
 
@@ -733,8 +735,8 @@
                 <button id="close-video-modal-btn" class="modal-action-btn"><i class="fa-solid fa-xmark"></i></button>
                 <button id="fullscreen-video-toggle-btn" class="modal-action-btn"><i class="fas fa-expand"></i></button>
 			</div>
-			<div class="aspect-video w-full rounded-md overflow-hidden relative">
-				<iframe id="video-player-iframe" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+			<div class="aspect-video w-full rounded-md overflow-hidden relative" id="video-player-container">
+				<!-- YouTube iframe will be dynamically inserted here -->
 			</div>
 		</div>
 	</div>
@@ -839,8 +841,7 @@
             defaultSortOrder: 'newest', // 'newest', 'popular', 'oldest', 'most-viewed', 'most-visited'
             defaultPostCountDisplay: 'abbreviated', // 'exact', 'abbreviated' - Default changed to 'abbreviated'
             modalFullscreen: false, // New setting: automatically open modals in fullscreen
-            alwaysMuteVideos: false, // New setting: always mute videos when opened
-            alwaysPauseVideos: false // NEW: Always pause videos when opened
+            alwaysMuteVideos: false // New setting: always mute videos when opened
         };
 
         // Map to store last view timestamp for each post to prevent spamming views
@@ -875,7 +876,7 @@
         // New video modal elements
         const videoModal = document.getElementById('video-modal');
         const videoModalContent = document.getElementById('video-modal-content');
-        const videoPlayerIframe = document.getElementById('video-player-iframe');
+        const videoPlayerContainer = document.getElementById('video-player-container'); // Container for YouTube player
         const closeVideoModalBtn = document.getElementById('close-video-modal-btn');
         const fullscreenVideoToggleBtn = document.getElementById('fullscreen-video-toggle-btn'); // New fullscreen toggle for video modal
 
@@ -897,7 +898,13 @@
 
         let editingPostId = null; // Stores the ID of the post currently being edited
         let isPostModalOpen = false; // Flag to prevent multiple modal instances
+        let youtubePlayer = null; // Global YouTube player instance for the main post modal
 
+        // This function is called by the YouTube IFrame Player API when it's ready
+        window.onYouTubeIframeAPIReady = () => {
+            console.log("YouTube IFrame API is ready.");
+            // Player will be initialized when a video is opened in the modal
+        };
 
         // --- HELPER FUNCTIONS ---
         // Updates the body's overflow property based on modal visibility.
@@ -910,9 +917,13 @@
             }
         }
 
-        // Sets the document title based on the current context
-        function setDocumentTitle(title) {
-            document.title = title + " - PostItch";
+        // Updates the document title
+        function updateDocumentTitle(suffix = '') {
+            if (suffix) {
+                document.title = `${suffix} - PostItch`;
+            } else {
+                document.title = 'PostItch';
+            }
         }
 
         // Displays a custom alert message to the user.
@@ -1009,16 +1020,13 @@
         // Generates the YouTube embed source URL.
         function getYouTubeEmbedSrc(videoId, autoplay = false) {
             const muteParam = userSettings.alwaysMuteVideos ? '&mute=1' : '';
-            // If alwaysPauseVideos is true, force autoplay to 0, otherwise use the provided autoplay param
-            const autoplayParam = userSettings.alwaysPauseVideos ? '&autoplay=0' : (autoplay ? '&autoplay=1' : '&autoplay=0');
-            return videoId ? `https://www.youtube.com/embed/${videoId}?enablejsapi=1${autoplayParam}${muteParam}` : '';
+            return videoId ? `https://www.youtube.com/embed/${videoId}?enablejsapi=1${autoplay ? '&autoplay=1' : ''}${muteParam}` : '';
         }
 
         // Loads the YouTube video by replacing the thumbnail with the iframe.
         function loadYouTubeVideo(containerElement, videoId) {
             console.log("loadYouTubeVideo called for videoId:", videoId, "on container:", containerElement);
-            // Autoplay when clicked, but respect alwaysPauseVideos setting
-            const embedSrc = getYouTubeEmbedSrc(videoId, !userSettings.alwaysPauseVideos); 
+            const embedSrc = getYouTubeEmbedSrc(videoId, true); // Autoplay when clicked
             if (embedSrc) {
                 // Ensure the container has a defined height for the iframe to render correctly
                 containerElement.innerHTML = `<iframe class="w-full h-full rounded-none" src="${embedSrc}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
@@ -1041,26 +1049,50 @@
         }
 
         // Opens the dedicated video modal
-        function openVideoModal(videoId) {
-            // Autoplay when opened via dedicated button, but respect alwaysPauseVideos setting
-            const embedSrc = getYouTubeEmbedSrc(videoId, !userSettings.alwaysPauseVideos); 
+        function openVideoModal(videoId, videoTitle = 'Video') {
+            const embedSrc = getYouTubeEmbedSrc(videoId, true); // Always autoplay when opened via dedicated button
             if (embedSrc) {
-                videoPlayerIframe.src = embedSrc; 
+                // Clear previous content
+                videoPlayerContainer.innerHTML = '';
+                // Create a new div for the YouTube player
+                const playerDiv = document.createElement('div');
+                playerDiv.id = 'youtube-modal-player';
+                videoPlayerContainer.appendChild(playerDiv);
+
+                // Initialize YouTube player
+                youtubePlayer = new YT.Player('youtube-modal-player', {
+                    videoId: videoId,
+                    playerVars: {
+                        autoplay: 1,
+                        controls: 1,
+                        modestbranding: 1,
+                        rel: 0,
+                        showinfo: 0,
+                        iv_load_policy: 3,
+                        mute: userSettings.alwaysMuteVideos ? 1 : 0 // Apply mute setting
+                    },
+                    events: {
+                        'onReady': (event) => {
+                            event.target.playVideo();
+                        }
+                    }
+                });
+
                 videoModal.classList.remove('hidden');
                 updateBodyScrollLock(); // Ensure body scroll is locked
+                updateDocumentTitle(videoTitle); // Update title for video modal
+
+                // Update URL
+                const url = new URL(window.location.href);
+                url.searchParams.set('videoId', videoId);
+                url.searchParams.delete('postId'); // Remove postId if present
+                url.searchParams.delete('modal'); // Remove other modal params
+                window.history.pushState({}, '', url.toString());
+
                 // Apply fullscreen if setting is enabled
                 if (userSettings.modalFullscreen) {
                     toggleFullscreen(videoModalContent, true); // Pass true to force fullscreen on open
                 }
-                // Update URL for video modal
-                const newUrl = new URL(window.location.href);
-                newUrl.pathname = '/video';
-                newUrl.searchParams.set('id', videoId);
-                newUrl.searchParams.delete('postId');
-                newUrl.searchParams.delete('section');
-                newUrl.searchParams.delete('q');
-                window.history.pushState({ modal: 'video', videoId: videoId }, '', newUrl.toString());
-                setDocumentTitle("Video");
             } else {
                 showAlert("Could not play video: Invalid YouTube link.");
             }
@@ -1069,45 +1101,44 @@
         // Closes the dedicated video modal
         function closeVideoModal() {
             videoModal.classList.add('hidden');
-            videoPlayerIframe.src = ''; // Stop video playback by clearing src
+            if (youtubePlayer) {
+                youtubePlayer.destroy(); // Destroy the player to stop video and release resources
+                youtubePlayer = null;
+            }
+            videoPlayerContainer.innerHTML = ''; // Clear the container
             // Ensure fullscreen mode is off when closing the video modal
             toggleFullscreen(videoModalContent, false); // Force fullscreen off on close
             updateBodyScrollLock(); // Update body scroll lock after closing
-            // Revert URL and title
+            updateDocumentTitle(document.querySelector('.nav-item.active')?.textContent || 'Community'); // Reset title
+            // Remove videoId from URL
             const url = new URL(window.location.href);
-            url.pathname = '/';
-            url.searchParams.delete('id');
-            window.history.replaceState({}, '', url.toString());
-            // Revert to current tab title
-            const activeTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
-            setDocumentTitle(activeTab.charAt(0).toUpperCase() + activeTab.slice(1).replace('-', ' '));
+            url.searchParams.delete('videoId');
+            window.history.replaceState({}, document.title, url.toString());
         }
 
         // Opens the AI Assistant modal
         function openAiAssistantModal() {
             aiAssistantModal.classList.remove('hidden');
             updateBodyScrollLock(); // Ensure body scroll is locked
-            // Update URL for AI Assistant modal
-            const newUrl = new URL(window.location.href);
-            newUrl.pathname = '/ai-assistant';
-            newUrl.searchParams.delete('postId');
-            newUrl.searchParams.delete('section');
-            newUrl.searchParams.delete('q');
-            window.history.pushState({ modal: 'ai-assistant' }, '', newUrl.toString());
-            setDocumentTitle("AI Assistant");
+            updateDocumentTitle('Posty AI'); // Update title for AI assistant modal
+
+            // Update URL
+            const url = new URL(window.location.href);
+            url.searchParams.set('modal', 'ai-assistant');
+            url.searchParams.delete('postId'); // Remove postId if present
+            url.searchParams.delete('videoId'); // Remove videoId if present
+            window.history.pushState({}, '', url.toString());
         }
 
         // Closes the AI Assistant modal
         function closeAiAssistantModal() {
             aiAssistantModal.classList.add('hidden');
             updateBodyScrollLock(); // Update body scroll lock after closing
-            // Revert URL and title
+            updateDocumentTitle(document.querySelector('.nav-item.active')?.textContent || 'Community'); // Reset title
+            // Remove modal param from URL
             const url = new URL(window.location.href);
-            url.pathname = '/';
-            window.history.replaceState({}, '', url.toString());
-            // Revert to current tab title
-            const activeTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
-            setDocumentTitle(activeTab.charAt(0).toUpperCase() + activeTab.slice(1).replace('-', ' '));
+            url.searchParams.delete('modal');
+            window.history.replaceState({}, document.title, url.toString());
         }
 
 
@@ -1424,7 +1455,11 @@ document.querySelectorAll('.card-bg').forEach(card => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation(); // Prevent card click event from firing
                     const videoId = btn.dataset.videoId;
-                    openVideoModal(videoId);
+                    // Find the post title for the video modal title
+                    const postId = btn.closest('.card-bg')?.dataset.id;
+                    const post = allFetchedPosts.find(p => p.id === postId);
+                    const videoTitle = post ? post.title : 'Video';
+                    openVideoModal(videoId, videoTitle);
                 });
             });
 
@@ -1498,34 +1533,43 @@ document.querySelectorAll('.card-bg').forEach(card => {
 			setupNavListeners(); // Set up navigation event handlers
             initializeLinkModalHandlers(); // Initialize link modal handlers once
 
-			// Check for postId, videoId, ai-assistant, or section in URL and open modal/switch tab if present
+			// Check for URL parameters and handle routing
 			const urlParams = new URLSearchParams(window.location.search);
-            const path = window.location.pathname;
 			const postIdFromUrl = urlParams.get('postId');
 			const sectionFromUrl = urlParams.get('section');
-            const videoIdFromUrl = urlParams.get('id');
-            const searchQueryFromUrl = urlParams.get('q');
+            const videoIdFromUrl = urlParams.get('videoId');
+            const modalFromUrl = urlParams.get('modal');
+            const searchQueryFromUrl = urlParams.get('query');
 
             if (postIdFromUrl) {
                 // Wait for posts to be fetched before attempting to open the modal
                 const checkPostsInterval = setInterval(() => {
                     if (allFetchedPosts.length > 0) {
                         clearInterval(checkPostsInterval);
-                        openPostModal(postIdFromUrl, false, true); // Increment view if opened via URL
+                        openPostModal(postIdFromUrl, false, true, true); // Increment view, and indicate opened from URL
                     }
                 }, 100); // Check every 100ms
-            } else if (path === '/video' && videoIdFromUrl) {
-                openVideoModal(videoIdFromUrl);
-            } else if (path === '/ai-assistant') {
+            } else if (videoIdFromUrl) {
+                // Wait for YouTube API to be ready
+                const checkYoutubeAPIInterval = setInterval(() => {
+                    if (typeof YT !== 'undefined' && YT.Player) {
+                        clearInterval(checkYoutubeAPIInterval);
+                        // Try to find the video title from existing posts if possible
+                        const postWithVideo = allFetchedPosts.find(p => getYouTubeVideoId(p.trailerLink) === videoIdFromUrl);
+                        const videoTitle = postWithVideo ? postWithVideo.title : 'Video';
+                        openVideoModal(videoIdFromUrl, videoTitle);
+                    }
+                }, 100);
+            } else if (modalFromUrl === 'ai-assistant') {
                 openAiAssistantModal();
-            } else if (path === '/search' && searchQueryFromUrl) {
+            } else if (sectionFromUrl === 'search' && searchQueryFromUrl) {
                 document.getElementById('search-input').value = searchQueryFromUrl;
                 switchTab('search');
-                handleSearch(); // Execute search with the query from URL
+                // handleSearch will be called by switchTab('search')
             } else if (sectionFromUrl) {
 				switchTab(sectionFromUrl); // Switch to the specified section
 			} else {
-				switchTab('community'); // Load the default community feed tab if no specific URL parameter
+				switchTab('community'); // Load the default community feed tab if no specific URL param
 			}
 			// Add event listener for the new video modal close button
 			closeVideoModalBtn.addEventListener('click', closeVideoModal);
@@ -1550,44 +1594,12 @@ document.querySelectorAll('.card-bg').forEach(card => {
                     }
                 });
             });
-            // Listen for browser's back/forward button
-            window.addEventListener('popstate', (event) => {
-                const currentUrl = new URL(window.location.href);
-                const currentPath = currentUrl.pathname;
-                const currentPostId = currentUrl.searchParams.get('postId');
-                const currentVideoId = currentUrl.searchParams.get('id');
-                const currentSearchQuery = currentUrl.searchParams.get('q');
-                const currentSection = currentUrl.searchParams.get('section');
-
-                // Close all modals first
-                allModalElements.forEach(modal => modal.classList.add('hidden'));
-                updateBodyScrollLock();
-
-                // Re-open/switch based on the new URL
-                if (currentPostId) {
-                    openPostModal(currentPostId, false, false); // Don't increment view on popstate
-                } else if (currentPath === '/video' && currentVideoId) {
-                    openVideoModal(currentVideoId);
-                } else if (currentPath === '/ai-assistant') {
-                    openAiAssistantModal();
-                } else if (currentPath === '/search' && currentSearchQuery) {
-                    document.getElementById('search-input').value = currentSearchQuery;
-                    switchTab('search');
-                    handleSearch();
-                } else if (currentSection) {
-                    switchTab(currentSection);
-                } else {
-                    switchTab('community'); // Default if nothing specific
-                }
-            });
         }
         
         // Function to pause the video in the video modal
         function pauseVideo() {
-            const iframeSrc = videoPlayerIframe.src;
-            if (iframeSrc.includes('youtube.com/embed/')) {
-                // Send postMessage to YouTube iframe to pause video
-                videoPlayerIframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            if (youtubePlayer && typeof youtubePlayer.pauseVideo === 'function') {
+                youtubePlayer.pauseVideo();
             }
         }
 
@@ -1602,12 +1614,15 @@ document.querySelectorAll('.card-bg').forEach(card => {
                     if (tab) {
                         // Update URL with section parameter
                         const newUrl = new URL(window.location.href);
-                        newUrl.pathname = '/'; // Reset path for main tabs
                         newUrl.searchParams.set('section', tab);
                         newUrl.searchParams.delete('postId'); // Remove postId if navigating to a section
-                        newUrl.searchParams.delete('id'); // Remove videoId
-                        newUrl.searchParams.delete('q'); // Remove search query
-                        window.history.pushState({ section: tab }, '', newUrl.toString());
+                        newUrl.searchParams.delete('videoId'); // Remove videoId if navigating
+                        newUrl.searchParams.delete('modal'); // Remove modal if navigating
+                        // If navigating to search, keep query
+                        if (tab !== 'search') {
+                            newUrl.searchParams.delete('query');
+                        }
+                        window.history.pushState({}, '', newUrl.toString());
                         switchTab(tab);
                         mobileMenu.classList.add('hidden'); // Hide mobile menu on tab selection
                     }
@@ -1629,21 +1644,22 @@ document.querySelectorAll('.card-bg').forEach(card => {
             
             // Map tab names to their respective rendering functions and titles
             const renderMap = {
-                community: { func: renderCommunityPage, title: "Community" },
-                promos: { func: renderPromosPage, title: "Game Promos" },
-                devlogs: { func: renderDevlogsPage, title: "Devlogs" },
-                post: { func: () => renderPostPage(contentPost), title: "Create Post" }, // Pass contentPost as target
-                search: { func: renderSearchPage, title: "Search" },
-                'my-posts': { func: renderMyPostsPage, title: "My Posts" },
-                about: { func: renderAboutPage, title: "About" },
-                rules: { func: renderRulesPage, title: "Rules" },
-                settings: { func: renderSettingsPage, title: "Settings" },
+                community: { func: renderCommunityPage, title: 'Community' },
+                promos: { func: renderPromosPage, title: 'Game Promos' },
+                devlogs: { func: renderDevlogsPage, title: 'Devlogs' },
+                post: { func: () => renderPostPage(contentPost), title: 'Create Post' },
+                search: { func: renderSearchPage, title: 'Search' },
+                'my-posts': { func: renderMyPostsPage, title: 'My Posts' },
+                about: { func: renderAboutPage, title: 'About' },
+                rules: { func: renderRulesPage, title: 'Rules' },
+                settings: { func: renderSettingsPage, title: 'Settings' },
             };
-            
             const tabInfo = renderMap[tab];
             if (tabInfo) {
                 tabInfo.func(); // Call the appropriate rendering function
-                setDocumentTitle(tabInfo.title); // Update page title
+                updateDocumentTitle(tabInfo.title); // Update document title
+            } else {
+                updateDocumentTitle('PostItch'); // Fallback title
             }
         }
         
@@ -1946,7 +1962,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
                 trailerLinkInput?.setAttribute('required', 'true');
             } else if (selectedMedia === 'image') {
                 imageLinkSection?.classList.remove('hidden');
-                if (imageLinkHelp) imageLinkLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
+                if (imageLinkHelp) imageLinkHelp.textContent = '(Optional. Example: https://example.com/your-game-screenshot.png)';
                 imageUrlInput?.setAttribute('required', 'true');
             } else { // 'none'
                 if (youtubeLinkHelp) youtubeLinkHelp.textContent = '(Optional. Example: https://youtu.be/dQw4w9WgXcQ)';
@@ -2524,6 +2540,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
             `;
             postModal.classList.remove('hidden'); // Show the modal
             updateBodyScrollLock(); // Ensure body scroll is locked
+            updateDocumentTitle(`Edit Post: ${post.title}`); // Update title for edit modal
             document.getElementById('close-modal-btn').addEventListener('click', closePostModal);
             document.getElementById('fullscreen-toggle-btn').addEventListener('click', () => toggleFullscreen(modalContent)); // Add listener for fullscreen toggle
             
@@ -2662,7 +2679,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
                 // Add event listener for share button
                 document.getElementById('share-post-btn').addEventListener('click', (e) => {
                     e.stopPropagation(); // Prevent modal from closing if share button is clicked
-                    const shareLink = `${window.location.origin}/post/${postId}`; // Use new URL format
+                    const shareLink = `https://postitchindie.github.io/?postId=${postId}`;
                     copyToClipboard(shareLink);
                     showAlert("Link copied to clipboard!");
                 });
@@ -2693,20 +2710,62 @@ document.querySelectorAll('.card-bg').forEach(card => {
                     </div>
                 </div>
             `;
-            document.getElementById('search-btn').addEventListener('click', handleSearch);
-            document.getElementById('search-input').addEventListener('keyup', (e) => {
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+
+            searchBtn.addEventListener('click', handleSearch);
+            searchInput.addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') handleSearch();
             });
             // New: Add event listener for the Random Game button
             document.getElementById('random-game-btn').addEventListener('click', handleRandomGame);
 
-            // Populate search input from URL if present
+            // Check URL for search query on page load
             const urlParams = new URLSearchParams(window.location.search);
-            const searchQueryFromUrl = urlParams.get('q');
+            const searchQueryFromUrl = urlParams.get('query');
             if (searchQueryFromUrl) {
-                document.getElementById('search-input').value = searchQueryFromUrl;
-                // No need to call handleSearch here, it's called by initializeAppState if coming from URL.
-                // If it's a direct navigation to /search, handleSearch will be called by initializeAppState.
+                searchInput.value = searchQueryFromUrl;
+                handleSearch(); // Execute search if query param exists
+            }
+        }
+
+        // Handles searching for posts based on a query term.
+        function handleSearch() {
+            const searchInput = document.getElementById('search-input');
+            const queryTerm = searchInput.value.toLowerCase().trim();
+            const resultsContainer = document.getElementById('search-results');
+            
+            // Update URL with search query
+            const url = new URL(window.location.href);
+            if (queryTerm) {
+                url.searchParams.set('query', queryTerm);
+            } else {
+                url.searchParams.delete('query');
+            }
+            url.searchParams.set('section', 'search'); // Ensure section is 'search'
+            window.history.replaceState({}, '', url.toString());
+
+            if (!queryTerm) {
+                resultsContainer.innerHTML = '<p class="col-span-full text-center text-gray-400">Please enter a search term.</p>';
+                return;
+            }
+            // Filter posts based on title, description, genres, platforms, or tags
+            const results = allFetchedPosts.filter(post => // Use allFetchedPosts
+                post.title.toLowerCase().includes(queryTerm) ||
+                stripMarkdown(post.description).toLowerCase().includes(queryTerm) || // Search stripped description
+                (post.genres && post.genres.some(g => g.toLowerCase().includes(queryTerm))) || // Check if genres exist
+                (post.platforms && post.platforms.some(p => p.toLowerCase().includes(queryTerm))) || // Check if platforms exist
+                (post.madeWith && post.madeWith.toLowerCase().includes(queryTerm)) || // Search 'madeWith' field
+                (post.tags && post.tags.some(t => t.toLowerCase().includes(queryTerm))) || // Search 'tags' field
+                (post.aiContent && post.aiContent.toLowerCase().includes(queryTerm)) || // Search 'aiContent' field
+                (post.devlogType && post.devlogType.toLowerCase().includes(queryTerm)) // Search 'devlogType' field
+            );
+            
+            if (results.length > 0) {
+                resultsContainer.innerHTML = results.map(post => renderPostCard(post, false)).join(''); // Pass false for isMyPostPage
+                addCardEventListeners(); // Re-attach event listeners to new cards
+            } else {
+                resultsContainer.innerHTML = '<p class="col-span-full text-center text-gray-400">No games or devlogs found matching your search.</p>';
             }
         }
 
@@ -2775,7 +2834,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
             });
             // Event listener for "Share Website" button
             document.getElementById('share-website-btn').addEventListener('click', () => {
-                const websiteLink = `${window.location.origin}/?section=community`; // Use new URL format
+                const websiteLink = "https://postitchindie.github.io/?section=community";
                 copyToClipboard(websiteLink);
                 showAlert("Website link copied to clipboard!");
             });
@@ -2933,20 +2992,6 @@ document.querySelectorAll('.card-bg').forEach(card => {
                             </div>
                         </div>
 
-                        <div>
-                            <label class="block mb-2 font-semibold text-gray-300">Always Pause Videos When Opened</label>
-                            <div class="flex flex-col sm:flex-row gap-4">
-                                <label class="custom-checkbox">
-                                    <input type="radio" name="always-pause-videos" value="true" ${userSettings.alwaysPauseVideos ? 'checked' : ''}>
-                                    <span>Yes</span>
-                                </label>
-                                <label class="custom-checkbox">
-                                    <input type="radio" name="always-pause-videos" value="false" ${!userSettings.alwaysPauseVideos ? 'checked' : ''}>
-                                    <span>No</span>
-                                </label>
-                            </div>
-                        </div>
-
                         <div class="mt-8 pt-6 border-t border-gray-700 space-y-4">
                             <h3 class="text-xl font-bold text-red-600">Danger Zone</h3>
                             <button id="delete-all-posts-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-md w-full flex items-center justify-center gap-2 transition-all duration-300">
@@ -2957,10 +3002,11 @@ document.querySelectorAll('.card-bg').forEach(card => {
                 </div>
             `;
 
-            contentSettings.querySelectorAll('input[name="show-post-counts"]').forEach(radio => {
+            // Fix for theme preference listener
+            contentSettings.querySelectorAll('input[name="theme-preference"]').forEach(radio => {
                 radio.addEventListener('change', (e) => {
-                    userSettings.showPostCounts = e.target.value === 'true';
-                    applySettings(); // Re-apply to update card rendering
+                    userSettings.theme = e.target.value;
+                    applySettings();
                     saveUserSettings();
                 });
             });
@@ -3016,14 +3062,6 @@ document.querySelectorAll('.card-bg').forEach(card => {
             contentSettings.querySelectorAll('input[name="always-mute-videos"]').forEach(radio => {
                 radio.addEventListener('change', (e) => {
                     userSettings.alwaysMuteVideos = e.target.value === 'true';
-                    saveUserSettings();
-                });
-            });
-
-            // NEW: Event listener for always pause videos setting
-            contentSettings.querySelectorAll('input[name="always-pause-videos"]').forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    userSettings.alwaysPauseVideos = e.target.value === 'true';
                     saveUserSettings();
                 });
             });
@@ -3481,51 +3519,6 @@ document.querySelectorAll('.card-bg').forEach(card => {
             }
         }
         
-        // Handles searching for posts based on a query term.
-        function handleSearch() {
-            const searchInput = document.getElementById('search-input');
-            const queryTerm = searchInput.value.toLowerCase().trim();
-            const resultsContainer = document.getElementById('search-results');
-            
-            // Update URL with search query
-            const newUrl = new URL(window.location.href);
-            newUrl.pathname = '/search';
-            if (queryTerm) {
-                newUrl.searchParams.set('q', queryTerm);
-            } else {
-                newUrl.searchParams.delete('q');
-            }
-            newUrl.searchParams.delete('postId');
-            newUrl.searchParams.delete('section');
-            newUrl.searchParams.delete('id');
-            window.history.pushState({ section: 'search', q: queryTerm }, '', newUrl.toString());
-            setDocumentTitle("Search");
-
-
-            if (!queryTerm) {
-                resultsContainer.innerHTML = '<p class="col-span-full text-center text-gray-400">Please enter a search term.</p>';
-                return;
-            }
-            // Filter posts based on title, description, genres, platforms, or tags
-            const results = allFetchedPosts.filter(post => // Use allFetchedPosts
-                post.title.toLowerCase().includes(queryTerm) ||
-                stripMarkdown(post.description).toLowerCase().includes(queryTerm) || // Search stripped description
-                (post.genres && post.genres.some(g => g.toLowerCase().includes(queryTerm))) || // Check if genres exist
-                (post.platforms && post.platforms.some(p => p.toLowerCase().includes(queryTerm))) || // Check if platforms exist
-                (post.madeWith && post.madeWith.toLowerCase().includes(queryTerm)) || // Search 'madeWith' field
-                (post.tags && post.tags.some(t => t.toLowerCase().includes(queryTerm))) || // Search 'tags' field
-                (post.aiContent && post.aiContent.toLowerCase().includes(queryTerm)) || // Search 'aiContent' field
-                (post.devlogType && post.devlogType.toLowerCase().includes(queryTerm)) // Search 'devlogType' field
-            );
-            
-            if (results.length > 0) {
-                resultsContainer.innerHTML = results.map(post => renderPostCard(post, false)).join(''); // Pass false for isMyPostPage
-                addCardEventListeners(); // Re-attach event listeners to new cards
-            } else {
-                resultsContainer.innerHTML = '<p class="col-span-full text-center text-gray-400">No games or devlogs found matching your search.</p>';
-            }
-        }
-
         // --- MODAL LOGIC FOR INDIVIDUAL POST VIEW ---
         // Toggles fullscreen mode for a given modal element.
         // `forceState` (optional boolean): if true, forces fullscreen; if false, forces normal; if undefined, toggles.
@@ -3556,7 +3549,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
         }
 
         // Opens a modal displaying detailed information about a selected post.
-        async function openPostModal(postId, focusComment = false, incrementView = true) { // Added incrementView parameter
+        async function openPostModal(postId, focusComment = false, incrementView = true, fromURL = false) { // Added fromURL parameter
             // Set flag to true immediately to prevent multiple modal instances
             isPostModalOpen = true; 
 
@@ -3588,15 +3581,14 @@ document.querySelectorAll('.card-bg').forEach(card => {
                 }
             }
 
-            // Update URL for post modal
-            const newUrl = new URL(window.location.href);
-            newUrl.pathname = '/post'; // Use /post path
-            newUrl.searchParams.set('id', postId); // Use 'id' for consistency with video modal
-            newUrl.searchParams.delete('section');
-            newUrl.searchParams.delete('q');
-            window.history.pushState({ modal: 'post', postId: postId }, '', newUrl.toString());
-            setDocumentTitle(`${post.title} on PostItch`);
-
+            // Update URL when post modal is opened
+            const url = new URL(window.location.href);
+            url.searchParams.set('postId', postId);
+            url.searchParams.delete('section'); // Remove section if a post is opened
+            url.searchParams.delete('videoId'); // Remove videoId if present
+            url.searchParams.delete('modal'); // Remove modal if present
+            url.searchParams.delete('query'); // Remove search query if present
+            window.history.pushState({}, '', url.toString());
 
             let mediaHtml = '';
             let modalYoutubeLinkHtml = ''; // New variable for combo link in modal
@@ -3604,11 +3596,25 @@ document.querySelectorAll('.card-bg').forEach(card => {
             if (post.mediaType === 'youtube' && post.trailerLink) {
                 const videoId = getYouTubeVideoId(post.trailerLink);
                 if (videoId) {
-                    // For YouTube, directly embed the video in the modal, respecting alwaysPauseVideos
-                    const embedSrc = getYouTubeEmbedSrc(videoId, !userSettings.alwaysPauseVideos); 
-                    mediaHtml = `<div class="aspect-video w-full rounded-md overflow-hidden relative">
-                                    <iframe class="w-full h-full rounded-none" src="${embedSrc}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                                </div>`;
+                    // For YouTube, directly embed the video in the modal
+                    // If opened from URL, initially show thumbnail and play button
+                    if (fromURL) {
+                        const thumbnailUrl = getYouTubeThumbnailUrl(videoId);
+                        mediaHtml = `
+                            <div class="aspect-video w-full rounded-md overflow-hidden relative">
+                                <img src="${thumbnailUrl}" alt="YouTube Thumbnail" class="w-full h-full object-cover rounded-none" onerror="this.onerror=null;this.src='https://placehold.co/800x450/101010/808080?text=Video+Not+Found';">
+                                <div class="play-button-overlay" id="modal-youtube-play-button" data-video-id="${videoId}">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        // Otherwise, autoplay as before
+                        const embedSrc = getYouTubeEmbedSrc(videoId, true); // Always autoplay in modal if not from URL
+                        mediaHtml = `<div class="aspect-video w-full rounded-md overflow-hidden relative" id="modal-youtube-player-container">
+                                        <iframe class="w-full h-full rounded-none" src="${embedSrc}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-in-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                                    </div>`;
+                    }
                 }
             } else if (post.mediaType === 'image' && post.imageUrl) {
                 mediaHtml = `<div class="w-full h-auto max-h-96 flex justify-center items-center overflow-hidden rounded-md">
@@ -3745,6 +3751,38 @@ document.querySelectorAll('.card-bg').forEach(card => {
             `;
             postModal.classList.remove('hidden'); // Show the modal
             updateBodyScrollLock(); // Ensure body scroll is locked
+            updateDocumentTitle(`${post.title} on PostItch`); // Update document title for post modal
+
+            // If opened from URL and it's a YouTube media type, initialize player on play button click
+            if (fromURL && post.mediaType === 'youtube' && post.trailerLink) {
+                const modalYoutubePlayButton = document.getElementById('modal-youtube-play-button');
+                if (modalYoutubePlayButton) {
+                    modalYoutubePlayButton.addEventListener('click', () => {
+                        const videoId = modalYoutubePlayButton.dataset.videoId;
+                        const playerContainer = modalYoutubePlayButton.parentElement; // The div containing img and play button
+                        playerContainer.innerHTML = `<div id="modal-youtube-player"></div>`; // Replace with player div
+
+                        youtubePlayer = new YT.Player('modal-youtube-player', {
+                            videoId: videoId,
+                            playerVars: {
+                                autoplay: 1,
+                                controls: 1,
+                                modestbranding: 1,
+                                rel: 0,
+                                showinfo: 0,
+                                iv_load_policy: 3,
+                                mute: userSettings.alwaysMuteVideos ? 1 : 0 // Apply mute setting
+                            },
+                            events: {
+                                'onReady': (event) => {
+                                    event.target.playVideo();
+                                }
+                            }
+                        });
+                    });
+                }
+            }
+            
             // Apply fullscreen if setting is enabled
             if (userSettings.modalFullscreen) {
                 toggleFullscreen(modalContent, true); // Pass true to force fullscreen on open
@@ -3790,7 +3828,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
                     e.stopPropagation(); // Prevent click from bubbling to modal backdrop
                     const videoId = e.currentTarget.dataset.videoId;
                     if (videoId) {
-                        openVideoModal(videoId);
+                        openVideoModal(videoId, post.title); // Pass post title to video modal
                     } else {
                         showAlert("Video ID not found for playback.");
                     }
@@ -3800,7 +3838,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
             // Add event listener for share button
             document.getElementById('share-post-btn').addEventListener('click', (e) => {
                 e.stopPropagation(); // Prevent modal from closing if share button is clicked
-                const shareLink = `${window.location.origin}/post/${postId}`; // Use new URL format
+                const shareLink = `https://postitchindie.github.io/?postId=${postId}`;
                 copyToClipboard(shareLink);
                 showAlert("Link copied to clipboard!");
             });
@@ -3844,19 +3882,12 @@ document.querySelectorAll('.card-bg').forEach(card => {
             // Ensure fullscreen mode is off when closing the modal
             toggleFullscreen(modalContent, false); // Force fullscreen off on close
             updateBodyScrollLock(); // Update body scroll lock after closing
-            // Re-enable post type selection when closing the edit modal
-            const postTypeSelect = document.getElementById('post-type');
-            if (postTypeSelect) {
-                postTypeSelect.disabled = false;
-            }
+            updateDocumentTitle(document.querySelector('.nav-item.active')?.textContent || 'Community'); // Reset title to current tab
+
             // Remove postId from URL when modal is closed
             const url = new URL(window.location.href);
-            url.pathname = '/'; // Reset path to root
-            url.searchParams.delete('id'); // Remove 'id' parameter
-            window.history.replaceState({}, '', url.toString());
-            // Revert to current tab title
-            const activeTab = document.querySelector('.nav-item.active')?.getAttribute('data-tab') || 'community';
-            setDocumentTitle(activeTab.charAt(0).toUpperCase() + activeTab.slice(1).replace('-', ' '));
+            url.searchParams.delete('postId');
+            window.history.replaceState({}, document.title, url.toString());
         }
 
         // Handles the submission of a new comment for a post.
