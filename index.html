@@ -555,27 +555,35 @@
             /* box-shadow: none !important; */ /* Removed */
         }
 
-        /* Styles for the formatting toolbar buttons */
-        .formatting-toolbar-btn {
-            background-color: #2a2a2a; /* Darker background for toolbar buttons */
-            color: #e6edf3; /* Light text */
-            padding: 0.5rem 0.75rem; /* Smaller padding */
-            border-radius: 0.375rem; /* rounded-md */
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            border: 1px solid #3a3a3a; /* Subtle border */
-        }
-        .formatting-toolbar-btn:hover {
-            background-color: #3a3a3a; /* Slightly lighter on hover */
-            color: #00bcd4; /* Teal icon on hover */
-            transform: translateY(-1px); /* Slight lift */
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        }
-        .formatting-toolbar-btn:active {
-            background-color: #1a1a1a; /* Even darker on active */
-            transform: none;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); /* Inset shadow for pressed effect */
-        }
+	.formatting-toolbar-btn {
+		background-color: transparent; /* Make background transparent for a minimalistic look */
+		color: #e6edf3; /* Light text, will change on hover */
+		padding: 0.6rem 0.85rem; /* Slightly more padding for a softer feel */
+		border-radius: 0.5rem; /* More rounded, matches input-bg and btn-primary */
+		transition: all 0.2s ease-in-out;
+		box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Softer, more pronounced initial shadow */
+		border: 1px solid #3a3a3a; /* Keep subtle border */
+		display: flex; /* Use flex for perfect icon centering and flex-grow */
+		align-items: center;
+		justify-content: center;
+		min-width: 40px; /* Ensure a consistent minimum width for all buttons */
+		min-height: 40px; /* Ensure a consistent minimum height for all buttons */
+		flex-grow: 1; /* NEW: Allows buttons to grow and fill available space evenly */
+	}
+	.formatting-toolbar-btn:hover {
+		background-color: transparent; /* Keep background transparent for a clean look */
+		color: #00bcd4; /* Icon changes to your app's signature teal */
+		border-color: #00bcd4; /* Border changes to teal for a crisp highlight, matching app accent */
+		transform: translateY(-0.5px); /* Very subtle upward lift for gentle interactivity */
+		box-shadow: 0 1px 4px rgba(0, 188, 212, 0.2); /* Subtle teal-tinted shadow for depth, not an overpowering glow */
+	}
+	.formatting-toolbar-btn:active {
+		background-color: #1a1a1a; /* Darker solid background for pressed state */
+		border-color: #007bff; /* Blue border on active */
+		transform: translateY(0); /* Reset lift */
+		box-shadow: inset 0 2px 5px rgba(0,0,0,0.4); /* Deeper inset shadow for a "pressed" feel */
+		color: #00bcd4; /* Keep teal color when pressed */
+	}
         
         /* Style for the description preview area */
         #description-preview {
@@ -2042,7 +2050,7 @@ document.querySelectorAll('.card-bg').forEach(card => {
                         </div>
                         <div>
                             <label for="description" class="block mb-2 font-semibold text-gray-300">Description (100-1000 chars)</label>
-                            <div class="flex flex-wrap gap-2 mb-2">
+                            <div class="flex flex-wrap gap-2 mb-2 w-full justify-between">
                                 <button type="button" class="formatting-toolbar-btn" data-format="bold"><i class="fas fa-bold"></i></button>
                                 <button type="button" class="formatting-toolbar-btn" data-format="italic"><i class="fas fa-italic"></i></button>
                                 <button type="button" class="formatting-toolbar-btn" data-format="link"><i class="fas fa-link"></i></button>
